@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+    <ui:composition>
+
+        <p:dialog id="PersonCreateDlg" widgetVar="PersonCreateDialog" modal="true" resizable="false" appendTo="@(body)" header="#{bundle.CreatePersonTitle}">
+            <h:form id="PersonCreateForm">
+                <h:panelGroup id="display">
+                    <p:panelGrid columns="2" rendered="#{personController.selected != null}">
+                        <p:outputLabel value="#{bundle.CreatePersonLabel_personId}" for="personId" />
+                        <p:inputText id="personId" value="#{personController.selected.personId}" title="#{bundle.CreatePersonTitle_personId}" required="true" requiredMessage="#{bundle.CreatePersonRequiredMessage_personId}"/>
+                        <p:outputLabel value="#{bundle.CreatePersonLabel_firstName}" for="firstName" />
+                        <p:inputText id="firstName" value="#{personController.selected.firstName}" title="#{bundle.CreatePersonTitle_firstName}" required="true" requiredMessage="#{bundle.CreatePersonRequiredMessage_firstName}"/>
+                        <p:outputLabel value="#{bundle.CreatePersonLabel_lastName}" for="lastName" />
+                        <p:inputText id="lastName" value="#{personController.selected.lastName}" title="#{bundle.CreatePersonTitle_lastName}" required="true" requiredMessage="#{bundle.CreatePersonRequiredMessage_lastName}"/>
+                        <p:outputLabel value="#{bundle.CreatePersonLabel_phone}" for="phone" />
+                        <p:inputText id="phone" value="#{personController.selected.phone}" title="#{bundle.CreatePersonTitle_phone}" required="true" requiredMessage="#{bundle.CreatePersonRequiredMessage_phone}"/>
+                        <p:outputLabel value="#{bundle.CreatePersonLabel_email}" for="email" />
+                        <p:inputText id="email" value="#{personController.selected.email}" title="#{bundle.CreatePersonTitle_email}" required="true" requiredMessage="#{bundle.CreatePersonRequiredMessage_email}"/>
+                        <p:outputLabel value="#{bundle.CreatePersonLabel_customerId}" for="customerId" />
+                        <p:selectOneMenu id="customerId" value="#{personController.selected.customerId}" required="true" requiredMessage="#{bundle.EditPersonRequiredMessage_customerId}">
+                            <f:selectItems value="#{customerController.itemsAvailableSelectOne}"
+                                           var="customerIdItem"
+                                           itemValue="#{customerIdItem}"/>
+                        </p:selectOneMenu>
+                    </p:panelGrid>
+                    <p:commandButton actionListener="#{personController.create}" value="#{bundle.Save}" update="display,:PersonListForm:datalist,:growl" oncomplete="handleSubmit(args,'PersonCreateDialog');"/>
+                    <p:commandButton value="#{bundle.Cancel}" onclick="PersonCreateDialog.hide()"/>
+                </h:panelGroup>
+            </h:form>
+        </p:dialog>
+
+    </ui:composition>
+</html>

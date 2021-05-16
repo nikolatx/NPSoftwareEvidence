@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+    <ui:composition>
+
+        <p:dialog id="LicenseEditDlg" widgetVar="LicenseEditDialog" modal="true" resizable="false" appendTo="@(body)" header="#{bundle.EditLicenseTitle}">
+            <h:form id="LicenseEditForm">
+                <h:panelGroup id="display">
+                    <p:panelGrid columns="2" rendered="#{licenseController.selected != null}">
+                        <p:outputLabel value="#{bundle.EditLicenseLabel_licenseId}" for="licenseId" />
+                        <p:inputText id="licenseId" value="#{licenseController.selected.licenseId}" title="#{bundle.EditLicenseTitle_licenseId}" required="true" requiredMessage="#{bundle.EditLicenseRequiredMessage_licenseId}"/>
+                        <p:outputLabel value="#{bundle.EditLicenseLabel_licenseCode}" for="licenseCode" />
+                        <p:inputText id="licenseCode" value="#{licenseController.selected.licenseCode}" title="#{bundle.EditLicenseTitle_licenseCode}" required="true" requiredMessage="#{bundle.EditLicenseRequiredMessage_licenseCode}"/>
+                        <p:outputLabel value="#{bundle.EditLicenseLabel_smaCode}" for="smaCode" />
+                        <p:inputText id="smaCode" value="#{licenseController.selected.smaCode}" title="#{bundle.EditLicenseTitle_smaCode}" required="true" requiredMessage="#{bundle.EditLicenseRequiredMessage_smaCode}"/>
+                        <p:outputLabel value="#{bundle.EditLicenseLabel_expDate}" for="expDate" />
+                        <p:calendar id="expDate" pattern="MM/dd/yyyy" value="#{licenseController.selected.expDate}" title="#{bundle.EditLicenseTitle_expDate}" required="true" requiredMessage="#{bundle.EditLicenseRequiredMessage_expDate}" showOn="button"/>
+                        <p:outputLabel value="#{bundle.EditLicenseLabel_softwareId}" for="softwareId" />
+                        <p:selectOneMenu id="softwareId" value="#{licenseController.selected.softwareId}" required="true" requiredMessage="#{bundle.EditLicenseRequiredMessage_softwareId}">
+                            <f:selectItem itemLabel="#{bundle.SelectOneMessage}"/>
+                            <f:selectItems value="#{softwareController.itemsAvailableSelectOne}"
+                                           var="softwareIdItem"
+                                           itemValue="#{softwareIdItem}"/>
+                        </p:selectOneMenu>
+                        <p:outputLabel value="#{bundle.EditLicenseLabel_statusId}" for="statusId" />
+                        <p:selectOneMenu id="statusId" value="#{licenseController.selected.statusId}" required="true" requiredMessage="#{bundle.EditLicenseRequiredMessage_statusId}">
+                            <f:selectItem itemLabel="#{bundle.SelectOneMessage}"/>
+                            <f:selectItems value="#{statusController.itemsAvailableSelectOne}"
+                                           var="statusIdItem"
+                                           itemValue="#{statusIdItem}"/>
+                        </p:selectOneMenu>
+                    </p:panelGrid>
+                    <p:commandButton actionListener="#{licenseController.update}" value="#{bundle.Save}" update="display,:LicenseListForm:datalist,:growl" oncomplete="handleSubmit(args, 'LicenseEditDialog');"/>
+                    <p:commandButton value="#{bundle.Cancel}" onclick="LicenseEditDialog.hide()"/>
+                </h:panelGroup>
+            </h:form>
+        </p:dialog>
+
+    </ui:composition>
+</html>

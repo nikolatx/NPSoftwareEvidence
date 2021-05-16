@@ -1,0 +1,173 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:head>
+        <title>Facelet Title</title>
+        <h:outputStylesheet name="css/jsfcrud.css"/>
+        <h:outputStylesheet name="css/myClasses.css"/>
+        <h:outputStylesheet name="primeicons/primeicons.css" library="primefaces" />
+    </h:head>
+    <h:body>
+        
+        <ui:composition template="./template.xhtml">
+
+            <ui:define name="title">NP Software</ui:define> 
+           
+            <ui:define name="content">
+        
+                <h:form id="form1">
+
+                    <p:dataTable var="license" value="#{dtLazyView.lazyModel}" paginator="true" rows="10"
+                             paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                             rowsPerPageTemplate="5,10,15" selectionMode="single" selection="#{dtLazyView.selectedLic}"  
+                             id="licenseTable" lazy="true">
+
+                        <f:facet name="header">
+                            <h:outputText value="License Data"/>
+                        </f:facet>
+
+                        <p:ajax event="rowSelect" listener="#{dtLazyView.onRowSelect}" update="form1"  />
+
+                        <p:column headerText="Expiry date" sortBy="#{license.expDate}" filterBy="#{license.expDate}">
+                            <h:outputText value="#{license.expDate}">
+                                <f:convertDateTime pattern="dd. MMMM yyyy." />
+                            </h:outputText>
+                        </p:column>
+
+                        <p:column headerText="SMA code" sortBy="#{license.smaCode}" filterBy="#{license.smaCode}">
+                            <h:outputText value="#{license.smaCode}"/>
+                        </p:column>
+
+                        <p:column headerText="Status" sortBy="#{license.statusId.name}" filterBy="#{license.statusId.name}">
+                            <h:outputText value="#{license.statusId.name}"/>
+                        </p:column>
+
+                        <p:column headerText="License code" sortBy="#{license.licenseCode}" filterBy="#{license.licenseCode}">
+                            <h:outputText value="#{license.licenseCode}"/>
+                        </p:column>
+
+                        <p:column headerText="Software" sortBy="#{license.softwareId.name}" filterBy="#{license.softwareId.name}">
+                            <h:outputText value="#{license.softwareId.name}"/>
+                        </p:column>
+
+                    </p:dataTable>
+
+                        <br/>
+                        <br/>
+
+                    <h3 style="margin-top:10"></h3>
+                    <p:panelGrid columns="2" columnClasses="firstColumn valigntop, secondColumn valigntop" style="width: 100%">
+                        <f:facet name="header">
+                            <h:outputText value="Reseller Data"/>
+                        </f:facet>
+                        <p:panelGrid columns="2" columnClasses="firstColumn, secondColumn" style="width: 100%;overflow: hidden" >
+
+                            <h:outputText value="Company Name:" />
+                            <h:outputText value="#{dtLazyView.reseller.name}"/>
+
+                            <h:outputText value="Street:" />
+                            <h:outputText value="#{dtLazyView.reseller.street}"/>
+
+                            <h:outputText value="Number" />
+                            <h:outputText value="#{dtLazyView.reseller.number}"/>
+
+                            <h:outputText value="City:" />
+                            <h:outputText value="#{dtLazyView.reseller.city}"/>
+
+                            <h:outputText value="Country:" />
+                            <h:outputText value="#{dtLazyView.reseller.country}"/>
+                        </p:panelGrid>
+
+                        <p:dataTable var="rperson" value="#{dtLazyView.reseller.personSet}" id="resPersonData" resizableColumns="true" reflow="true" >
+                            <p:column headerText="First name" style="width: 20%;">
+                                <h:outputText value="#{rperson.firstName}" />
+                            </p:column>
+                            <p:column headerText="Last name" style="width: 20%;">
+                                <h:outputText value="#{rperson.lastName}"/>
+                            </p:column>
+                            <p:column headerText="Phone" style="width: 20%;">
+                                <h:outputText value="#{rperson.phone}"/>
+                            </p:column>
+                            <p:column headerText="Email" style="width: 33%;">
+                                <h:outputText value="#{rperson.email}"/>
+                            </p:column>
+
+                            <p:column headerText="Edit" style="width: 7%; text-align: center">
+                                <p:commandLink style="text-align: center">
+                                <h:graphicImage name="images/pencilE.png" style="width: 16px;height: 16px" />
+                            </p:commandLink>
+                            </p:column>
+
+                        </p:dataTable>
+                    </p:panelGrid>
+
+
+                    <br/>
+                    <br/>
+
+                    <h3 style="margin-top:10"></h3>
+                    <p:panelGrid columns="2" columnClasses="firstColumn valigntop, secondColumn valigntop" style="width: 100%;background-color: red;vertical-align: top">
+                        <f:facet name="header">
+                            <h:outputText value="End User Data"/>
+                        </f:facet>
+
+                        <p:panelGrid columns="2" columnClasses="firstColumn, secondColumn" style="width:100%" >
+
+                            <h:outputText value="Company Name:" />
+                            <h:outputText value="#{dtLazyView.endUser.name}"/>
+
+                            <h:outputText value="Street:" />
+                            <h:outputText value="#{dtLazyView.endUser.street}"/>
+
+                            <h:outputText value="Number" />
+                            <h:outputText value="#{dtLazyView.endUser.number}"/>
+
+                            <h:outputText value="City:" />
+                            <h:outputText value="#{dtLazyView.endUser.city}"/>
+
+                            <h:outputText value="Country:" />
+                            <h:outputText value="#{dtLazyView.endUser.country}"/>
+                        </p:panelGrid>
+
+                        <p:dataTable var="eperson" value="#{dtLazyView.endUser.personSet}" id="endPersonData" resizableColumns="true" reflow="true" >
+                            <p:column headerText="First name" style="width: 20%;" class="20percent">
+                                <h:outputText value="#{eperson.firstName}" />
+                            </p:column>
+                            <p:column headerText="Last name" style="width: 20%;" class="20percent">
+                                <h:outputText value="#{eperson.lastName}"/>
+                            </p:column>
+                            <p:column headerText="Phone" style="width: 20%;" class="20percent">
+                                <h:outputText value="#{eperson.phone}"/>
+                            </p:column>
+                            <p:column headerText="Email" style="width: 40%;" class="40percent">
+                                <h:outputText value="#{eperson.email}"/>
+                            </p:column>
+                        </p:dataTable>
+                    </p:panelGrid>
+
+
+
+
+
+
+
+
+                </h:form>
+                
+                
+            </ui:define>
+        </ui:composition>
+        
+        
+    </h:body>
+
+
+
+
+
+</html>
+

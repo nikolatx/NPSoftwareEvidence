@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+    <ui:composition>
+
+        <p:dialog id="LicenseViewDlg" widgetVar="LicenseViewDialog" modal="true" resizable="false" appendTo="@(body)" header="#{bundle.ViewLicenseTitle}">
+            <h:form id="LicenseViewForm">
+                <h:panelGroup id="display">
+                    <p:panelGrid columns="2" rendered="#{licenseController.selected != null}">
+                        <h:outputText value="#{bundle.ViewLicenseLabel_licenseId}"/>
+                        <h:outputText value="#{licenseController.selected.licenseId}" title="#{bundle.ViewLicenseTitle_licenseId}"/>
+                        <h:outputText value="#{bundle.ViewLicenseLabel_licenseCode}"/>
+                        <h:outputText value="#{licenseController.selected.licenseCode}" title="#{bundle.ViewLicenseTitle_licenseCode}"/>
+                        <h:outputText value="#{bundle.ViewLicenseLabel_smaCode}"/>
+                        <h:outputText value="#{licenseController.selected.smaCode}" title="#{bundle.ViewLicenseTitle_smaCode}"/>
+                        <h:outputText value="#{bundle.ViewLicenseLabel_expDate}"/>
+                        <h:outputText value="#{licenseController.selected.expDate}" title="#{bundle.ViewLicenseTitle_expDate}">
+                            <f:convertDateTime pattern="MM/dd/yyyy" />
+                        </h:outputText>
+                        <h:outputText value="#{bundle.ViewLicenseLabel_softwareId}"/>
+                        <h:outputText value="#{licenseController.selected.softwareId}" title="#{bundle.ViewLicenseTitle_softwareId}"/>
+                        <h:outputText value="#{bundle.ViewLicenseLabel_statusId}"/>
+                        <h:outputText value="#{licenseController.selected.statusId}" title="#{bundle.ViewLicenseTitle_statusId}"/>
+                    </p:panelGrid>
+                    <p:commandButton value="#{bundle.Close}" onclick="LicenseViewDialog.hide()"/>
+                </h:panelGroup>
+            </h:form>
+        </p:dialog>
+
+    </ui:composition>
+</html>

@@ -1,0 +1,72 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : May 15, 2021, 10:40:56 AM
+    Author     : NN
+*/
+
+.20percent {
+    width: 20%;
+    vertical-align: top;
+}
+.30percent {
+    width: 30%;
+    vertical-align: top;
+}
+.40percent {
+    width: 40%;
+    vertical-align: top;
+}
+.60percent {
+    width: 60%;
+    vertical-align: top;
+}
+.70percent {
+    width: 70%;
+    vertical-align: top;
+}
+.80percent {
+    width: 80%;
+    vertical-align: top;
+}
+
+.ui-g div {
+    background-color: #ededed;
+    text-align: center;
+    border: 1px solid #fafafa;
+}
+
+.ui-panelgrid.showcase-text-align-center .ui-grid-responsive .ui-panelgrid-cell {
+        text-align: left;
+}
+ 
+.customPanelGrid .ui-panelgrid-content {
+    align-items: center;
+}
+
+
+ .firstColumn {
+       width: 34%;
+       border: 2px solid #232323;
+  }
+  .secondColumn {
+       width: 66%;
+       border: 2px solid #232323;
+  }
+  .thirdColumn { 
+       width: 30%;
+       border: 2px solid #232323;
+  }
+
+
+  .valigntop {
+      vertical-align: top;
+  }
+  
+  .selectMenu { display: inline-block; vertical-align: top; }
+
+  .ui-selectonemenu { vertical-align: top }
+  

@@ -1,0 +1,70 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title><ui:insert name="title">Default Title</ui:insert></title>
+        <h:outputStylesheet library="css" name="jsfcrud.css"/>
+        <h:outputStylesheet name="css/myClasses.css"/>
+        <h:outputScript library="js" name="jsfcrud.js"/>
+    </h:head>
+
+    <h:body>
+
+        <p:growl id="messages" showDetail="true"/>
+        <p:layout fullPage="true">
+                
+                <p:layoutUnit position="north" size="95" minSize="95" maxSize="95" style="border: none;">
+                    <p:panelGrid style="width: 100%;" class="vrsta">
+                        <p:row class="vrsta">
+                            <p:column style="width:10%;">
+                                <h:graphicImage height="60px" name="Logo.png" library="images" alt="Nordic Printers"/>
+                            </p:column>
+                            <p:column style="width:80%;">
+                                <h:outputLabel value="#{bundle['north-layout-title']}" style="font-size: 20px"/>
+                            </p:column>
+                        </p:row>
+                    </p:panelGrid>
+                </p:layoutUnit>
+
+                
+                
+                
+                <p:layoutUnit position="south" closable="true" collapsible="true" style="width:100%;" size="35">
+                    <div id="bottom">
+                        SE - Nikola Timotijević, 2021.
+                    </div>
+                </p:layoutUnit>
+                
+                <ui:insert name="left">
+                    <p:layoutUnit position="west" size="180" header="Software Evidence" collapsible="true" style="padding: 5px;">
+                        <p:menu style="width: 155px;">
+                            <p:submenu label="#{bundle['MenuSellLicenseHeader']}">
+                                <p:menuitem icon="ui-icon-search" value="#{bundle['MenuSellLicense']}" update="content" outcome="SellLicense.xhtml" style="width: 150px"/>
+                            </p:submenu>
+                            <p:submenu label="#{bundle['MenuViewLicenseHeader']}">
+                                <p:menuitem icon="ui-icon-search" value="#{bundle['MenuViewLicense']}" update="content" outcome="ViewLicenses.xhtml" style="width: 150px"/>
+                            </p:submenu>
+                            <p:submenu label="#{bundle['MenuUpdateLicenseHeader']}">
+                                <p:menuitem icon="ui-icon-search" value="#{bundle['MenuUpdateLicense']}" update="content" outcome="UpdateLicense.xhtml" style="width: 150px"/>
+                            </p:submenu>
+                        </p:menu>
+                    </p:layoutUnit>
+                </ui:insert>
+
+                <p:layoutUnit position="center">
+                    <div class="left_content">
+                        <center>
+                            <ui:insert name="content"></ui:insert>
+                        </center>
+                    </div>
+                </p:layoutUnit>
+
+            </p:layout>
+
+    </h:body>
+
+</html>

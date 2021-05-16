@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+    <ui:composition>
+
+        <p:dialog id="SoftwareCreateDlg" widgetVar="SoftwareCreateDialog" modal="true" resizable="false" appendTo="@(body)" header="#{bundle.CreateSoftwareTitle}">
+            <h:form id="SoftwareCreateForm">
+                <h:panelGroup id="display">
+                    <p:panelGrid columns="2" rendered="#{softwareController.selected != null}">
+                        <p:outputLabel value="#{bundle.CreateSoftwareLabel_softwareId}" for="softwareId" />
+                        <p:inputText id="softwareId" value="#{softwareController.selected.softwareId}" title="#{bundle.CreateSoftwareTitle_softwareId}" required="true" requiredMessage="#{bundle.CreateSoftwareRequiredMessage_softwareId}"/>
+                        <p:outputLabel value="#{bundle.CreateSoftwareLabel_name}" for="name" />
+                        <p:inputText id="name" value="#{softwareController.selected.name}" title="#{bundle.CreateSoftwareTitle_name}" required="true" requiredMessage="#{bundle.CreateSoftwareRequiredMessage_name}"/>
+                    </p:panelGrid>
+                    <p:commandButton actionListener="#{softwareController.create}" value="#{bundle.Save}" update="display,:SoftwareListForm:datalist,:growl" oncomplete="handleSubmit(args,'SoftwareCreateDialog');"/>
+                    <p:commandButton value="#{bundle.Cancel}" onclick="SoftwareCreateDialog.hide()"/>
+                </h:panelGroup>
+            </h:form>
+        </p:dialog>
+
+    </ui:composition>
+</html>

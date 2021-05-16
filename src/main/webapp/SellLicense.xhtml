@@ -1,0 +1,214 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:head>
+        <title>Facelet Title</title>
+        <h:outputStylesheet name="css/jsfcrud.css"/>
+        <h:outputStylesheet name="css/myClasses.css"/>
+        <h:outputStylesheet name="primeicons/primeicons.css" library="primefaces" />
+    </h:head>
+    <h:body>
+        
+        <ui:composition template="./template.xhtml">
+
+            <ui:define name="title">Sell License</ui:define> 
+           
+            <ui:define name="content">
+        
+                <h:form id="form1">
+
+                    
+
+                        <br/>
+                        <br/>
+
+                    <h3 style="margin-top:10"></h3>
+                    
+                       
+                        
+                        
+                    <p:panelGrid columns="3" style="width: 100%">   
+                        
+                        <h:panelGrid columns="2"  >
+                            <f:facet name="header">
+                                <p:row>
+                                    <p:column colspan="2">Software data</p:column>
+                                </p:row>
+                            </f:facet>
+                            
+                            <p:selectOneMenu value="#{sellMenuView.selSoftware}" converter="SoftwareConverter" style="margin-top: 9px" filter="true"  >
+                                <f:selectItem itemLabel="Select Software" itemValue="" />
+                                <f:selectItems value="#{sellMenuView.allsoftware}" var="selSoftware" itemValue="#{selSoftware}" itemLabel="#{selSoftware.name}"/>
+                                <p:ajax event="change" listener="#{sellMenuView.softwareSelected}" update="somLic"/>
+                            </p:selectOneMenu>
+                            
+                            <p:commandButton value="Add new software"/>
+                            
+                            <p:selectOneMenu id="somLic" value="#{sellMenuView.selLicense}" style="margin-top: 9px"  >
+                                <f:selectItem itemLabel="Select License" itemValue="" />
+                                <f:selectItems value="#{sellMenuView.licenses}" var="selLicense" itemValue="#{selLicense}" itemLabel="#{selLicense.licenseCode}"/>
+                                <p:ajax event="change" listener="#{sellMenuView.licenseSelected}" update="inputSMA" />
+                            </p:selectOneMenu>
+                            
+                            <p:commandButton value="Add new license"/>
+
+                            <p:inputText id="inputSMA" value="#{sellMenuView.smaCode}"  style="margin-top: 9px" />
+                            
+                            <p:commandButton value="Add new SMA code"/>
+                            
+                        </h:panelGrid>
+                        
+                        
+                        
+                        <p:panelGrid id="panRes">
+                            
+                            <f:facet name="header">
+                                <p:row>
+                                    <p:column colspan="2">Reseller data</p:column>
+                                </p:row>
+                            </f:facet>
+                            
+                            <p:row>
+                                <p:column colspan="2">
+                                    <p:selectOneMenu value="#{sellMenuView.selReseller}" style="margin-top: 9px" filter="true">
+                                        <f:selectItem itemLabel="Select Reseller" itemValue="" />
+                                        <f:selectItems value="#{sellMenuView.resellers}" var="selReseller" itemValue="#{selReseller}" itemLabel="#{selReseller.name}, #{selReseller.country}"/>
+                                        <p:ajax event="change" listener="#{sellMenuView.resellerSelected}" update="selrContacts, panRes"/>
+                                    </p:selectOneMenu>
+                                </p:column>
+                            </p:row>
+                            <p:row>
+                                <p:column>
+                                    <h:outputText value="Company name:"/>
+                                </p:column>
+                                <p:column>
+                                    <p:inputText id="rcompName" value="#{sellMenuView.selReseller.name}" />
+                                </p:column>
+                            </p:row>
+                            <p:row>
+                                <p:column>
+                                    <h:outputText value="Street:"/>
+                                </p:column>
+                                <p:column>
+                                    <p:inputText id="rstreet" value="#{sellMenuView.selReseller.street}" />
+                                </p:column>
+                            </p:row>
+                            <p:row>
+                                <p:column>
+                                    <h:outputText value="Number:"/>
+                                </p:column>
+                                <p:column>
+                                    <p:inputText id="rnum" value="#{sellMenuView.selReseller.number}" />
+                                </p:column>
+                            </p:row>
+                            <p:row>
+                                <p:column>
+                                    <h:outputText value="City:"/>
+                                </p:column>
+                                <p:column>
+                                    <p:inputText id="rcity" value="#{sellMenuView.selReseller.city}" />
+                                </p:column>
+                            </p:row>
+                            <p:row>
+                                <p:column>
+                                    <h:outputText value="Country:"/>
+                                </p:column>
+                                <p:column>
+                                    <p:inputText id="rcountry" value="#{sellMenuView.selReseller.country}" />
+                                </p:column>
+                            </p:row>
+                            <p:row>
+                                <p:column colspan="2">
+                                    <p:selectOneMenu id="selrContacts" value="#{sellMenuView.selContact}" style="margin-top: 9px" filter="true"  >
+                                        <f:selectItem itemLabel="Select Contact" itemValue="" />
+                                        <f:selectItems value="#{sellMenuView.contacts}" var="selContact" itemValue="#{selContact}" itemLabel="#{selContact.firstName} #{selContact.lastName}"/>
+                                        <p:ajax event="change" listener="#{sellMenuView.contactSelected}" update="panRes"/>
+                                    </p:selectOneMenu>
+                                </p:column>
+                            </p:row>
+                            <p:row>
+                                <p:column>
+                                    <h:outputText value="First name:"/>
+                                </p:column>
+                                <p:column>
+                                    <p:inputText id="rfname" value="#{sellMenuView.selContact.firstName}" />
+                                </p:column>
+                            </p:row>
+                            <p:row>
+                                <p:column>
+                                    <h:outputText value="Last name:"/>
+                                </p:column>
+                                <p:column>
+                                    <p:inputText id="rlname" value="#{sellMenuView.selContact.lastName}" />
+                                </p:column>
+                            </p:row>
+                            <p:row>
+                                <p:column>
+                                    <h:outputText value="Phone:"/>
+                                </p:column>
+                                <p:column>
+                                    <p:inputText id="rphone" value="#{sellMenuView.selContact.phone}" />
+                                </p:column>
+                            </p:row>
+                            <p:row>
+                                <p:column>
+                                    <h:outputText value="Email:"/>
+                                </p:column>
+                                <p:column>
+                                    <p:inputText id="remail" value="#{sellMenuView.selContact.email}" />
+                                </p:column>
+                            </p:row>
+                        </p:panelGrid>
+                        
+                        
+                        
+                        <p:panelGrid >
+                           
+                            <p:row>
+                                <p:column>
+                                   <h:outputText value="Email:"/>
+                                </p:column>
+                                <p:column>
+                                   <p:inputText id="rphonsde" value="#{sellMenuView.selReseller.city}" />
+                                </p:column>  
+                            </p:row>
+                            
+                            <p:row>
+                                <p:column colspan="2">
+                                    nova vrsta
+                                </p:column>
+                            </p:row>
+
+                            <p:row>
+                                <p:column>
+                                    fdsf
+                                </p:column>
+                                <p:column>
+                                   sdf
+                                </p:column>  
+                            </p:row>
+
+
+                        </p:panelGrid>
+
+                        
+                    </p:panelGrid>
+                    
+                    
+                </h:form> 
+            </ui:define>
+        </ui:composition>
+        
+        
+    </h:body>
+
+
+
+
+
+</html>
+
