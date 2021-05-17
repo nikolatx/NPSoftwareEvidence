@@ -31,51 +31,60 @@
                        
                         
                         
-                    <p:panelGrid columns="3" style="width: 100%">   
-                        
-                        <h:panelGrid columns="2"  >
+                    <p:panelGrid columns="3" columnClasses="valigntop">   
+                        <f:facet name="header">
+                                Sell Software
+                        </f:facet>
+                        <p:panelGrid columns="2" id="panSoft" style="color: red">
+                            
                             <f:facet name="header">
-                                <p:row>
-                                    <p:column colspan="2">Software data</p:column>
-                                </p:row>
+                                    Software data
                             </f:facet>
                             
-                            <p:selectOneMenu value="#{sellMenuView.selSoftware}" converter="SoftwareConverter" style="margin-top: 9px" filter="true"  >
-                                <f:selectItem itemLabel="Select Software" itemValue="" />
-                                <f:selectItems value="#{sellMenuView.allsoftware}" var="selSoftware" itemValue="#{selSoftware}" itemLabel="#{selSoftware.name}"/>
-                                <p:ajax event="change" listener="#{sellMenuView.softwareSelected}" update="somLic"/>
-                            </p:selectOneMenu>
+                                <p:column>
+                                    <p:selectOneMenu value="#{sellMenuView.selSoftware}" converter="SoftwareConverter" style="margin-top: 9px" filter="true"   >
+                                        <f:selectItem itemLabel="Select/Reset Software" itemValue="#{null}" />
+                                        <f:selectItems value="#{sellMenuView.allsoftware}" var="selSoftware" itemValue="#{selSoftware}" itemLabel="#{selSoftware.name}"/>
+                                        <p:ajax event="change" listener="#{sellMenuView.softwareSelected}" update="panSoft, panRes"/>
+                                    </p:selectOneMenu>
+                                </p:column>
+                                <p:column>
+                                    <p:commandButton value="Add new software"/>
+                                </p:column>
                             
-                            <p:commandButton value="Add new software"/>
+                                <p:column>
+                                    <p:selectOneMenu id="somLic" value="#{sellMenuView.selLicense}" style="margin-top: 9px" filter="true"  >
+                                        <f:selectItem itemLabel="Select/Reset License" itemValue="#{null}" />
+                                        <f:selectItems value="#{sellMenuView.licenses}" var="selLicense" itemValue="#{selLicense}" itemLabel="#{selLicense.licenseCode}"/>
+                                        <p:ajax event="change" listener="#{sellMenuView.licenseSelected}" update="inputSMA, panRes" />
+                                    </p:selectOneMenu>
+                                </p:column>
                             
-                            <p:selectOneMenu id="somLic" value="#{sellMenuView.selLicense}" style="margin-top: 9px"  >
-                                <f:selectItem itemLabel="Select License" itemValue="" />
-                                <f:selectItems value="#{sellMenuView.licenses}" var="selLicense" itemValue="#{selLicense}" itemLabel="#{selLicense.licenseCode}"/>
-                                <p:ajax event="change" listener="#{sellMenuView.licenseSelected}" update="inputSMA" />
-                            </p:selectOneMenu>
+                                <p:column>
+                                    <p:commandButton value="Add new license"/>
+                                </p:column>
                             
-                            <p:commandButton value="Add new license"/>
+                                <p:column>
+                                    <p:inputText id="inputSMA" value="#{sellMenuView.smaCode}"  style="margin-top: 9px" />
+                                </p:column>
+                                <p:column>
+                                    <p:commandButton value="Add new SMA code"/>
+                                </p:column>
+                            
+                        </p:panelGrid>
 
-                            <p:inputText id="inputSMA" value="#{sellMenuView.smaCode}"  style="margin-top: 9px" />
-                            
-                            <p:commandButton value="Add new SMA code"/>
-                            
-                        </h:panelGrid>
-                        
                         
                         
                         <p:panelGrid id="panRes">
-                            
                             <f:facet name="header">
                                 <p:row>
                                     <p:column colspan="2">Reseller data</p:column>
                                 </p:row>
                             </f:facet>
-                            
                             <p:row>
                                 <p:column colspan="2">
-                                    <p:selectOneMenu value="#{sellMenuView.selReseller}" style="margin-top: 9px" filter="true">
-                                        <f:selectItem itemLabel="Select Reseller" itemValue="" />
+                                    <p:selectOneMenu id="selRData" value="#{sellMenuView.selReseller}" style="margin-top: 9px" filter="true">
+                                        <f:selectItem itemLabel="Select/Reset Reseller" itemValue="#{null}" />
                                         <f:selectItems value="#{sellMenuView.resellers}" var="selReseller" itemValue="#{selReseller}" itemLabel="#{selReseller.name}, #{selReseller.country}"/>
                                         <p:ajax event="change" listener="#{sellMenuView.resellerSelected}" update="selrContacts, panRes"/>
                                     </p:selectOneMenu>
@@ -124,9 +133,9 @@
                             <p:row>
                                 <p:column colspan="2">
                                     <p:selectOneMenu id="selrContacts" value="#{sellMenuView.selContact}" style="margin-top: 9px" filter="true"  >
-                                        <f:selectItem itemLabel="Select Contact" itemValue="" />
+                                        <f:selectItem itemLabel="Select/Reset Contact" itemValue="#{null}" />
                                         <f:selectItems value="#{sellMenuView.contacts}" var="selContact" itemValue="#{selContact}" itemLabel="#{selContact.firstName} #{selContact.lastName}"/>
-                                        <p:ajax event="change" listener="#{sellMenuView.contactSelected}" update="panRes"/>
+                                        <p:ajax event="change" listener="#{sellMenuView.contactSelected}" update="panRes, panSoft"/>
                                     </p:selectOneMenu>
                                 </p:column>
                             </p:row>
@@ -164,8 +173,6 @@
                             </p:row>
                         </p:panelGrid>
                         
-                        
-                        
                         <p:panelGrid >
                            
                             <p:row>
@@ -194,8 +201,7 @@
 
 
                         </p:panelGrid>
-
-                        
+                       
                     </p:panelGrid>
                     
                     
