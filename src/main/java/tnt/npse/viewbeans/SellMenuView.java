@@ -71,46 +71,51 @@ public class SellMenuView implements Serializable {
         endUsers.stream().forEach(res->res.getPersonSet().stream().forEach(per->econtacts.add(per)));
         
         
-        
     }
     
     //add items to SelectOneMenu for licenses
     public void softwareSelected() {
-        if (selSoftware==null) 
-        {
+        if (selSoftware==null) {
             resetAllData();
             return;
         }
         //load licenses (sma if 1 license), resellers, endusers, contacts for both resellers and endusers
         licenses=(List<License>) licenseController.getItems()
-                .stream()
-                .filter(e->e.getSoftwareId()
-                .getName()
-                .equalsIgnoreCase(selSoftware.getName())).collect(Collectors.toList());
+            .stream()
+            .filter(e->e.getSoftwareId()
+            .getName()
+            .equalsIgnoreCase(selSoftware.getName())).collect(Collectors.toList());
         if (licenses!=null && licenses.size()==1) {
             //there is only one license
             selLicense=licenses.get(0);
             //only one smaCode
             smaCode=selLicense.getSmaCode();
-            resellers=new ArrayList<>();
-            endUsers=new ArrayList<>();
-            licenses.stream().forEach(lic->lic.getCustomerSet().stream().filter(e->e.getEndCustomer()==false).forEach(cust->resellers.add(cust)));
-            licenses.stream().forEach(lic->lic.getCustomerSet().stream().filter(e->e.getEndCustomer()==true).forEach(cust->endUsers.add(cust)));
+            
+            //ako postoji smacode blokiraj dugme za dodavanje novog koda
+            //
+            
+            
+            //resellers=new ArrayList<>();
+            //endUsers=new ArrayList<>();
+            //licenses.stream().forEach(lic->lic.getCustomerSet().stream().filter(e->e.getEndCustomer()==false).forEach(cust->resellers.add(cust)));
+            //licenses.stream().forEach(lic->lic.getCustomerSet().stream().filter(e->e.getEndCustomer()==true).forEach(cust->endUsers.add(cust)));
             
             //exact Reseller
-            selReseller=selLicense.getCustomerSet().stream().filter(e->e.getEndCustomer()==false).findFirst().orElse(null);
+            //selReseller=selLicense.getCustomerSet().stream().filter(e->e.getEndCustomer()==false).findFirst().orElse(null);
             //exact EndUser
-            selEndUser=selLicense.getCustomerSet().stream().filter(e->e.getEndCustomer()==true).findFirst().orElse(null);
+            //selEndUser=selLicense.getCustomerSet().stream().filter(e->e.getEndCustomer()==true).findFirst().orElse(null);
             //first contact of reseller
-            contacts=new ArrayList<>();
-            econtacts=new ArrayList<>();
-            resellers.stream().forEach(res->res.getPersonSet().stream().forEach(pers->contacts.add(pers)));
-            endUsers.stream().forEach(res->res.getPersonSet().stream().forEach(pers->econtacts.add(pers)));
+            //contacts=new ArrayList<>();
+            //econtacts=new ArrayList<>();
+            //resellers.stream().forEach(res->res.getPersonSet().stream().forEach(pers->contacts.add(pers)));
+            //endUsers.stream().forEach(res->res.getPersonSet().stream().forEach(pers->econtacts.add(pers)));
             
-            selContact=selReseller.getPersonSet().stream().findFirst().orElse(null);
+            //selContact=selReseller.getPersonSet().stream().findFirst().orElse(null);
             //first contact of enduser
-            selEContact=selEndUser.getPersonSet().stream().findFirst().orElse(null);
-        } else if (licenses.size()>1) {
+            //selEContact=selEndUser.getPersonSet().stream().findFirst().orElse(null);
+        
+        } 
+        /*else if (licenses.size()>1) {
             //limit selection options for each menu
             resellers=new ArrayList<>();
             endUsers=new ArrayList<>();
@@ -124,7 +129,7 @@ public class SellMenuView implements Serializable {
             
             resellers.stream().forEach(cust->getContacts().stream().forEach(pers->contacts.add(pers)));
             endUsers.stream().forEach(cust->getContacts().stream().forEach(pers->econtacts.add(pers)));
-        }
+        }*/
         else {
             resetAllData();
         }
@@ -147,6 +152,7 @@ public class SellMenuView implements Serializable {
     }
     
     public void licenseSelected() {
+        //selektuj smacode i kompanije i osobe, ali bez blokiranja ostalih kompanija, osobe blokiraj
         if (selLicense==null) {
             resetAllData();
             return;
@@ -194,6 +200,9 @@ public class SellMenuView implements Serializable {
         
     }
     
+    public void eContactSelected() {
+        
+    }
     
     public List<Software> getAllsoftware() {
         return allsoftware;
