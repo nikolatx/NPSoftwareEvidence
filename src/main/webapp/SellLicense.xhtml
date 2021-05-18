@@ -31,11 +31,11 @@
                        
                         
                         
-                    <p:panelGrid columns="3" columnClasses="valigntop">   
+                    <p:panelGrid columns="3" columnClasses="valigntop" style="width:100%;">   
                         <f:facet name="header">
                                 Sell Software
                         </f:facet>
-                        <p:panelGrid columns="2" id="panSoft" style="color: red">
+                        <p:panelGrid columns="2" id="panSoft" style="color: red;width:100%;">
                             
                             <f:facet name="header">
                                     Software data
@@ -75,7 +75,7 @@
 
                         
                         
-                        <p:panelGrid id="panRes">
+                        <p:panelGrid id="panRes" style="width:100%;">
                             <f:facet name="header">
                                 <p:row>
                                     <p:column colspan="2">Reseller data</p:column>
@@ -173,32 +173,112 @@
                             </p:row>
                         </p:panelGrid>
                         
-                        <p:panelGrid >
-                           
-                            <p:row>
-                                <p:column>
-                                   <h:outputText value="Email:"/>
-                                </p:column>
-                                <p:column>
-                                   <p:inputText id="rphonsde" value="#{sellMenuView.selReseller.city}" />
-                                </p:column>  
-                            </p:row>
-                            
+                        
+                        
+                        
+                        <p:panelGrid id="panEnd" style="width:100%;">
+                            <f:facet name="header">
+                                <p:row>
+                                    <p:column colspan="2">End user data</p:column>
+                                </p:row>
+                            </f:facet>
                             <p:row>
                                 <p:column colspan="2">
-                                    nova vrsta
+                                    <p:selectOneMenu id="selEData" value="#{sellMenuView.selEndUser}" style="margin-top: 9px" filter="true">
+                                        <f:selectItem itemLabel="Select/Reset Reseller" itemValue="#{null}" />
+                                        <f:selectItems value="#{sellMenuView.resellers}" var="selEndUser" itemValue="#{selEndUser}" itemLabel="#{selEndUser.name}, #{selEndUser.country}"/>
+                                        <p:ajax event="change" listener="#{sellMenuView.resellerSelected}" update="selrContacts, panRes, panEnd, seleContacts"/>
+                                    </p:selectOneMenu>
                                 </p:column>
                             </p:row>
-
                             <p:row>
                                 <p:column>
-                                    fdsf
+                                    <h:outputText value="Company name:"/>
                                 </p:column>
                                 <p:column>
-                                   sdf
-                                </p:column>  
+                                    <p:inputText id="ecompName" value="#{sellMenuView.selEndUser.name}" />
+                                </p:column>
                             </p:row>
-
+                            <p:row>
+                                <p:column>
+                                    <h:outputText value="Street:"/>
+                                </p:column>
+                                <p:column>
+                                    <p:inputText id="estreet" value="#{sellMenuView.selEndUser.street}" />
+                                </p:column>
+                            </p:row>
+                            <p:row>
+                                <p:column>
+                                    <h:outputText value="Number:"/>
+                                </p:column>
+                                <p:column>
+                                    <p:inputText id="enum" value="#{sellMenuView.selEndUser.number}" />
+                                </p:column>
+                            </p:row>
+                            <p:row>
+                                <p:column>
+                                    <h:outputText value="City:"/>
+                                </p:column>
+                                <p:column>
+                                    <p:inputText id="ecity" value="#{sellMenuView.selEndUser.city}" />
+                                </p:column>
+                            </p:row>
+                            <p:row>
+                                <p:column>
+                                    <h:outputText value="Country:"/>
+                                </p:column>
+                                <p:column>
+                                    <p:inputText id="ecountry" value="#{sellMenuView.selEndUser.country}" />
+                                </p:column>
+                            </p:row>
+                            <p:row>
+                                <p:column colspan="2">
+                                    <p:selectOneMenu id="seleContacts" value="#{sellMenuView.selContact}" style="margin-top: 9px" filter="true"  >
+                                        <f:selectItem itemLabel="Select/Reset Contact" itemValue="#{null}" />
+                                        <f:selectItems value="#{sellMenuView.contacts}" var="selContact" itemValue="#{selContact}" itemLabel="#{selContact.firstName} #{selContact.lastName}"/>
+                                        <p:ajax event="change" listener="#{sellMenuView.contactSelected}" update="panRes, panSoft, panEnd"/>
+                                    </p:selectOneMenu>
+                                </p:column>
+                            </p:row>
+                            <p:row>
+                                <p:column>
+                                    <h:outputText value="First name:"/>
+                                </p:column>
+                                <p:column>
+                                    <p:inputText id="efname" value="#{sellMenuView.selContact.firstName}" />
+                                </p:column>
+                            </p:row>
+                            <p:row>
+                                <p:column>
+                                    <h:outputText value="Last name:"/>
+                                </p:column>
+                                <p:column>
+                                    <p:inputText id="elname" value="#{sellMenuView.selContact.lastName}" />
+                                </p:column>
+                            </p:row>
+                            <p:row>
+                                <p:column>
+                                    <h:outputText value="Phone:"/>
+                                </p:column>
+                                <p:column>
+                                    <p:inputText id="ephone" value="#{sellMenuView.selContact.phone}" />
+                                </p:column>
+                            </p:row>
+                            <p:row>
+                                <p:column>
+                                    <h:outputText value="Email:"/>
+                                </p:column>
+                                <p:column>
+                                    <p:inputText id="eemail" value="#{sellMenuView.selContact.email}" />
+                                </p:column>
+                            </p:row>
+                            
+                            
+                            
+                            
+                            
+                            
+                            
 
                         </p:panelGrid>
                        
