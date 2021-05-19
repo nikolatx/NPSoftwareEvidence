@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 16, 2021 at 11:13 PM
+-- Generation Time: May 19, 2021 at 10:27 PM
 -- Server version: 10.1.40-MariaDB
 -- PHP Version: 7.3.5
 
@@ -34,19 +34,18 @@ CREATE TABLE `customer` (
   `street` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   `number` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   `city` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-  `country` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-  `end_customer` tinyint(1) NOT NULL
+  `country` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `customer`
 --
 
-INSERT INTO `customer` (`customer_id`, `name`, `street`, `number`, `city`, `country`, `end_customer`) VALUES
-(1, 'Datatrion AB', 'street1', 'num1', 'city1', 'country1', 0),
-(2, 'Dugačak naziv kompanije za primer', 'street2', 'num2', 'city2', 'country2', 0),
-(3, 'Ortho Skåne AB', 'street3', 'num3', 'city3', 'country3', 1),
-(4, 'comp4', 'street4', 'num4', 'city4', 'country4', 1);
+INSERT INTO `customer` (`customer_id`, `name`, `street`, `number`, `city`, `country`) VALUES
+(1, 'Datatrion AB', 'street1', 'num1', 'city1', 'country1'),
+(2, 'Dugačak naziv kompanije', 'street2', 'num2', 'city2', 'country2'),
+(3, 'Ortho Skåne AB', 'street3', 'num3', 'city3', 'country3'),
+(4, 'comp4', 'street4', 'num4', 'city4', 'country4');
 
 -- --------------------------------------------------------
 
@@ -69,7 +68,8 @@ CREATE TABLE `license` (
 
 INSERT INTO `license` (`license_id`, `licenseCode`, `smaCode`, `expDate`, `software_id`, `status_id`) VALUES
 (1, 'NSPN92301', 'ECCCF9', '2021-06-16', 1, 1),
-(2, 'NSPN150390', 'E26A75', '2022-05-18', 2, 1);
+(2, 'NSPN150390', 'E26A75', '2022-05-18', 2, 1),
+(3, 'lic-code-3', '111', '2022-06-16', 3, 1);
 
 -- --------------------------------------------------------
 
@@ -79,18 +79,21 @@ INSERT INTO `license` (`license_id`, `licenseCode`, `smaCode`, `expDate`, `softw
 
 CREATE TABLE `license_customer` (
   `license_id` int(11) NOT NULL,
-  `customer_id` int(11) NOT NULL
+  `customer_id` int(11) NOT NULL,
+  `end_user` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `license_customer`
 --
 
-INSERT INTO `license_customer` (`license_id`, `customer_id`) VALUES
-(1, 1),
-(1, 3),
-(2, 2),
-(2, 4);
+INSERT INTO `license_customer` (`license_id`, `customer_id`, `end_user`) VALUES
+(1, 1, 0),
+(1, 3, 1),
+(2, 2, 0),
+(2, 4, 1),
+(3, 1, 0),
+(3, 4, 1);
 
 -- --------------------------------------------------------
 
@@ -135,7 +138,8 @@ CREATE TABLE `software` (
 
 INSERT INTO `software` (`software_id`, `name`) VALUES
 (1, 'Codesoft Pro'),
-(2, 'BarTender Professional');
+(2, 'BarTender Professional'),
+(3, 'Software 1');
 
 -- --------------------------------------------------------
 
@@ -217,7 +221,7 @@ ALTER TABLE `customer`
 -- AUTO_INCREMENT for table `license`
 --
 ALTER TABLE `license`
-  MODIFY `license_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `license_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `person`
@@ -229,7 +233,7 @@ ALTER TABLE `person`
 -- AUTO_INCREMENT for table `software`
 --
 ALTER TABLE `software`
-  MODIFY `software_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `software_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `status`
