@@ -52,6 +52,10 @@ public class SellMenuView implements Serializable {
     
     private License emptyLicense=new License();
     
+    private boolean smaDisabled;
+    
+    
+    
     @Inject
     private SoftwareController softwareController;
     @Inject
@@ -69,7 +73,7 @@ public class SellMenuView implements Serializable {
         customerController.getItems().stream().filter(e->e.getEndCustomer()==true).forEach(e->endUsers.add(e));
         resellers.stream().forEach(res->res.getPersonSet().stream().forEach(per->contacts.add(per)));
         endUsers.stream().forEach(res->res.getPersonSet().stream().forEach(per->econtacts.add(per)));
-        
+        smaDisabled=true;
         
     }
     
@@ -89,47 +93,9 @@ public class SellMenuView implements Serializable {
             //there is only one license
             selLicense=licenses.get(0);
             //only one smaCode
-            smaCode=selLicense.getSmaCode();
-            
-            //ako postoji smacode blokiraj dugme za dodavanje novog koda
-            //
-            
-            
-            //resellers=new ArrayList<>();
-            //endUsers=new ArrayList<>();
-            //licenses.stream().forEach(lic->lic.getCustomerSet().stream().filter(e->e.getEndCustomer()==false).forEach(cust->resellers.add(cust)));
-            //licenses.stream().forEach(lic->lic.getCustomerSet().stream().filter(e->e.getEndCustomer()==true).forEach(cust->endUsers.add(cust)));
-            
-            //exact Reseller
-            //selReseller=selLicense.getCustomerSet().stream().filter(e->e.getEndCustomer()==false).findFirst().orElse(null);
-            //exact EndUser
-            //selEndUser=selLicense.getCustomerSet().stream().filter(e->e.getEndCustomer()==true).findFirst().orElse(null);
-            //first contact of reseller
-            //contacts=new ArrayList<>();
-            //econtacts=new ArrayList<>();
-            //resellers.stream().forEach(res->res.getPersonSet().stream().forEach(pers->contacts.add(pers)));
-            //endUsers.stream().forEach(res->res.getPersonSet().stream().forEach(pers->econtacts.add(pers)));
-            
-            //selContact=selReseller.getPersonSet().stream().findFirst().orElse(null);
-            //first contact of enduser
-            //selEContact=selEndUser.getPersonSet().stream().findFirst().orElse(null);
-        
+            //smaCode=selLicense.getSmaCode();
+            licenseSelected();
         } 
-        /*else if (licenses.size()>1) {
-            //limit selection options for each menu
-            resellers=new ArrayList<>();
-            endUsers=new ArrayList<>();
-            contacts=new ArrayList<>();
-            econtacts=new ArrayList<>();
-            
-            licenses.stream().forEach(lic->lic.getCustomerSet()
-                    .stream().filter(cust->cust.getEndCustomer()==false).forEach(e->resellers.add(e)));
-            licenses.stream().forEach(lic->lic.getCustomerSet()
-                    .stream().filter(cust->cust.getEndCustomer()==true).forEach(e->endUsers.add(e)));
-            
-            resellers.stream().forEach(cust->getContacts().stream().forEach(pers->contacts.add(pers)));
-            endUsers.stream().forEach(cust->getContacts().stream().forEach(pers->econtacts.add(pers)));
-        }*/
         else {
             resetAllData();
         }
@@ -158,50 +124,60 @@ public class SellMenuView implements Serializable {
             return;
         }
         smaCode = selLicense.getSmaCode();
-        contacts=new ArrayList<>();
-        selReseller = selLicense.getCustomerSet().stream().filter(e->e.getEndCustomer()==false).findFirst().orElse(null);
-        if (selReseller.getPersonSet()!=null && selReseller.getPersonSet().size()>0) {
-            selReseller.getPersonSet().stream().forEach(e->contacts.add(e));
-            selContact=contacts.get(0);
-        }
-        
-        
-        int a=1;
+        //if smaCode already exists, set input box to readonly
+        smaDisabled = smaCode != null || !smaCode.isEmpty();
     }
     
     public void resellerSelected() {
+        //if reset option in dropdown is selected
         if (selReseller==null) {
             resetAllData();
             return;
         }
-        //popuni meni za osobe za kontakt
+        //fill contact persons for selected reseller
         contacts=new ArrayList<>();
         selReseller.getPersonSet().stream().forEach(contacts::add);
-        if (contacts!=null)
-            selContact=contacts.get(0);
-        else
-            selContact=null;
-        int a=1;
+        //select first contact from reseller list
+        selContact=contacts.stream().findFirst().orElse(null);
     }
     
     public void contactSelected() {
+        //if reset option in dropdown is selected
         if (selContact==null) {
             resetAllData();
             return;
         }
+        //select reseller data based on selected person
         selReseller=(Customer)selContact.getCustomerId();
-        licenses=new ArrayList<>();
-        selReseller.getLicenseSet().stream().forEach(licenses::add);
-        allsoftware=new ArrayList<>();
-        licenses.stream().forEach(lic->allsoftware.add(lic.getSoftwareId()));
+        //fill a list of reseller contact persons
+        contacts=new ArrayList<>();
+        selReseller.getPersonSet().stream().forEach(pers->contacts.add(pers));
     }
     
     public void endUserSelected() {
-        
+        //if reset option in dropdown is selected
+        if (selEndUser==null) {
+            resetAllData();
+            return;
+        }
+        //set first contact from end user list
+        selEContact=(Person)selEndUser.getPersonSet().stream().findFirst().orElse(null);
+        //fill end user contact list
+        econtacts=new ArrayList<>();
+        selEndUser.getPersonSet().stream().forEach(pers->econtacts.add(pers));
     }
     
     public void eContactSelected() {
-        
+        //if reset option in dropdown is selected
+        if (selEContact==null) {
+            resetAllData();
+            return;
+        }
+        //select end user
+        selEndUser=(Customer)selEContact.getCustomerId();
+        //fill list of contact persons
+        econtacts=new ArrayList<>();
+        selEndUser.getPersonSet().stream().forEach(pers->econtacts.add(pers));
     }
     
     public List<Software> getAllsoftware() {
@@ -338,6 +314,14 @@ public class SellMenuView implements Serializable {
 
     public void setSelEContact(Person selEContact) {
         this.selEContact = selEContact;
+    }
+
+    public boolean isSmaDisabled() {
+        return smaDisabled;
+    }
+
+    public void setSmaDisabled(boolean smaDisabled) {
+        this.smaDisabled = smaDisabled;
     }
 
     

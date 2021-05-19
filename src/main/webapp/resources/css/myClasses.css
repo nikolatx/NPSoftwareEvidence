@@ -70,3 +70,7 @@ and open the template in the editor.
 
   .ui-selectonemenu { vertical-align: top }
   
+  .noBorders tr, .noBorders td {
+    background: none !important;
+    border: none !important;
+}
