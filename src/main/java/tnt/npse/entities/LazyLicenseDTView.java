@@ -6,8 +6,7 @@
 package tnt.npse.entities;
 
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -39,6 +38,7 @@ public class LazyLicenseDTView implements Serializable {
     
     @PostConstruct
     public void init() {
+        int b=1;
         lazyModel = new LazyLicenseDataModel(licenseController.getItems());
         int a=1;
     }
@@ -54,9 +54,14 @@ public class LazyLicenseDTView implements Serializable {
     public void onRowSelect(SelectEvent<License> event) {
         FacesMessage msg = new FacesMessage("License Selected", String.valueOf(event.getObject().getLicenseId()));
         FacesContext.getCurrentInstance().addMessage(null, msg);
-        Set<Customer> resellers=selectedLic.getCustomerSet();
-        reseller=resellers.stream().filter(e->e.getEndCustomer()==false).findFirst().get();
-        endUser=resellers.stream().filter(e->e.getEndCustomer()==true).findFirst().get();
+        Set<Customer> resellers=new HashSet<>();
+        
+        selectedLic.getLicenseCustomerSet().stream().filter(cust->cust.getEndUser()==false).forEach(res1->resellers.add(res1.getCustomer()));
+        
+        reseller=resellers.stream().findFirst().orElse(null);
+        Set<Customer> endUsers=new HashSet<>();
+        selectedLic.getLicenseCustomerSet().stream().filter(cust->cust.getEndUser()==true).forEach(endu->endUsers.add(endu.getCustomer()));
+        endUser=endUsers.stream().findFirst().orElse(null);
     }
 
     public LazyDataModel<License> getLazyModel() {
@@ -73,9 +78,12 @@ public class LazyLicenseDTView implements Serializable {
 
     public void setSelectedLic(License selectedLic) {
         this.selectedLic = selectedLic;
-        Set<Customer> resellers=selectedLic.getCustomerSet();
-        reseller=resellers.stream().filter(e->e.getEndCustomer()==false).findFirst().get();
-        endUser=resellers.stream().filter(e->e.getEndCustomer()==true).findFirst().get();
+        Set<Customer> resellers=new HashSet<>();
+        selectedLic.getLicenseCustomerSet().stream().filter(cust->cust.getEndUser()==false).forEach(res->resellers.add(res.getCustomer()));
+        reseller=resellers.stream().findFirst().orElse(null); 
+        Set<Customer> endUsers=new HashSet<>();
+        selectedLic.getLicenseCustomerSet().stream().filter(cust->cust.getEndUser()==true).forEach(endU->endUsers.add(endU.getCustomer()));
+        endUser=endUsers.stream().findFirst().orElse(null);
     }
 
     public LicenseController getLicenseController() {

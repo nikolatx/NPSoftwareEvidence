@@ -17,7 +17,7 @@ import tnt.npse.entities.License;
 @Stateless
 public class LicenseFacade extends AbstractFacade<License> {
 
-    @PersistenceContext(unitName = "NPsepu")
+    @PersistenceContext(unitName = "npsoftwareevidence")
     private EntityManager em;
 
     @Override

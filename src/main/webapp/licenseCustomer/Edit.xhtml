@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+    <ui:composition>
+
+        <p:dialog id="LicenseCustomerEditDlg" widgetVar="LicenseCustomerEditDialog" modal="true" resizable="false" appendTo="@(body)" header="#{bundle.EditLicenseCustomerTitle}">
+            <h:form id="LicenseCustomerEditForm">
+                <h:panelGroup id="display">
+                    <p:panelGrid columns="2" rendered="#{licenseCustomerController.selected != null}">
+                        <p:outputLabel value="#{bundle.EditLicenseCustomerLabel_endUser}" for="endUser" />
+                        <p:selectBooleanCheckbox id="endUser" value="#{licenseCustomerController.selected.endUser}" required="true" requiredMessage="#{bundle.EditLicenseCustomerRequiredMessage_endUser}"/>
+                        <p:outputLabel value="#{bundle.EditLicenseCustomerLabel_license}" for="license" />
+                        <p:selectOneMenu id="license" value="#{licenseCustomerController.selected.license}" required="true" requiredMessage="#{bundle.EditLicenseCustomerRequiredMessage_license}">
+                            <f:selectItem itemLabel="#{bundle.SelectOneMessage}"/>
+                            <f:selectItems value="#{licenseController.itemsAvailableSelectOne}"
+                                           var="licenseItem"
+                                           itemValue="#{licenseItem}"/>
+                        </p:selectOneMenu>
+                        <p:outputLabel value="#{bundle.EditLicenseCustomerLabel_customer}" for="customer" />
+                        <p:selectOneMenu id="customer" value="#{licenseCustomerController.selected.customer}" required="true" requiredMessage="#{bundle.EditLicenseCustomerRequiredMessage_customer}">
+                            <f:selectItem itemLabel="#{bundle.SelectOneMessage}"/>
+                            <f:selectItems value="#{customerController.itemsAvailableSelectOne}"
+                                           var="customerItem"
+                                           itemValue="#{customerItem}"/>
+                        </p:selectOneMenu>
+                    </p:panelGrid>
+                    <p:commandButton actionListener="#{licenseCustomerController.update}" value="#{bundle.Save}" update="display,:LicenseCustomerListForm:datalist,:growl" oncomplete="handleSubmit(args, 'LicenseCustomerEditDialog');"/>
+                    <p:commandButton value="#{bundle.Cancel}" onclick="LicenseCustomerEditDialog.hide()"/>
+                </h:panelGroup>
+            </h:form>
+        </p:dialog>
+
+    </ui:composition>
+</html>

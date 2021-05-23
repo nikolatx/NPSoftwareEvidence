@@ -6,13 +6,15 @@
       xmlns:f="http://xmlns.jcp.org/jsf/core"
       xmlns:p="http://primefaces.org/ui">
 
+    <ui:composition template="/template.xhtml">
 
 
+        <ui:define name="title">
+            <h:outputText value="#{bundle.ListLicenseTitle}"></h:outputText>
+        </ui:define>
 
+        <ui:define name="body">
             <h:form id="LicenseListForm">
-                
-                
-                   
                 <p:panel header="#{bundle.ListLicenseTitle}">
                     <p:dataTable id="datalist" value="#{licenseController.items}" var="item"
                                  selectionMode="single" selection="#{licenseController.selected}"
@@ -67,7 +69,7 @@
                             <p:commandButton id="createButton" icon="ui-icon-plus"   value="#{bundle.Create}" actionListener="#{licenseController.prepareCreate}" update=":LicenseCreateForm" oncomplete="PF('LicenseCreateDialog').show()"/>
                             <p:commandButton id="viewButton"   icon="ui-icon-search" value="#{bundle.View}" update=":LicenseViewForm" oncomplete="PF('LicenseViewDialog').show()" disabled="#{empty licenseController.selected}"/>
                             <p:commandButton id="editButton"   icon="ui-icon-pencil" value="#{bundle.Edit}" update=":LicenseEditForm" oncomplete="PF('LicenseEditDialog').show()" disabled="#{empty licenseController.selected}"/>
-                            <p:commandButton id="deleteButton" icon="ui-icon-trash"  value="#{bundle.Delete}" actionListener="#{licenseController.destroy}" update=":growl" disabled="#{empty licenseController.selected}"/>
+                            <p:commandButton id="deleteButton" icon="ui-icon-trash"  value="#{bundle.Delete}" actionListener="#{licenseController.destroy}" update=":growl,datalist" disabled="#{empty licenseController.selected}"/>
                         </f:facet>
                     </p:dataTable>
                 </p:panel>
@@ -76,5 +78,7 @@
             <ui:include src="Create.xhtml"/>
             <ui:include src="Edit.xhtml"/>
             <ui:include src="View.xhtml"/>
+        </ui:define>
+    </ui:composition>
 
 </html>

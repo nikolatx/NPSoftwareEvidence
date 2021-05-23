@@ -24,8 +24,6 @@
                         <h:outputText value="#{customerController.selected.city}" title="#{bundle.ViewCustomerTitle_city}"/>
                         <h:outputText value="#{bundle.ViewCustomerLabel_country}"/>
                         <h:outputText value="#{customerController.selected.country}" title="#{bundle.ViewCustomerTitle_country}"/>
-                        <h:outputText value="#{bundle.ViewCustomerLabel_endCustomer}"/>
-                        <p:selectBooleanCheckbox value="#{customerController.selected.endCustomer}" disabled="true"/>
                     </p:panelGrid>
                     <p:commandButton value="#{bundle.Close}" onclick="CustomerViewDialog.hide()"/>
                 </h:panelGroup>

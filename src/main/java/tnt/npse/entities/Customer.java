@@ -15,7 +15,6 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
@@ -39,8 +38,7 @@ import javax.xml.bind.annotation.XmlTransient;
     @NamedQuery(name = "Customer.findByStreet", query = "SELECT c FROM Customer c WHERE c.street = :street"),
     @NamedQuery(name = "Customer.findByNumber", query = "SELECT c FROM Customer c WHERE c.number = :number"),
     @NamedQuery(name = "Customer.findByCity", query = "SELECT c FROM Customer c WHERE c.city = :city"),
-    @NamedQuery(name = "Customer.findByCountry", query = "SELECT c FROM Customer c WHERE c.country = :country"),
-    @NamedQuery(name = "Customer.findByEndCustomer", query = "SELECT c FROM Customer c WHERE c.endCustomer = :endCustomer")})
+    @NamedQuery(name = "Customer.findByCountry", query = "SELECT c FROM Customer c WHERE c.country = :country")})
 public class Customer implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -74,14 +72,11 @@ public class Customer implements Serializable {
     @Size(min = 1, max = 255)
     @Column(name = "country")
     private String country;
-    @Basic(optional = false)
-    @NotNull
-    @Column(name = "end_customer")
-    private boolean endCustomer;
-    @ManyToMany(mappedBy = "customerSet", fetch = FetchType.EAGER)
-    private Set<License> licenseSet;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "customerId", fetch = FetchType.EAGER)
     private Set<Person> personSet;
+    
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "customer", fetch = FetchType.EAGER)
+    private Set<LicenseCustomer> licenseCustomerSet;
 
     public Customer() {
     }
@@ -97,7 +92,6 @@ public class Customer implements Serializable {
         this.number = number;
         this.city = city;
         this.country = country;
-        this.endCustomer = endCustomer;
     }
 
     public Integer getCustomerId() {
@@ -148,31 +142,24 @@ public class Customer implements Serializable {
         this.country = country;
     }
 
-    public boolean getEndCustomer() {
-        return endCustomer;
-    }
-
-    public void setEndCustomer(boolean endCustomer) {
-        this.endCustomer = endCustomer;
-    }
-
-    @XmlTransient
-    public Set<License> getLicenseSet() {
-        return licenseSet;
-    }
-
-    public void setLicenseSet(Set<License> licenseSet) {
-        this.licenseSet = licenseSet;
-    }
-
     @XmlTransient
     public Set<Person> getPersonSet() {
         return personSet;
     }
-
+    
     public void setPersonSet(Set<Person> personSet) {
         this.personSet = personSet;
     }
+    
+    @XmlTransient
+    public Set<LicenseCustomer> getLicenseCustomerSet() {
+        return licenseCustomerSet;
+    }
+
+    public void setLicenseCustomerSet(Set<LicenseCustomer> licenseCustomerSet) {
+        this.licenseCustomerSet = licenseCustomerSet;
+    }
+    
 
     @Override
     public int hashCode() {

@@ -1,9 +1,9 @@
 package tnt.npse.controllers;
 
-import tnt.npse.entities.License;
+import tnt.npse.entities.LicenseCustomer;
 import tnt.npse.controllers.util.JsfUtil;
 import tnt.npse.controllers.util.JsfUtil.PersistAction;
-import tnt.npse.beans.LicenseFacade;
+import tnt.npse.beans.LicenseCustomerFacade;
 
 import java.io.Serializable;
 import java.util.List;
@@ -19,62 +19,65 @@ import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 import javax.faces.convert.FacesConverter;
 
-@Named("licenseController")
+@Named("licenseCustomerController")
 @SessionScoped
-public class LicenseController implements Serializable {
+public class LicenseCustomerController implements Serializable {
 
     @EJB
-    private tnt.npse.beans.LicenseFacade ejbFacade;
-    private List<License> items = null;
-    private License selected;
+    private tnt.npse.beans.LicenseCustomerFacade ejbFacade;
+    private List<LicenseCustomer> items = null;
+    private LicenseCustomer selected;
 
-    public LicenseController() {
+    public LicenseCustomerController() {
     }
 
-    public License getSelected() {
+    public LicenseCustomer getSelected() {
         return selected;
     }
 
-    public void setSelected(License selected) {
+    public void setSelected(LicenseCustomer selected) {
         this.selected = selected;
     }
 
     protected void setEmbeddableKeys() {
+        selected.getLicenseCustomerPK().setLicenseId(selected.getLicense().getLicenseId());
+        selected.getLicenseCustomerPK().setCustomerId(selected.getCustomer().getCustomerId());
     }
 
     protected void initializeEmbeddableKey() {
+        selected.setLicenseCustomerPK(new tnt.npse.entities.LicenseCustomerPK());
     }
 
-    private LicenseFacade getFacade() {
+    private LicenseCustomerFacade getFacade() {
         return ejbFacade;
     }
 
-    public License prepareCreate() {
-        selected = new License();
+    public LicenseCustomer prepareCreate() {
+        selected = new LicenseCustomer();
         initializeEmbeddableKey();
         return selected;
     }
 
     public void create() {
-        persist(PersistAction.CREATE, ResourceBundle.getBundle("/Bundle").getString("LicenseCreated"));
+        persist(PersistAction.CREATE, ResourceBundle.getBundle("/Bundle").getString("LicenseCustomerCreated"));
         if (!JsfUtil.isValidationFailed()) {
             items = null;    // Invalidate list of items to trigger re-query.
         }
     }
 
     public void update() {
-        persist(PersistAction.UPDATE, ResourceBundle.getBundle("/Bundle").getString("LicenseUpdated"));
+        persist(PersistAction.UPDATE, ResourceBundle.getBundle("/Bundle").getString("LicenseCustomerUpdated"));
     }
 
     public void destroy() {
-        persist(PersistAction.DELETE, ResourceBundle.getBundle("/Bundle").getString("LicenseDeleted"));
+        persist(PersistAction.DELETE, ResourceBundle.getBundle("/Bundle").getString("LicenseCustomerDeleted"));
         if (!JsfUtil.isValidationFailed()) {
             selected = null; // Remove selection
             items = null;    // Invalidate list of items to trigger re-query.
         }
     }
 
-    public List<License> getItems() {
+    public List<LicenseCustomer> getItems() {
         if (items == null) {
             items = getFacade().findAll();
         }
@@ -109,40 +112,48 @@ public class LicenseController implements Serializable {
         }
     }
 
-    public License getLicense(java.lang.Integer id) {
+    public LicenseCustomer getLicenseCustomer(tnt.npse.entities.LicenseCustomerPK id) {
         return getFacade().find(id);
     }
 
-    public List<License> getItemsAvailableSelectMany() {
+    public List<LicenseCustomer> getItemsAvailableSelectMany() {
         return getFacade().findAll();
     }
 
-    public List<License> getItemsAvailableSelectOne() {
+    public List<LicenseCustomer> getItemsAvailableSelectOne() {
         return getFacade().findAll();
     }
 
-    @FacesConverter(forClass = License.class)
-    public static class LicenseControllerConverter implements Converter {
+    @FacesConverter(forClass = LicenseCustomer.class)
+    public static class LicenseCustomerControllerConverter implements Converter {
+
+        private static final String SEPARATOR = "#";
+        private static final String SEPARATOR_ESCAPED = "\\#";
 
         @Override
         public Object getAsObject(FacesContext facesContext, UIComponent component, String value) {
             if (value == null || value.length() == 0) {
                 return null;
             }
-            LicenseController controller = (LicenseController) facesContext.getApplication().getELResolver().
-                    getValue(facesContext.getELContext(), null, "licenseController");
-            return controller.getLicense(getKey(value));
+            LicenseCustomerController controller = (LicenseCustomerController) facesContext.getApplication().getELResolver().
+                    getValue(facesContext.getELContext(), null, "licenseCustomerController");
+            return controller.getLicenseCustomer(getKey(value));
         }
 
-        java.lang.Integer getKey(String value) {
-            java.lang.Integer key;
-            key = Integer.valueOf(value);
+        tnt.npse.entities.LicenseCustomerPK getKey(String value) {
+            tnt.npse.entities.LicenseCustomerPK key;
+            String values[] = value.split(SEPARATOR_ESCAPED);
+            key = new tnt.npse.entities.LicenseCustomerPK();
+            key.setLicenseId(Integer.parseInt(values[0]));
+            key.setCustomerId(Integer.parseInt(values[1]));
             return key;
         }
 
-        String getStringKey(java.lang.Integer value) {
+        String getStringKey(tnt.npse.entities.LicenseCustomerPK value) {
             StringBuilder sb = new StringBuilder();
-            sb.append(value);
+            sb.append(value.getLicenseId());
+            sb.append(SEPARATOR);
+            sb.append(value.getCustomerId());
             return sb.toString();
         }
 
@@ -151,11 +162,11 @@ public class LicenseController implements Serializable {
             if (object == null) {
                 return null;
             }
-            if (object instanceof License) {
-                License o = (License) object;
-                return getStringKey(o.getLicenseId());
+            if (object instanceof LicenseCustomer) {
+                LicenseCustomer o = (LicenseCustomer) object;
+                return getStringKey(o.getLicenseCustomerPK());
             } else {
-                Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, "object {0} is of type {1}; expected type: {2}", new Object[]{object, object.getClass().getName(), License.class.getName()});
+                Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, "object {0} is of type {1}; expected type: {2}", new Object[]{object, object.getClass().getName(), LicenseCustomer.class.getName()});
                 return null;
             }
         }

@@ -12,19 +12,19 @@
         <h:outputStylesheet name="primeicons/primeicons.css" library="primefaces" />
     </h:head>
     <h:body>
-        
+
         <ui:composition template="./template.xhtml">
 
             <ui:define name="title">NP Software</ui:define> 
-           
+
             <ui:define name="content">
-        
+
                 <h:form id="form1">
 
                     <p:dataTable var="license" value="#{dtLazyView.lazyModel}" paginator="true" rows="10"
-                             paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
-                             rowsPerPageTemplate="5,10,15" selectionMode="single" selection="#{dtLazyView.selectedLic}"  
-                             id="licenseTable" lazy="true">
+                                 paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                                 rowsPerPageTemplate="5,10,15" selectionMode="single" selection="#{dtLazyView.selectedLic}"  
+                                 id="licenseTable" lazy="true">
 
                         <f:facet name="header">
                             <h:outputText value="License Data"/>
@@ -56,8 +56,8 @@
 
                     </p:dataTable>
 
-                        <br/>
-                        <br/>
+                    <br/>
+                    <br/>
 
                     <h3 style="margin-top:10"></h3>
                     <p:panelGrid columns="2" columnClasses="firstColumn valigntop, secondColumn valigntop" style="width: 100%">
@@ -98,8 +98,8 @@
 
                             <p:column headerText="Edit" style="width: 7%; text-align: center">
                                 <p:commandLink style="text-align: center">
-                                <h:graphicImage name="images/pencilE.png" style="width: 16px;height: 16px" />
-                            </p:commandLink>
+                                    <h:graphicImage name="images/pencilE.png" style="width: 16px;height: 16px" />
+                                </p:commandLink>
                             </p:column>
 
                         </p:dataTable>
@@ -157,13 +157,71 @@
 
 
                 </h:form>
-                
-                
+
+
             </ui:define>
         </ui:composition>
-        
-        
+
+
+
+
+        <br />
+        <h:link outcome="/customer/List" value="Show All Customer Items"/>
+        <br />
+        <h:link outcome="/license/List" value="Show All License Items"/>
+        <br />
+        <h:link outcome="/licenseCustomer/List" value="Show All LicenseCustomer Items"/>
+        <br />
+        <h:link outcome="/person/List" value="Show All Person Items"/>
+        <br />
+        <h:link outcome="/software/List" value="Show All Software Items"/>
+        <br />
+        <h:link outcome="/status/List" value="Show All Status Items"/>
+        <br />
+        <h:link outcome="/customer/List" value="Show All Customer Items"/>
+        <br />
+        <h:link outcome="/license/List" value="Show All License Items"/>
+        <br />
+        <h:link outcome="/licenseCustomer/List" value="Show All LicenseCustomer Items"/>
+        <br />
+        <h:link outcome="/person/List" value="Show All Person Items"/>
+        <br />
+        <h:link outcome="/software/List" value="Show All Software Items"/>
+        <br />
+        <h:link outcome="/status/List" value="Show All Status Items"/>
     </h:body>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

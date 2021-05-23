@@ -17,7 +17,7 @@ import tnt.npse.entities.Status;
 @Stateless
 public class StatusFacade extends AbstractFacade<Status> {
 
-    @PersistenceContext(unitName = "NPsepu")
+    @PersistenceContext(unitName = "npsoftwareevidence")
     private EntityManager em;
 
     @Override

@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Set;
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -21,6 +22,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -55,28 +57,25 @@ public class License implements Serializable {
     @Size(min = 1, max = 255)
     @Column(name = "licenseCode")
     private String licenseCode;
-    @Basic(optional = false)
-    @NotNull
-    @Size(min = 1, max = 255)
+    @Basic(optional = true)
+    @Size(max = 255)
     @Column(name = "smaCode")
     private String smaCode;
     @Basic(optional = false)
-    @NotNull
     @Column(name = "expDate")
     @Temporal(TemporalType.DATE)
     private Date expDate;
-    @JoinTable(name = "license_customer", joinColumns = {
-        @JoinColumn(name = "license_id", referencedColumnName = "license_id")}, inverseJoinColumns = {
-        @JoinColumn(name = "customer_id", referencedColumnName = "customer_id")})
-    @ManyToMany(fetch = FetchType.EAGER)
-    private Set<Customer> customerSet;
+    
     @JoinColumn(name = "software_id", referencedColumnName = "software_id")
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     private Software softwareId;
     @JoinColumn(name = "status_id", referencedColumnName = "status_id")
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     private Status statusId;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "license", fetch = FetchType.EAGER)
+    private Set<LicenseCustomer> licenseCustomerSet;
 
+    
     public License() {
     }
 
@@ -123,17 +122,17 @@ public class License implements Serializable {
         this.expDate = expDate;
     }
 
-    @XmlTransient
-    public Set<Customer> getCustomerSet() {
-        return customerSet;
-    }
-
-    public void setCustomerSet(Set<Customer> customerSet) {
-        this.customerSet = customerSet;
-    }
-
     public Software getSoftwareId() {
         return softwareId;
+    }
+    
+    @XmlTransient
+    public Set<LicenseCustomer> getLicenseCustomerSet() {
+        return licenseCustomerSet;
+    }
+
+    public void setLicenseCustomerSet(Set<LicenseCustomer> licenseCustomerSet) {
+        this.licenseCustomerSet = licenseCustomerSet;
     }
 
     public void setSoftwareId(Software softwareId) {

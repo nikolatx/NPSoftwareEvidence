@@ -7,7 +7,9 @@ package tnt.npse.viewbeans;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.faces.view.ViewScoped;
@@ -15,9 +17,11 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import tnt.npse.controllers.CustomerController;
 import tnt.npse.controllers.LicenseController;
+import tnt.npse.controllers.LicenseCustomerController;
 import tnt.npse.controllers.SoftwareController;
 import tnt.npse.entities.Customer;
 import tnt.npse.entities.License;
+import tnt.npse.entities.LicenseCustomer;
 import tnt.npse.entities.Person;
 import tnt.npse.entities.Software;
 
@@ -62,6 +66,8 @@ public class SellMenuView implements Serializable {
     private CustomerController customerController;
     @Inject
     private LicenseController licenseController;
+    @Inject
+    private LicenseCustomerController licenseCustomerController;
     
     
     @PostConstruct
@@ -69,12 +75,24 @@ public class SellMenuView implements Serializable {
         softwareController.getItems().stream().forEach(e->allsoftware.add(e));
         licenses=new ArrayList<>();
         allsoftware.stream().forEach(soft->soft.getLicenseSet().stream().forEach(lic->licenses.add(lic)));
-        customerController.getItems().stream().filter(e->e.getEndCustomer()==false).forEach(e->resellers.add(e));
-        customerController.getItems().stream().filter(e->e.getEndCustomer()==true).forEach(e->endUsers.add(e));
-        resellers.stream().forEach(res->res.getPersonSet().stream().forEach(per->contacts.add(per)));
-        endUsers.stream().forEach(res->res.getPersonSet().stream().forEach(per->econtacts.add(per)));
-        smaDisabled=true;
         
+        List<Customer> cList = new ArrayList<>();
+        
+        resellers=(licenseCustomerController.getItems().stream()
+                .filter(lc->lc.getEndUser()==false))
+                .map(e->e.getCustomer())
+                .distinct()
+                .collect(Collectors.toList());  
+
+        endUsers=(licenseCustomerController.getItems().stream()
+                .filter(lc->lc.getEndUser()==true))
+                .map(e->e.getCustomer())
+                .distinct()
+                .collect(Collectors.toList());  
+        
+        resellers.forEach(res->contacts.addAll(res.getPersonSet()));
+        endUsers.forEach(endU->econtacts.addAll(endU.getPersonSet()));
+        smaDisabled=true;
     }
     
     //add items to SelectOneMenu for licenses
@@ -125,7 +143,8 @@ public class SellMenuView implements Serializable {
         }
         smaCode = selLicense.getSmaCode();
         //if smaCode already exists, set input box to readonly
-        smaDisabled = smaCode != null || !smaCode.isEmpty();
+        smaDisabled = smaCode != null && !smaCode.isEmpty();
+        
     }
     
     public void resellerSelected() {

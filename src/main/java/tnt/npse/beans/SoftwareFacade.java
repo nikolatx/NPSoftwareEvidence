@@ -17,7 +17,7 @@ import tnt.npse.entities.Software;
 @Stateless
 public class SoftwareFacade extends AbstractFacade<Software> {
 
-    @PersistenceContext(unitName = "NPsepu")
+    @PersistenceContext(unitName = "npsoftwareevidence")
     private EntityManager em;
 
     @Override

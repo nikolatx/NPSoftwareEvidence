@@ -8,14 +8,14 @@ package tnt.npse.beans;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import tnt.npse.entities.Customer;
+import tnt.npse.entities.LicenseCustomer;
 
 /**
  *
  * @author NN
  */
 @Stateless
-public class CustomerFacade extends AbstractFacade<Customer> {
+public class LicenseCustomerFacade extends AbstractFacade<LicenseCustomer> {
 
     @PersistenceContext(unitName = "npsoftwareevidence")
     private EntityManager em;
@@ -25,8 +25,8 @@ public class CustomerFacade extends AbstractFacade<Customer> {
         return em;
     }
 
-    public CustomerFacade() {
-        super(Customer.class);
+    public LicenseCustomerFacade() {
+        super(LicenseCustomer.class);
     }
     
 }
