@@ -25,9 +25,11 @@ public class SoftwareController implements Serializable {
 
     @EJB
     private tnt.npse.beans.SoftwareFacade ejbFacade;
+    
     private List<Software> items = null;
     private Software selected;
-
+    private String name;
+    
     public SoftwareController() {
     }
 
@@ -162,4 +164,14 @@ public class SoftwareController implements Serializable {
 
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    
+    
 }

@@ -50,11 +50,11 @@
                                     <p:selectOneMenu value="#{sellMenuView.selSoftware}" converter="SoftwareConverter" style="margin-top: 9px;width:80%" filter="true">
                                         <f:selectItem itemLabel="Select/Reset Software" itemValue="#{null}" />
                                         <f:selectItems value="#{sellMenuView.allsoftware}" var="selSoftware" itemValue="#{selSoftware}" itemLabel="#{selSoftware.name}"/>
-                                        <p:ajax event="change" listener="#{sellMenuView.softwareSelected}" update="panSoft, panRes"/>
+                                        <p:ajax event="change" listener="#{sellMenuView.softwareSelected}" update="panSoft, panRes, panEnd"/>
                                     </p:selectOneMenu>
                                 </p:column>
                                 <p:column>
-                                    <p:commandButton value="Add new"/>
+                                    <p:commandButton value="Add new" onclick="PF('SoftwareCreateDialog').show()"/>
                                 </p:column>
                                 <p:column>
                                     License
@@ -64,7 +64,7 @@
                                         <f:selectItem itemLabel="Select/Reset License" itemValue="#{null}" />
                                         <f:selectItems value="#{sellMenuView.licenses}" var="selLicense" itemValue="#{selLicense}" 
                                                        itemLabel="#{selLicense.licenseCode}"/>
-                                        <p:ajax event="change" listener="#{sellMenuView.licenseSelected}" update="inputSMA, panRes"/>
+                                        <p:ajax event="change" listener="#{sellMenuView.licenseSelected}" update="inputSMA, panRes, panEnd"/>
                                     </p:selectOneMenu>
                                 </p:column>
 
@@ -82,7 +82,7 @@
                                 <p:column>
                                     <p:commandButton value="Add new" disabled="#{sellMenuView.smaDisabled}"/>
                                 </p:column>
-
+                                
                             </p:panelGrid>
 
 
@@ -295,13 +295,33 @@
                             <p:commandButton value="Add new reseller"/>
                             
                             <p:commandButton value="Add new end user"/>
-                            
-                        
                         
                     </p:panelGrid>
-                    
+
                     
                 </h:form> 
+                
+                
+                
+                <p:dialog id="SoftwareCreateDlg" widgetVar="SoftwareCreateDialog" modal="true" resizable="false" appendTo="@(body)" header="#{bundle.CreateSoftwareTitle}">
+                    <h:form id="SoftwareCreateForm">
+                        <h:panelGroup id="display">
+                            <p:panelGrid columns="2" >
+                                <p:outputLabel value="#{bundle.CreateSoftwareLabel_name}" for="name" />
+                                <p:inputText id="name" value="#{softwareController.name}" title="#{bundle.CreateSoftwareTitle_name}" required="true" requiredMessage="#{bundle.CreateSoftwareRequiredMessage_name}"/>
+                            </p:panelGrid>
+                            <p:commandButton actionListener="#{softwareController.create}" value="#{bundle.Save}" update="display, :messages" oncomplete="handleSubmit(args,'SoftwareCreateDialog');"/>
+                            <p:commandButton value="#{bundle.Cancel}" onclick="SoftwareCreateDialog.hide()"/>
+                        </h:panelGroup>
+                    </h:form>
+                </p:dialog>
+                
+                
+                
+                
+                
+                
+                
             </ui:define>
         </ui:composition>
         

@@ -78,6 +78,10 @@ public class SellMenuView implements Serializable {
         
         List<Customer> cList = new ArrayList<>();
         
+        resellers=customerController.getItems(); 
+        endUsers=customerController.getItems(); 
+        
+        /*
         resellers=(licenseCustomerController.getItems().stream()
                 .filter(lc->lc.getEndUser()==false))
                 .map(e->e.getCustomer())
@@ -89,7 +93,8 @@ public class SellMenuView implements Serializable {
                 .map(e->e.getCustomer())
                 .distinct()
                 .collect(Collectors.toList());  
-        
+        */        
+
         resellers.forEach(res->contacts.addAll(res.getPersonSet()));
         endUsers.forEach(endU->econtacts.addAll(endU.getPersonSet()));
         smaDisabled=true;
@@ -145,6 +150,11 @@ public class SellMenuView implements Serializable {
         //if smaCode already exists, set input box to readonly
         smaDisabled = smaCode != null && !smaCode.isEmpty();
         
+        selReseller=selLicense.getLicenseCustomerSet().stream().filter(lic->lic.getEndUser()==false).findFirst().orElse(null).getCustomer();
+        selContact=selReseller.getPersonSet().stream().findFirst().orElse(null);
+        selEndUser=selLicense.getLicenseCustomerSet().stream().filter(lic->lic.getEndUser()==true).findFirst().orElse(null).getCustomer();
+        selEContact=selEndUser.getPersonSet().stream().findFirst().orElse(null);
+        int a=0;
     }
     
     public void resellerSelected() {
