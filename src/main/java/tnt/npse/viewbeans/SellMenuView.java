@@ -57,7 +57,7 @@ public class SellMenuView implements Serializable {
     private License emptyLicense=new License();
     
     private boolean smaDisabled;
-    
+    private boolean licDisabled;
     
     
     @Inject
@@ -68,6 +68,7 @@ public class SellMenuView implements Serializable {
     private LicenseController licenseController;
     @Inject
     private LicenseCustomerController licenseCustomerController;
+    
     
     
     @PostConstruct
@@ -98,14 +99,23 @@ public class SellMenuView implements Serializable {
         resellers.forEach(res->contacts.addAll(res.getPersonSet()));
         endUsers.forEach(endU->econtacts.addAll(endU.getPersonSet()));
         smaDisabled=true;
+        licDisabled=true;
     }
+    
+    public void addSoftware(Software soft) {
+        if (soft!=null) 
+            allsoftware.add(soft);
+    }
+    
     
     //add items to SelectOneMenu for licenses
     public void softwareSelected() {
         if (selSoftware==null) {
             resetAllData();
+            licDisabled=true;
             return;
         }
+        licDisabled=false;
         //load licenses (sma if 1 license), resellers, endusers, contacts for both resellers and endusers
         licenses=(List<License>) licenseController.getItems()
             .stream()
@@ -351,6 +361,14 @@ public class SellMenuView implements Serializable {
 
     public void setSmaDisabled(boolean smaDisabled) {
         this.smaDisabled = smaDisabled;
+    }
+
+    public boolean isLicDisabled() {
+        return licDisabled;
+    }
+
+    public void setLicDisabled(boolean licDisabled) {
+        this.licDisabled = licDisabled;
     }
 
     

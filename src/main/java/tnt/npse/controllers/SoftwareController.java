@@ -12,15 +12,17 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.EJBException;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Named;
-import javax.enterprise.context.SessionScoped;
 import javax.faces.component.UIComponent;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 import javax.faces.convert.FacesConverter;
+import javax.faces.view.ViewScoped;
 
 @Named("softwareController")
-@SessionScoped
+@RequestScoped
 public class SoftwareController implements Serializable {
 
     @EJB
@@ -52,7 +54,6 @@ public class SoftwareController implements Serializable {
     }
 
     public Software prepareCreate() {
-        selected = new Software();
         initializeEmbeddableKey();
         return selected;
     }
@@ -66,14 +67,20 @@ public class SoftwareController implements Serializable {
                 selected.setName(name);
                 persist(PersistAction.CREATE, ResourceBundle.getBundle("/Bundle").getString("SoftwareCreated"));
                 items=null;
-                selected=null;
+                items=getItems();
+                selected=items.stream().filter(e->e.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
+                int a=1;
             } else {
                 JsfUtil.addSuccessMessage(ResourceBundle.getBundle("/Bundle").getString("SoftwareExists"));
+                selected=null;
             }
         }
         if (!JsfUtil.isValidationFailed()) {
             items = null;    // Invalidate list of items to trigger re-query.
         }
+        FacesContext context=FacesContext.getCurrentInstance();
+        ExternalContext ec = context.getExternalContext();
+        ec.getFlash().setKeepMessages(true);
     }
     
     public void update() {
@@ -99,7 +106,9 @@ public class SoftwareController implements Serializable {
         if (selected != null) {
             setEmbeddableKeys();
             try {
-                if (persistAction != PersistAction.DELETE) {
+                if (persistAction == PersistAction.CREATE) {
+                    getFacade().create(selected);
+                } else if (persistAction != PersistAction.DELETE) {
                     getFacade().edit(selected);
                 } else {
                     getFacade().remove(selected);
