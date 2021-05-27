@@ -61,7 +61,7 @@ public class License implements Serializable {
     @Size(max = 255)
     @Column(name = "smaCode")
     private String smaCode;
-    @Basic(optional = false)
+    @Basic(optional = true)
     @Column(name = "expDate")
     @Temporal(TemporalType.DATE)
     private Date expDate;

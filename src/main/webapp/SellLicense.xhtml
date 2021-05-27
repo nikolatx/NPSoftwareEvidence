@@ -69,7 +69,8 @@
                                 </p:column>
 
                                 <p:column>
-                                    <p:commandButton value="Add new" disabled="#{sellMenuView.licDisabled}" onclick="PF('LicenseCreateDialog').show()"/>
+                                    <p:commandButton value="Add new" disabled="#{sellMenuView.licDisabled}" onclick="PF('LicenseCreateDialog').show()"
+                                                     update=":LicenseCreateForm"/>
                                 </p:column>
 
                                 <p:column>
@@ -308,10 +309,10 @@
                         <h:panelGroup id="displaySoft">
                             <p:panelGrid columns="2" >
                                 <p:outputLabel value="#{bundle.CreateSoftwareLabel_name}" for="name" />
-                                <p:inputText id="name" value="#{softwareController.name}" title="#{bundle.CreateSoftwareTitle_name}" required="true" requiredMessage="#{bundle.CreateSoftwareRequiredMessage_name}"/>
+                                <p:inputText id="name" value="#{sellMenuView.softwareName}" title="#{bundle.CreateSoftwareTitle_name}" required="true" 
+                                             requiredMessage="#{bundle.CreateSoftwareRequiredMessage_name}"/>
                             </p:panelGrid>
-                            <p:commandButton actionListener="#{softwareController.create}"  
-                                             action="#{sellMenuView.addSoftware(softwareController.selected)}"  
+                            <p:commandButton actionListener="#{sellMenuView.createSoftware()}"  
                                              value="#{bundle.Save}" update="displaySoft, :messages, :form1" oncomplete="handleSubmit(args,'SoftwareCreateDialog');">
                             </p:commandButton>
                             <p:commandButton value="#{bundle.Cancel}" onclick="SoftwareCreateDialog.hide()"/>
@@ -330,11 +331,11 @@
                                 <p:inputText id="name" value="#{sellMenuView.selSoftware.name}" title="#{bundle.CreateLicenseSoftwareName_name}" readonly="true"/>
                                 
                                 <p:outputLabel value="#{bundle.CreateLicenseLabel_licenseCode}" for="licenseCode" />
-                                <p:inputText id="licenseCode" value="#{sellMenuView.selLicense.licenseCode}" title="#{bundle.CreateLicenseTitle_licenseCode}"
+                                <p:inputText id="licenseCode" value="#{sellMenuView.licenseCode}" title="#{bundle.CreateLicenseTitle_licenseCode}"
                                              required="true" requiredMessage="#{bundle.CreateLicenseRequiredMessage_licenseCode}"/>
                                 
                             </p:panelGrid>
-                            <p:commandButton actionListener="#{licenseController.create}" value="#{bundle.Save}" 
+                            <p:commandButton actionListener="#{sellMenuView.createLicense}" value="#{bundle.Save}" 
                                              update="displayLic, :messages, :form1" oncomplete="handleSubmit(args,'LicenseCreateDialog');"/>
                             <p:commandButton value="#{bundle.Cancel}" onclick="LicenseCreateDialog.hide()"/>
                         </h:panelGroup>

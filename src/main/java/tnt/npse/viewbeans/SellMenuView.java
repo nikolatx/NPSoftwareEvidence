@@ -59,6 +59,8 @@ public class SellMenuView implements Serializable {
     private boolean smaDisabled;
     private boolean licDisabled;
     
+    private String softwareName;
+    private String licenseCode;
     
     @Inject
     private SoftwareController softwareController;
@@ -102,10 +104,7 @@ public class SellMenuView implements Serializable {
         licDisabled=true;
     }
     
-    public void addSoftware(Software soft) {
-        if (soft!=null) 
-            allsoftware.add(soft);
-    }
+    
     
     
     //add items to SelectOneMenu for licenses
@@ -130,7 +129,12 @@ public class SellMenuView implements Serializable {
             licenseSelected();
         } 
         else {
-            resetAllData();
+            selLicense=null;
+            selReseller=null;
+            selEndUser=null;
+            selContact=null;
+            selEContact=null;
+            smaCode="";
         }
     }
     
@@ -218,6 +222,22 @@ public class SellMenuView implements Serializable {
         econtacts=new ArrayList<>();
         selEndUser.getPersonSet().stream().forEach(pers->econtacts.add(pers));
     }
+    
+    
+    
+    public void createSoftware() {
+        Software soft=softwareController.create(softwareName);
+        if (soft!=null) 
+            allsoftware.add(soft);
+    }
+    
+    public void createLicense() {
+        License lic=licenseController.create(licenseCode, selSoftware.getName());
+        if (lic!=null) 
+            licenses.add(lic);
+    }
+    
+    
     
     public List<Software> getAllsoftware() {
         return allsoftware;
@@ -369,6 +389,22 @@ public class SellMenuView implements Serializable {
 
     public void setLicDisabled(boolean licDisabled) {
         this.licDisabled = licDisabled;
+    }
+
+    public String getSoftwareName() {
+        return softwareName;
+    }
+
+    public void setSoftwareName(String softwareName) {
+        this.softwareName = softwareName;
+    }
+
+    public String getLicenseCode() {
+        return licenseCode;
+    }
+
+    public void setLicenseCode(String licenseCode) {
+        this.licenseCode = licenseCode;
     }
 
     

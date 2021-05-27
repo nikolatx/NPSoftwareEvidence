@@ -15,9 +15,13 @@ import javax.ejb.EJBException;
 import javax.inject.Named;
 import javax.enterprise.context.SessionScoped;
 import javax.faces.component.UIComponent;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 import javax.faces.convert.FacesConverter;
+import javax.inject.Inject;
+import tnt.npse.entities.Software;
+import tnt.npse.entities.Status;
 
 @Named("licenseController")
 @SessionScoped
@@ -28,9 +32,55 @@ public class LicenseController implements Serializable {
     private List<License> items = null;
     private License selected;
 
+    @Inject
+    private StatusController statusController;
+    @Inject
+    private SoftwareController softwareController;
+    
     public LicenseController() {
     }
 
+    
+    public License create(String licenseCode, String softwareName) {
+        FacesContext context=FacesContext.getCurrentInstance();
+        ExternalContext ec = context.getExternalContext();
+        ec.getFlash().setKeepMessages(true);
+        License lic=null;
+        
+        ///selected umesto lic!!!!!!
+        
+        
+        if (licenseCode!=null && !licenseCode.isEmpty()) {
+            lic=items.stream().filter(e->e.getLicenseCode().equalsIgnoreCase(licenseCode)&&e.getSoftwareId().getName().equalsIgnoreCase(softwareName)).findFirst().orElse(null);
+            if (lic==null) {
+                lic=new License();
+                lic.setLicenseCode(licenseCode);
+                lic.setSmaCode("");
+                lic.setExpDate(null);
+                lic.setLicenseCustomerSet(null);
+                Status status=statusController.getItems().stream().filter(st->st.getName().equalsIgnoreCase("not activated")).findFirst().orElse(null);
+                lic.setStatusId(status);
+
+                Software soft=null;
+                soft=softwareController.getItems().stream().filter(so->so.getName().equalsIgnoreCase(softwareName)).findFirst().orElse(null);
+                lic.setSoftwareId(soft);
+                persist(PersistAction.CREATE, ResourceBundle.getBundle("/Bundle").getString("LicenseCreated"));
+                //items=null;
+                items=getItems();
+                lic=items.stream().filter(li->li.getLicenseCode().equalsIgnoreCase(licenseCode)).findFirst().orElse(null);
+                int a=1;
+            } else {
+                JsfUtil.addSuccessMessage(ResourceBundle.getBundle("/Bundle").getString("SoftwareExists"));
+                lic=null;
+            }
+        }
+        if (!JsfUtil.isValidationFailed()) {
+            items = null;    // Invalidate list of items to trigger re-query.
+        }
+        return lic;
+    }
+    
+    
     public License getSelected() {
         return selected;
     }
@@ -85,7 +135,9 @@ public class LicenseController implements Serializable {
         if (selected != null) {
             setEmbeddableKeys();
             try {
-                if (persistAction != PersistAction.DELETE) {
+                if (persistAction == PersistAction.CREATE) {
+                    getFacade().create(selected);
+                } else if (persistAction != PersistAction.DELETE) {
                     getFacade().edit(selected);
                 } else {
                     getFacade().remove(selected);

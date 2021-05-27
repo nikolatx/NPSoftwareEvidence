@@ -30,7 +30,7 @@ public class SoftwareController implements Serializable {
     
     private List<Software> items = null;
     private Software selected;
-    private String name;
+    //private String name;
     
     public SoftwareController() {
     }
@@ -58,7 +58,33 @@ public class SoftwareController implements Serializable {
         return selected;
     }
 
+    public Software create(String name) {
+        FacesContext context=FacesContext.getCurrentInstance();
+        ExternalContext ec = context.getExternalContext();
+        ec.getFlash().setKeepMessages(true);
+        selected=null;
+        items=getItems();
+        Software soft=items.stream().filter(e->e.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
+        if (soft==null) {
+            selected=new Software();
+            selected.setName(name);
+            persist(PersistAction.CREATE, ResourceBundle.getBundle("/Bundle").getString("SoftwareCreated"));
+            items=null;
+            items=getItems();
+            selected=items.stream().filter(e->e.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
+        } else {
+            JsfUtil.addSuccessMessage(ResourceBundle.getBundle("/Bundle").getString("SoftwareExists"));
+            selected=null;
+        }
+        if (!JsfUtil.isValidationFailed()) {
+            items = null;    // Invalidate list of items to trigger re-query.
+        }
+        return selected;
+    }
+    
+    
     public void create() {
+        /*
         if (selected==null) {
             items=getItems();
             Software soft=items.stream().filter(e->e.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
@@ -74,7 +100,7 @@ public class SoftwareController implements Serializable {
                 JsfUtil.addSuccessMessage(ResourceBundle.getBundle("/Bundle").getString("SoftwareExists"));
                 selected=null;
             }
-        }
+        }*/
         if (!JsfUtil.isValidationFailed()) {
             items = null;    // Invalidate list of items to trigger re-query.
         }
@@ -185,13 +211,14 @@ public class SoftwareController implements Serializable {
 
     }
 
+    /*
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
         this.name = name;
-    }
+    }*/
 
     
     
