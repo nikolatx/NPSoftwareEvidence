@@ -6,10 +6,11 @@
 package tnt.npse.viewbeans;
 
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Calendar;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.faces.view.ViewScoped;
@@ -18,6 +19,7 @@ import javax.inject.Named;
 import tnt.npse.controllers.CustomerController;
 import tnt.npse.controllers.LicenseController;
 import tnt.npse.controllers.LicenseCustomerController;
+import tnt.npse.controllers.PersonController;
 import tnt.npse.controllers.SoftwareController;
 import tnt.npse.entities.Customer;
 import tnt.npse.entities.License;
@@ -44,7 +46,7 @@ public class SellMenuView implements Serializable {
     private List<Customer> endUsers = new ArrayList<>();
     private Customer selEndUser;
     
-    private List<License> licenses = new ArrayList<>();
+    private List<License> licenses;
     private License selLicense;
     
     private String smaCode;
@@ -58,9 +60,13 @@ public class SellMenuView implements Serializable {
     
     private boolean smaDisabled;
     private boolean licDisabled;
+    private boolean extendDisabled;
     
     private String softwareName;
     private String licenseCode;
+    private Date expDate;
+    private Customer newCompany;
+    private Person newContact;
     
     @Inject
     private SoftwareController softwareController;
@@ -70,16 +76,14 @@ public class SellMenuView implements Serializable {
     private LicenseController licenseController;
     @Inject
     private LicenseCustomerController licenseCustomerController;
-    
+    @Inject
+    private PersonController personController;
     
     
     @PostConstruct
     public void init() {
-        softwareController.getItems().stream().forEach(e->allsoftware.add(e));
-        licenses=new ArrayList<>();
-        allsoftware.stream().forEach(soft->soft.getLicenseSet().stream().forEach(lic->licenses.add(lic)));
-        
-        List<Customer> cList = new ArrayList<>();
+        allsoftware=softwareController.getItems();
+        licenses=licenseController.getItems();
         
         resellers=customerController.getItems(); 
         endUsers=customerController.getItems(); 
@@ -102,6 +106,9 @@ public class SellMenuView implements Serializable {
         endUsers.forEach(endU->econtacts.addAll(endU.getPersonSet()));
         smaDisabled=true;
         licDisabled=true;
+        extendDisabled=true;
+        newCompany=new Customer();
+        newContact=new Person();
     }
     
     
@@ -115,12 +122,13 @@ public class SellMenuView implements Serializable {
             return;
         }
         licDisabled=false;
-        //load licenses (sma if 1 license), resellers, endusers, contacts for both resellers and endusers
+        licenses=null;
         licenses=(List<License>) licenseController.getItems()
             .stream()
             .filter(e->e.getSoftwareId()
             .getName()
             .equalsIgnoreCase(selSoftware.getName())).collect(Collectors.toList());
+/*
         if (licenses!=null && licenses.size()==1) {
             //there is only one license
             selLicense=licenses.get(0);
@@ -135,7 +143,9 @@ public class SellMenuView implements Serializable {
             selContact=null;
             selEContact=null;
             smaCode="";
+            expDate=null;
         }
+*/
     }
     
     private void resetAllData() {
@@ -144,6 +154,7 @@ public class SellMenuView implements Serializable {
         selEndUser=null;
         selContact=null;
         selEContact=null;
+        licenses=null;
         contacts=new ArrayList<>();
         econtacts=new ArrayList<>();
         resellers=new ArrayList<>();
@@ -151,6 +162,7 @@ public class SellMenuView implements Serializable {
         licenses=new ArrayList<>();
         allsoftware=new ArrayList<>();
         smaCode="";
+        expDate=null;
         init();
     }
     
@@ -161,14 +173,22 @@ public class SellMenuView implements Serializable {
             return;
         }
         smaCode = selLicense.getSmaCode();
+        expDate = selLicense.getExpDate();
+        selSoftware=selLicense.getSoftwareId();
         //if smaCode already exists, set input box to readonly
         smaDisabled = smaCode != null && !smaCode.isEmpty();
+        extendDisabled = smaCode==null || smaCode.isEmpty();
         
-        selReseller=selLicense.getLicenseCustomerSet().stream().filter(lic->lic.getEndUser()==false).findFirst().orElse(null).getCustomer();
-        selContact=selReseller.getPersonSet().stream().findFirst().orElse(null);
-        selEndUser=selLicense.getLicenseCustomerSet().stream().filter(lic->lic.getEndUser()==true).findFirst().orElse(null).getCustomer();
-        selEContact=selEndUser.getPersonSet().stream().findFirst().orElse(null);
-        int a=0;
+        LicenseCustomer lc=selLicense.getLicenseCustomerSet().stream().filter(lic->lic.getEndUser()==false).findFirst().orElse(null);
+        if (lc!=null) {
+            selReseller=lc.getCustomer();
+            selContact=selReseller.getPersonSet().stream().findFirst().orElse(null);
+        }
+        lc=selLicense.getLicenseCustomerSet().stream().filter(lic->lic.getEndUser()==true).findFirst().orElse(null);
+        if (lc!=null) {
+            selEndUser=lc.getCustomer();
+            selEContact=selEndUser.getPersonSet().stream().findFirst().orElse(null);
+        }
     }
     
     public void resellerSelected() {
@@ -197,17 +217,23 @@ public class SellMenuView implements Serializable {
         selReseller.getPersonSet().stream().forEach(pers->contacts.add(pers));
     }
     
+    
+    //ako se odabere Select ne uzlazi ovde zbog required!!! jer radi validaciju pre submita
+    
+    
     public void endUserSelected() {
         //if reset option in dropdown is selected
         if (selEndUser==null) {
             resetAllData();
             return;
         }
-        //set first contact from end user list
-        selEContact=(Person)selEndUser.getPersonSet().stream().findFirst().orElse(null);
         //fill end user contact list
+        econtacts=null;
+        selEContact=null;
         econtacts=new ArrayList<>();
         selEndUser.getPersonSet().stream().forEach(pers->econtacts.add(pers));
+        //set first contact from end user list
+        selEContact=(Person)selEndUser.getPersonSet().stream().findFirst().orElse(null);
     }
     
     public void eContactSelected() {
@@ -216,28 +242,75 @@ public class SellMenuView implements Serializable {
             resetAllData();
             return;
         }
-        //select end user
-        selEndUser=(Customer)selEContact.getCustomerId();
+        selEndUser=null;
+        econtacts=null;
         //fill list of contact persons
         econtacts=new ArrayList<>();
         selEndUser.getPersonSet().stream().forEach(pers->econtacts.add(pers));
+        //select end user
+        selEndUser=(Customer)selEContact.getCustomerId();
     }
     
     
     
     public void createSoftware() {
-        Software soft=softwareController.create(softwareName);
-        if (soft!=null) 
-            allsoftware.add(soft);
+        
+        //Software soft=softwareController.create(softwareName);
+        Software soft = new Software();
+        soft.setName(softwareName);
+        allsoftware.add(soft);
+        selSoftware=soft;
+        //softwareSelected();
     }
     
     public void createLicense() {
-        License lic=licenseController.create(licenseCode, selSoftware.getName());
-        if (lic!=null) 
-            licenses.add(lic);
+        //License lic=licenseController.create(licenseCode, selSoftware.getName());
+        License lic = new License();
+        lic.setLicenseCode(licenseCode);
+        lic.setSmaCode("");
+        lic.setExpDate(null);
+        lic.setSoftwareId(selSoftware);
+        lic.setStatusId(null);
+        licenses.add(lic);
+        selLicense=lic;
+        //licenseSelected();
     }
     
+    public void createSMA() {
+        if (smaCode!=null && !smaCode.isEmpty()) {
+            smaDisabled=true;
+            Calendar cal=Calendar.getInstance();
+            cal.setTime(new Date());
+            cal.add(Calendar.YEAR, 1);
+            cal.add(Calendar.DAY_OF_MONTH, -1);
+            expDate=cal.getTime();
+        }
+    }
     
+    public void extendSMA() {
+        Calendar cal=Calendar.getInstance();
+        if (expDate.before(new Date())) 
+            cal.setTime(new Date());
+        else
+            cal.setTime(expDate);
+        cal.add(Calendar.YEAR, 1);
+        cal.add(Calendar.DAY_OF_MONTH, -1);
+        expDate=cal.getTime();
+    }
+    
+    public void addNewCompany() {
+        
+        customerController.create(newCompany, newContact);
+        resellers.add(newCompany);
+        selReseller=newCompany;
+        contacts.add(newContact);
+        selContact=newContact;
+    }
+    
+    public void sellLicense() {
+        int a=1;
+        a=5;
+    }
     
     public List<Software> getAllsoftware() {
         return allsoftware;
@@ -407,6 +480,40 @@ public class SellMenuView implements Serializable {
         this.licenseCode = licenseCode;
     }
 
+    public Date getExpDate() {
+        return expDate;
+    }
+
+    public void setExpDate(Date expDate) {
+        this.expDate = expDate;
+    }
+
+    public boolean isExtendDisabled() {
+        return extendDisabled;
+    }
+
+    public void setExtendDisabled(boolean extendDisabled) {
+        this.extendDisabled = extendDisabled;
+    }
+
+    public Customer getNewCompany() {
+        return newCompany;
+    }
+
+    public void setNewCompany(Customer newCompany) {
+        this.newCompany = newCompany;
+    }
+
+    public Person getNewContact() {
+        return newContact;
+    }
+
+    public void setNewContact(Person newContact) {
+        this.newContact = newContact;
+    }
+
+    
+    
     
 
 }

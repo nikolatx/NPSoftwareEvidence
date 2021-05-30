@@ -10,8 +10,10 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.ejb.EJBException;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Named;
 import javax.enterprise.context.SessionScoped;
 import javax.faces.component.UIComponent;
@@ -24,7 +26,7 @@ import tnt.npse.entities.Software;
 import tnt.npse.entities.Status;
 
 @Named("licenseController")
-@SessionScoped
+@RequestScoped
 public class LicenseController implements Serializable {
 
     @EJB
@@ -40,6 +42,10 @@ public class LicenseController implements Serializable {
     public LicenseController() {
     }
 
+    @PostConstruct
+    public void init() {
+        getItems();
+    }
     
     public License create(String licenseCode, String softwareName) {
         FacesContext context=FacesContext.getCurrentInstance();
@@ -64,13 +70,15 @@ public class LicenseController implements Serializable {
                 Software soft=null;
                 soft=softwareController.getItems().stream().filter(so->so.getName().equalsIgnoreCase(softwareName)).findFirst().orElse(null);
                 lic.setSoftwareId(soft);
+                selected=lic;
                 persist(PersistAction.CREATE, ResourceBundle.getBundle("/Bundle").getString("LicenseCreated"));
-                //items=null;
+                items=null;
                 items=getItems();
                 lic=items.stream().filter(li->li.getLicenseCode().equalsIgnoreCase(licenseCode)).findFirst().orElse(null);
+                selected=lic;
                 int a=1;
             } else {
-                JsfUtil.addSuccessMessage(ResourceBundle.getBundle("/Bundle").getString("SoftwareExists"));
+                JsfUtil.addSuccessMessage(ResourceBundle.getBundle("/Bundle").getString("LicenseExists"));
                 lic=null;
             }
         }

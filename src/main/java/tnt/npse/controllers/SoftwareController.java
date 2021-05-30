@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.ejb.EJBException;
 import javax.enterprise.context.RequestScoped;
@@ -35,6 +36,10 @@ public class SoftwareController implements Serializable {
     public SoftwareController() {
     }
 
+    @PostConstruct
+    public void init() {
+        getItems();
+    }
     public Software getSelected() {
         return selected;
     }

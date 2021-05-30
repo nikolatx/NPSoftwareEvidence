@@ -6,6 +6,7 @@
 package tnt.npse.entities;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
@@ -73,7 +74,7 @@ public class Customer implements Serializable {
     @Column(name = "country")
     private String country;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "customerId", fetch = FetchType.EAGER)
-    private Set<Person> personSet;
+    private Set<Person> personSet=new HashSet<>();
     
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "customer", fetch = FetchType.EAGER)
     private Set<LicenseCustomer> licenseCustomerSet;

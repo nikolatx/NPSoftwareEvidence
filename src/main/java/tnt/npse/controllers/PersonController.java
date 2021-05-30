@@ -12,6 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.EJBException;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Named;
 import javax.enterprise.context.SessionScoped;
 import javax.faces.component.UIComponent;
@@ -20,7 +21,7 @@ import javax.faces.convert.Converter;
 import javax.faces.convert.FacesConverter;
 
 @Named("personController")
-@SessionScoped
+@RequestScoped
 public class PersonController implements Serializable {
 
     @EJB
@@ -54,6 +55,14 @@ public class PersonController implements Serializable {
         initializeEmbeddableKey();
         return selected;
     }
+    
+    public void create(Person person) {
+        selected=person;
+        persist(PersistAction.CREATE, ResourceBundle.getBundle("/Bundle").getString("PersonCreated"));
+        if (!JsfUtil.isValidationFailed()) {
+            items = null;    // Invalidate list of items to trigger re-query.
+        }
+    }
 
     public void create() {
         persist(PersistAction.CREATE, ResourceBundle.getBundle("/Bundle").getString("PersonCreated"));
@@ -85,7 +94,9 @@ public class PersonController implements Serializable {
         if (selected != null) {
             setEmbeddableKeys();
             try {
-                if (persistAction != PersistAction.DELETE) {
+                if (persistAction == PersistAction.CREATE) {
+                    getFacade().create(selected);
+                } else if (persistAction != PersistAction.DELETE) {
                     getFacade().edit(selected);
                 } else {
                     getFacade().remove(selected);

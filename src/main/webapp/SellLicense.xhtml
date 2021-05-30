@@ -47,7 +47,10 @@
                                     Software
                                 </p:column>
                                 <p:column>  
-                                    <p:selectOneMenu id="somsoft" value="#{sellMenuView.selSoftware}" converter="SoftwareConverter" style="margin-top: 9px;width:80%" filter="true">
+                                    <p:selectOneMenu id="somsoft" value="#{sellMenuView.selSoftware}" converter="SoftwareConverter" 
+                                                     style="margin-top: 9px;width:80%" filter="true"
+                                                     required="true" requiredMessage="#{bundle.SellLicenseRequiredMessage_softwarename}">
+                                        
                                         <f:selectItem itemLabel="Select/Reset Software" itemValue="#{null}" />
                                         <f:selectItems value="#{sellMenuView.allsoftware}" var="selSoftware" itemValue="#{selSoftware}" itemLabel="#{selSoftware.name}"/>
                                         <p:ajax event="change" listener="#{sellMenuView.softwareSelected}" update="panSoft, panRes, panEnd"/>
@@ -60,11 +63,12 @@
                                     License
                                 </p:column>
                                 <p:column>
-                                    <p:selectOneMenu id="somLic" value="#{sellMenuView.selLicense}" style="margin-top: 9px;width:80%" filter="true"  >
+                                    <p:selectOneMenu id="somLic" value="#{sellMenuView.selLicense}" style="margin-top: 9px;width:80%" filter="true"  
+                                                     required="true" requiredMessage="#{bundle.SellLicenseRequiredMessage_licenseCode}">
                                         <f:selectItem itemLabel="Select/Reset License" itemValue="#{null}" />
                                         <f:selectItems value="#{sellMenuView.licenses}" var="selLicense" itemValue="#{selLicense}" 
                                                        itemLabel="#{selLicense.licenseCode}"/>
-                                        <p:ajax event="change" listener="#{sellMenuView.licenseSelected}" update="inputSMA, panRes, panEnd"/>
+                                        <p:ajax event="change" listener="#{sellMenuView.licenseSelected}" update="panSoft, panRes, panEnd"/>
                                     </p:selectOneMenu>
                                 </p:column>
 
@@ -81,7 +85,22 @@
                                 </p:column>
 
                                 <p:column>
-                                    <p:commandButton value="Add new" disabled="#{sellMenuView.smaDisabled}"/>
+                                    <p:commandButton id="addSmaButton" value="Add new" disabled="#{sellMenuView.smaDisabled}" 
+                                                     onclick="PF('SmaCreateDialog').show()" update=":SmaCreateForm"/>
+                                </p:column>
+                                
+                                <p:column>
+                                    Expiration date
+                                </p:column>
+                                <p:column>
+                                    <p:inputText id="expDate" value="#{sellMenuView.expDate}" style="margin-top: 9px;width:80%" readonly="true">
+                                        <f:convertDateTime pattern="dd. MMMM yyyy." />
+                                    </p:inputText>
+                                </p:column>
+
+                                <p:column>
+                                    <p:commandButton id="expButton" value="Extend" disabled="#{sellMenuView.extendDisabled}"
+                                                     onclick="PF('ExtendDialog').show()" update=":ExtendForm"/>
                                 </p:column>
                                 
                             </p:panelGrid>
@@ -146,7 +165,7 @@
                                 </p:row>
                                 <p:row>
                                     <p:column colspan="2">
-                                        <p:selectOneMenu id="selrContacts" value="#{sellMenuView.selContact}" style="margin-top: 9px;width:90%;" filter="true"  >
+                                        <p:selectOneMenu id="selrContacts" value="#{sellMenuView.selContact}" style="margin-top: 9px;width:90%;" filter="true">
                                             <f:selectItem itemLabel="Select/Reset Contact" itemValue="#{null}" />
                                             <f:selectItems value="#{sellMenuView.contacts}" var="selContact" itemValue="#{selContact}" itemLabel="#{selContact.firstName} #{selContact.lastName}"/>
                                             <p:ajax event="change" listener="#{sellMenuView.contactSelected}" update="panRes, panSoft"/>
@@ -199,7 +218,8 @@
                                 </f:facet>
                                 <p:row>
                                     <p:column colspan="2">
-                                        <p:selectOneMenu id="selEData" value="#{sellMenuView.selEndUser}" style="margin-top: 9px;width:90%" filter="true">
+                                        <p:selectOneMenu id="selEData" value="#{sellMenuView.selEndUser}" style="margin-top: 9px;width:90%" filter="true"
+                                                         required="true" requiredMessage="#{bundle.SellLicenseRequiredMessage_endUser}">
                                             <f:selectItem itemLabel="Select/Reset End User" itemValue="#{null}" />
                                             <f:selectItems value="#{sellMenuView.endUsers}" var="selEndUser" itemValue="#{selEndUser}" itemLabel="#{selEndUser.name}, #{selEndUser.country}"/>
                                             <p:ajax event="change" listener="#{sellMenuView.endUserSelected}" update="panEnd, seleContacts"/>
@@ -248,7 +268,8 @@
                                 </p:row>
                                 <p:row>
                                     <p:column colspan="2">
-                                        <p:selectOneMenu id="seleContacts" value="#{sellMenuView.selEContact}" style="margin-top: 9px;width:90%" filter="true"  >
+                                        <p:selectOneMenu id="seleContacts" value="#{sellMenuView.selEContact}" style="margin-top: 9px;width:90%" filter="true"  
+                                                         required="true" requiredMessage="#{bundle.SellLicenseRequiredMessage_endUserContact}">
                                             <f:selectItem itemLabel="Select/Reset Contact" itemValue="#{null}" />
                                             <f:selectItems value="#{sellMenuView.econtacts}" var="selEContact" itemValue="#{selEContact}" itemLabel="#{selEContact.firstName} #{selEContact.lastName}"/>
                                             <p:ajax event="change" listener="#{sellMenuView.eContactSelected}" update="panEnd"/>
@@ -287,20 +308,51 @@
                                         <p:inputText id="eemail" value="#{sellMenuView.selEContact.email}" readonly="true" />
                                     </p:column>
                                 </p:row>
-
+                                
                             </p:panelGrid>
-                            
-                            
+                        
                             <p:column></p:column>
+                            <p:column colspan="2">
+                                <p:commandButton value="Add new company" onclick="PF('AddCompDialog').show()" update=":AddCompForm"/>
+                            </p:column>
                             
-                            <p:commandButton value="Add new reseller"/>
-                            
-                            <p:commandButton value="Add new end user"/>
                         
                     </p:panelGrid>
-
+                    
+                    <p:commandButton value="Sell license" oncomplete="if (!args.validationFailed) PF('SellDialog').show()" process="panSoft, panEnd" 
+                                     update=":SellForm, form1, :messages"/>
+                    
                     
                 </h:form> 
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <p:dialog id="SellDlg" widgetVar="SellDialog" modal="true" resizable="false" appendTo="@(body)" header="#{bundle.SellLicenseTitle}">
+                    <h:form id="SellForm">
+                        
+                        <p:outputLabel value="#{bundle.SellLicenseQuestion}"/>
+                        <p:panelGrid columns="2" >
+                            <p:commandButton actionListener="#{sellMenuView.sellLicense}" value="#{bundle.SellButton}" 
+                                             update="SellForm, :messages, :form1" oncomplete="handleSubmit(args,'SellDialog');"/>
+
+                            <p:commandButton value="#{bundle.Cancel}" oncomplete="PF('SellDialog').hide()" immediate="true"/>    
+                        </p:panelGrid>
+
+                    </h:form>
+                </p:dialog>
+                
+                
+                
+                
+                
+                
+                
                 
                 
                 
@@ -315,7 +367,7 @@
                             <p:commandButton actionListener="#{sellMenuView.createSoftware()}"  
                                              value="#{bundle.Save}" update="displaySoft, :messages, :form1" oncomplete="handleSubmit(args,'SoftwareCreateDialog');">
                             </p:commandButton>
-                            <p:commandButton value="#{bundle.Cancel}" onclick="SoftwareCreateDialog.hide()"/>
+                            <p:commandButton value="#{bundle.Cancel}" oncomplete="PF('SoftwareCreateDialog').hide()" immediate="true"/>
                         </h:panelGroup>
                     </h:form>
                 </p:dialog>
@@ -326,23 +378,180 @@
                     <h:form id="LicenseCreateForm">
                         <h:panelGroup id="displayLic">
                             <p:panelGrid columns="2">
-                                
-                                <p:outputLabel value="#{bundle.CreateLicenseSoftwareName_name}" for="name" />
-                                <p:inputText id="name" value="#{sellMenuView.selSoftware.name}" title="#{bundle.CreateLicenseSoftwareName_name}" readonly="true"/>
-                                
+                                <p:outputLabel value="#{bundle.CreateLicenseSoftwareName_name}" for="name1" />
+                                <p:inputText id="name1" value="#{sellMenuView.selSoftware.name}" title="#{bundle.CreateLicenseSoftwareName_name}" 
+                                             readonly="true"/>
                                 <p:outputLabel value="#{bundle.CreateLicenseLabel_licenseCode}" for="licenseCode" />
                                 <p:inputText id="licenseCode" value="#{sellMenuView.licenseCode}" title="#{bundle.CreateLicenseTitle_licenseCode}"
                                              required="true" requiredMessage="#{bundle.CreateLicenseRequiredMessage_licenseCode}"/>
-                                
                             </p:panelGrid>
-                            <p:commandButton actionListener="#{sellMenuView.createLicense}" value="#{bundle.Save}" 
+                            <p:commandButton actionListener="#{sellMenuView.createLicense}" value="#{bundle.Save}"  
                                              update="displayLic, :messages, :form1" oncomplete="handleSubmit(args,'LicenseCreateDialog');"/>
-                            <p:commandButton value="#{bundle.Cancel}" onclick="LicenseCreateDialog.hide()"/>
+                            <p:commandButton value="#{bundle.Cancel}" oncomplete="PF('LicenseCreateDialog').hide()" immediate="true"/>
                         </h:panelGroup>
                     </h:form>
                 </p:dialog>
 
                 
+                <p:dialog id="SmaCreateDlg" widgetVar="SmaCreateDialog" modal="true" resizable="false" appendTo="@(body)" 
+                          header="#{bundle.InsertSmaTitle}">
+                    <h:form id="SmaCreateForm">
+                        <h:panelGroup id="displaySma">
+                            <p:panelGrid columns="2">
+                                <p:outputLabel value="#{bundle.CreateSmaSoftwareName_name}" for="name2" />
+                                <p:inputText id="name2" value="#{sellMenuView.selSoftware.name}" title="#{bundle.CreateSmaSoftwareName_name}" 
+                                             readonly="true" required="true"/>
+                                <p:outputLabel value="#{bundle.CreateSmaLabel_licenseCode}" for="licenseCode1" />
+                                <p:inputText id="licenseCode1" value="#{sellMenuView.selLicense}" title="#{bundle.CreateSma_licenseCode}"
+                                             readonly="true"/>
+                                
+                                <p:outputLabel value="#{bundle.CreateSmaLabel_smaCode}" for="smaCode1" />
+                                <p:inputText id="smaCode1" value="#{sellMenuView.smaCode}" title="#{bundle.CreateSmaLabel_smaCode}"
+                                             required="true" requiredMessage="#{bundle.CreateSmaRequiredMessage_smaCode}"/>
+                                
+                            </p:panelGrid>
+                            <p:commandButton actionListener="#{sellMenuView.createSMA}" value="#{bundle.Save}"  
+                                             update="displaySma, :messages, :form1" oncomplete="handleSubmit(args,'SmaCreateDialog');"/>
+                            <p:commandButton value="#{bundle.Cancel}" oncomplete="PF('SmaCreateDialog').hide()" immediate="true"/>
+                        </h:panelGroup>
+                    </h:form>
+                </p:dialog>
+                
+                
+                <p:dialog id="ExtendDlg" widgetVar="ExtendDialog" modal="true" resizable="false" appendTo="@(body)" 
+                          header="#{bundle.InsertExtendTitle}">
+                    <h:form id="ExtendForm">
+                        <h:panelGroup id="displayExtend">
+                            <p:panelGrid columns="2">
+                                <p:outputLabel value="#{bundle.CreateSmaSoftwareName_name}" for="name3" />
+                                <p:inputText id="name3" value="#{sellMenuView.selSoftware.name}" title="#{bundle.CreateSmaSoftwareName_name}" 
+                                             readonly="true"/>
+                                <p:outputLabel value="#{bundle.CreateSmaLabel_licenseCode}" for="licenseCode2" />
+                                <p:inputText id="licenseCode2" value="#{sellMenuView.selLicense}" title="#{bundle.CreateSma_licenseCode}"
+                                             readonly="true"/>
+                                <p:outputLabel value="#{bundle.CreateSmaLabel_smaCode}" for="smaCode2" />
+                                <p:inputText id="smaCode2" value="#{sellMenuView.smaCode}" title="#{bundle.CreateSmaLabel_smaCode}"
+                                             readonly="true" requiredMessage="#{bundle.CreateSmaRequiredMessage_smaCode}"/>
+                            </p:panelGrid>
+                            <p:commandButton actionListener="#{sellMenuView.extendSMA}" value="#{bundle.ExtendSMA}"  
+                                             update="displayExtend, :messages, :form1" oncomplete="handleSubmit(args,'ExtendDialog');"/>
+                            <p:commandButton value="#{bundle.Cancel}" oncomplete="PF('ExtendDialog').hide()" immediate="true"/>
+                        </h:panelGroup>
+                    </h:form>
+                </p:dialog>
+                
+                
+                
+                
+                
+                
+                
+                <p:dialog id="AddCompDlg" widgetVar="AddCompDialog" modal="true" resizable="false" appendTo="@(body)" header="#{bundle.AddCompTitle}">
+                    <h:form id="AddCompForm">
+                        <h:panelGroup id="displayComp">
+                            <p:panelGrid columns="2">
+                                
+                               <p:panelGrid id="panNewComp" style="width:100%;margin-top: 40px;max-width: 100%;">
+                                    <p:row>
+                                        <p:column>
+                                            <h:outputText value="Company name:"/>
+                                        </p:column>
+                                        <p:column>
+                                            <p:inputText value="#{sellMenuView.newCompany.name}" required="true" 
+                                                         requiredMessage="#{bundle.NewCompanyRequiredMessage_name}"/>
+                                        </p:column>
+                                    </p:row>
+                                    <p:row>
+                                        <p:column>
+                                            <h:outputText value="Street:"/>
+                                        </p:column>
+                                        <p:column>
+                                            <p:inputText value="#{sellMenuView.newCompany.street}" required="true" 
+                                                         requiredMessage="#{bundle.NewCompanyRequiredMessage_street}"/>
+                                        </p:column>
+                                    </p:row>
+                                    <p:row>
+                                        <p:column>
+                                            <h:outputText value="Number:"/>
+                                        </p:column>
+                                        <p:column>
+                                            <p:inputText value="#{sellMenuView.newCompany.number}" required="true" 
+                                                         requiredMessage="#{bundle.NewCompanyRequiredMessage_number}"/>
+                                        </p:column>
+                                    </p:row>
+                                    <p:row>
+                                        <p:column>
+                                            <h:outputText value="City:"/>
+                                        </p:column>
+                                        <p:column>
+                                            <p:inputText value="#{sellMenuView.newCompany.city}" required="true" 
+                                                         requiredMessage="#{bundle.NewCompanyRequiredMessage_city}"/>
+                                        </p:column>
+                                    </p:row>
+                                    <p:row>
+                                        <p:column>
+                                            <h:outputText value="Country:"/>
+                                        </p:column>
+                                        <p:column>
+                                            <p:inputText value="#{sellMenuView.newCompany.country}" required="true" 
+                                                         requiredMessage="#{bundle.NewCompanyRequiredMessage_country}"/>
+                                        </p:column>
+                                    </p:row>
+                                    <p:row>
+                                        <p:column colspan="2">
+                                            <h:outputText value="Contact person"/>
+                                        </p:column>
+                                    </p:row>
+                                    <p:row>
+                                        <p:column>
+                                            <h:outputText value="First name:"/>
+                                        </p:column>
+                                        <p:column>
+                                            <p:inputText value="#{sellMenuView.newContact.firstName}" required="true" 
+                                                         requiredMessage="#{bundle.NewContactRequiredMessage_firstname}"/>
+                                        </p:column>
+                                    </p:row>
+                                    <p:row>
+                                        <p:column>
+                                            <h:outputText value="Last name:"/>
+                                        </p:column>
+                                        <p:column>
+                                            <p:inputText value="#{sellMenuView.newContact.lastName}" required="true" 
+                                                         requiredMessage="#{bundle.NewContactRequiredMessage_lastname}"/>
+                                        </p:column>
+                                    </p:row>
+                                    <p:row>
+                                        <p:column>
+                                            <h:outputText value="Phone:"/>
+                                        </p:column>
+                                        <p:column>
+                                            <p:inputText value="#{sellMenuView.newContact.phone}" required="true" 
+                                                         requiredMessage="#{bundle.NewContactRequiredMessage_phone}"/>
+                                        </p:column>
+                                    </p:row>
+                                    <p:row>
+                                        <p:column>
+                                            <h:outputText value="Email:"/>
+                                        </p:column>
+                                        <p:column>
+                                            <p:inputText value="#{sellMenuView.newContact.email}" required="true" 
+                                                         requiredMessage="#{bundle.NewContactRequiredMessage_email}"/>
+                                        </p:column>
+                                    </p:row>
+                                </p:panelGrid> 
+
+                            </p:panelGrid>
+                            
+                            <p:commandButton actionListener="#{sellMenuView.addNewCompany()}" value="#{bundle.AddNewCompany}" 
+                                             update="AddCompForm, displayComp, :messages, :form1" oncomplete="handleSubmit(args,'AddCompDialog');" process="AddCompForm">
+                            </p:commandButton>
+                            <p:commandButton value="#{bundle.Cancel}" oncomplete="PF('AddCompDialog').hide()" immediate="true"/>
+                        </h:panelGroup>
+                    </h:form>
+                </p:dialog>
+
+
+
                 
                 
                 
