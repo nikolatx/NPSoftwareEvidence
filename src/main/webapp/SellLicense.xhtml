@@ -86,7 +86,7 @@
 
                                 <p:column>
                                     <p:commandButton id="addSmaButton" value="Add new" disabled="#{sellMenuView.smaDisabled}" 
-                                                     onclick="PF('SmaCreateDialog').show()" update=":SmaCreateForm"/>
+                                                     onclick="PF('SmaCreateDialog').show()" update=":SmaCreateForm" process="@this"/>
                                 </p:column>
                                 
                                 <p:column>
@@ -382,7 +382,7 @@
                                 <p:inputText id="name1" value="#{sellMenuView.selSoftware.name}" title="#{bundle.CreateLicenseSoftwareName_name}" 
                                              readonly="true"/>
                                 <p:outputLabel value="#{bundle.CreateLicenseLabel_licenseCode}" for="licenseCode" />
-                                <p:inputText id="licenseCode" value="#{sellMenuView.licenseCode}" title="#{bundle.CreateLicenseTitle_licenseCode}"
+                                <p:inputText id="licenseCode" value="#{sellMenuView.selLicense.licenseCode}" title="#{bundle.CreateLicenseTitle_licenseCode}"
                                              required="true" requiredMessage="#{bundle.CreateLicenseRequiredMessage_licenseCode}"/>
                             </p:panelGrid>
                             <p:commandButton actionListener="#{sellMenuView.createLicense}" value="#{bundle.Save}"  
@@ -402,7 +402,7 @@
                                 <p:inputText id="name2" value="#{sellMenuView.selSoftware.name}" title="#{bundle.CreateSmaSoftwareName_name}" 
                                              readonly="true" required="true"/>
                                 <p:outputLabel value="#{bundle.CreateSmaLabel_licenseCode}" for="licenseCode1" />
-                                <p:inputText id="licenseCode1" value="#{sellMenuView.selLicense}" title="#{bundle.CreateSma_licenseCode}"
+                                <p:inputText id="licenseCode1" value="#{sellMenuView.selLicense.licenseCode}" title="#{bundle.CreateSma_licenseCode}"
                                              readonly="true"/>
                                 
                                 <p:outputLabel value="#{bundle.CreateSmaLabel_smaCode}" for="smaCode1" />
@@ -410,8 +410,8 @@
                                              required="true" requiredMessage="#{bundle.CreateSmaRequiredMessage_smaCode}"/>
                                 
                             </p:panelGrid>
-                            <p:commandButton actionListener="#{sellMenuView.createSMA}" value="#{bundle.Save}"  
-                                             update="displaySma, :messages, :form1" oncomplete="handleSubmit(args,'SmaCreateDialog');"/>
+                            <p:commandButton actionListener="#{sellMenuView.createSMA}" value="#{bundle.Save}" 
+                                             update="displaySma, :messages, :form1" oncomplete="PF('SmaCreateDialog').hide();" />
                             <p:commandButton value="#{bundle.Cancel}" oncomplete="PF('SmaCreateDialog').hide()" immediate="true"/>
                         </h:panelGroup>
                     </h:form>

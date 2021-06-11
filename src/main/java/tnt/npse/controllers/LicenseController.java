@@ -22,6 +22,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 import javax.faces.convert.FacesConverter;
 import javax.inject.Inject;
+import tnt.npse.entities.Customer;
 import tnt.npse.entities.Software;
 import tnt.npse.entities.Status;
 
@@ -46,6 +47,23 @@ public class LicenseController implements Serializable {
     public void init() {
         getItems();
     }
+    
+    public void sellLicense(Software software, License license, Customer reseller, Customer endUser) {
+        int a=1;
+        a=2;
+        selected=license;
+        FacesContext context=FacesContext.getCurrentInstance();
+        ExternalContext ec = context.getExternalContext();
+        ec.getFlash().setKeepMessages(true);
+        persist(PersistAction.CREATE, ResourceBundle.getBundle("/Bundle").getString("LicenseCreated"));
+        items=null;
+        items=getItems();
+        if (!JsfUtil.isValidationFailed()) {
+            items = null;    // Invalidate list of items to trigger re-query.
+        }
+    }
+    
+    
     
     public License create(String licenseCode, String softwareName) {
         FacesContext context=FacesContext.getCurrentInstance();

@@ -10,7 +10,9 @@ import java.time.LocalDate;
 import java.util.Date;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.faces.view.ViewScoped;
@@ -21,11 +23,13 @@ import tnt.npse.controllers.LicenseController;
 import tnt.npse.controllers.LicenseCustomerController;
 import tnt.npse.controllers.PersonController;
 import tnt.npse.controllers.SoftwareController;
+import tnt.npse.controllers.StatusController;
 import tnt.npse.entities.Customer;
 import tnt.npse.entities.License;
 import tnt.npse.entities.LicenseCustomer;
 import tnt.npse.entities.Person;
 import tnt.npse.entities.Software;
+import tnt.npse.entities.Status;
 
 
 
@@ -78,6 +82,9 @@ public class SellMenuView implements Serializable {
     private LicenseCustomerController licenseCustomerController;
     @Inject
     private PersonController personController;
+    @Inject
+    private StatusController statusController;
+    
     
     
     @PostConstruct
@@ -183,12 +190,23 @@ public class SellMenuView implements Serializable {
         if (lc!=null) {
             selReseller=lc.getCustomer();
             selContact=selReseller.getPersonSet().stream().findFirst().orElse(null);
+        } else {
+            selReseller=null;
+            selContact=null;
         }
         lc=selLicense.getLicenseCustomerSet().stream().filter(lic->lic.getEndUser()==true).findFirst().orElse(null);
         if (lc!=null) {
             selEndUser=lc.getCustomer();
             selEContact=selEndUser.getPersonSet().stream().findFirst().orElse(null);
+        } else {
+            selEndUser=null;
+            selEContact=null;
         }
+    }
+    
+    public void check1() {
+        int a=1;
+        a=a+1;
     }
     
     public void resellerSelected() {
@@ -266,7 +284,7 @@ public class SellMenuView implements Serializable {
     public void createLicense() {
         //License lic=licenseController.create(licenseCode, selSoftware.getName());
         License lic = new License();
-        lic.setLicenseCode(licenseCode);
+        lic.setLicenseCode(selLicense.getLicenseCode());   //(licenseCode);
         lic.setSmaCode("");
         lic.setExpDate(null);
         lic.setSoftwareId(selSoftware);
@@ -310,6 +328,34 @@ public class SellMenuView implements Serializable {
     public void sellLicense() {
         int a=1;
         a=5;
+        
+        Status active=statusController.getItems().stream().filter(e->e.getName().equalsIgnoreCase("active")).findFirst().orElse(null);
+        Status notActivated=statusController.getItems().stream().filter(e->e.getName().equalsIgnoreCase("not activated")).findFirst().orElse(null);
+        if (smaCode!=null && !smaCode.isEmpty()) {
+            selLicense.setStatusId(active);
+            selLicense.setSmaCode(smaCode);
+        } else
+            selLicense.setStatusId(notActivated);
+        if (expDate!=null)
+            selLicense.setExpDate(expDate);
+        LicenseCustomer lcReseller=null;
+        if (selReseller!=null) {
+            lcReseller=new LicenseCustomer();
+            lcReseller.setEndUser(false);
+            lcReseller.setCustomer(selReseller);
+            lcReseller.setLicense(selLicense);
+        }
+        LicenseCustomer lcEndUser=new LicenseCustomer();
+        lcEndUser.setEndUser(true);
+        selEndUser.setCustomerId(2);
+        lcEndUser.setCustomer(selEndUser);
+        lcEndUser.setLicense(selLicense);
+        Set<LicenseCustomer> lcSet=new HashSet<>();
+        lcSet.add(lcReseller);
+        lcSet.add(lcEndUser);
+        selLicense.setLicenseCustomerSet(lcSet);
+        selSoftware.getLicenseSet().add(selLicense);
+        licenseController.sellLicense(selSoftware, selLicense, selReseller, selEndUser);
     }
     
     public List<Software> getAllsoftware() {
