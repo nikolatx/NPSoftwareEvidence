@@ -11,6 +11,9 @@ import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
@@ -28,47 +31,45 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "LicenseCustomer.findAll", query = "SELECT l FROM LicenseCustomer l"),
-    @NamedQuery(name = "LicenseCustomer.findByLicenseId", query = "SELECT l FROM LicenseCustomer l WHERE l.licenseCustomerPK.licenseId = :licenseId"),
-    @NamedQuery(name = "LicenseCustomer.findByCustomerId", query = "SELECT l FROM LicenseCustomer l WHERE l.licenseCustomerPK.customerId = :customerId"),
+    @NamedQuery(name = "LicenseCustomer.findByLcId", query = "SELECT l FROM LicenseCustomer l WHERE l.lcId = :lcId"),
     @NamedQuery(name = "LicenseCustomer.findByEndUser", query = "SELECT l FROM LicenseCustomer l WHERE l.endUser = :endUser")})
 public class LicenseCustomer implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    @EmbeddedId
-    protected LicenseCustomerPK licenseCustomerPK;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Basic(optional = false)
+    @Column(name = "lc_id")
+    private Long lcId;
     @Basic(optional = false)
     @NotNull
     @Column(name = "end_user")
     private boolean endUser;
-    @JoinColumn(name = "license_id", referencedColumnName = "license_id", insertable = false, updatable = false)
-    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    @JoinColumn(name = "license_id", referencedColumnName = "license_id")
+    @ManyToOne(optional = false)
     private License license;
-    @JoinColumn(name = "customer_id", referencedColumnName = "customer_id", insertable = false, updatable = false)
-    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    @JoinColumn(name = "customer_id", referencedColumnName = "customer_id")
+    @ManyToOne(optional = false)
     private Customer customer;
 
     public LicenseCustomer() {
     }
 
-    public LicenseCustomer(LicenseCustomerPK licenseCustomerPK) {
-        this.licenseCustomerPK = licenseCustomerPK;
+    public LicenseCustomer(Long lcId) {
+        this.lcId = lcId;
     }
 
-    public LicenseCustomer(LicenseCustomerPK licenseCustomerPK, boolean endUser) {
-        this.licenseCustomerPK = licenseCustomerPK;
+    public LicenseCustomer(Long lcId, boolean endUser) {
+        this.lcId = lcId;
         this.endUser = endUser;
     }
 
-    public LicenseCustomer(int licenseId, int customerId) {
-        this.licenseCustomerPK = new LicenseCustomerPK(licenseId, customerId);
+    public Long getLcId() {
+        return lcId;
     }
 
-    public LicenseCustomerPK getLicenseCustomerPK() {
-        return licenseCustomerPK;
-    }
-
-    public void setLicenseCustomerPK(LicenseCustomerPK licenseCustomerPK) {
-        this.licenseCustomerPK = licenseCustomerPK;
+    public void setLcId(Long lcId) {
+        this.lcId = lcId;
     }
 
     public boolean getEndUser() {
@@ -98,7 +99,7 @@ public class LicenseCustomer implements Serializable {
     @Override
     public int hashCode() {
         int hash = 0;
-        hash += (licenseCustomerPK != null ? licenseCustomerPK.hashCode() : 0);
+        hash += (lcId != null ? lcId.hashCode() : 0);
         return hash;
     }
 
@@ -109,15 +110,21 @@ public class LicenseCustomer implements Serializable {
             return false;
         }
         LicenseCustomer other = (LicenseCustomer) object;
-        if ((this.licenseCustomerPK == null && other.licenseCustomerPK != null) || (this.licenseCustomerPK != null && !this.licenseCustomerPK.equals(other.licenseCustomerPK))) {
+        if ((this.lcId == null && other.lcId != null) || (this.lcId != null && !this.lcId.equals(other.lcId))) {
             return false;
+        }
+        if (this.lcId==null && other.lcId==null) {
+            if ((this.customer!=null && other.customer==null)||(this.customer==null && other.customer!=null)) 
+                return false;
+            else if (this.customer!=other.customer || this.endUser!=other.endUser)
+                return false;
         }
         return true;
     }
 
     @Override
     public String toString() {
-        return "tnt.npsoftwareevidence.model.LicenseCustomer[ licenseCustomerPK=" + licenseCustomerPK + " ]";
+        return "tnt.npsoftwareevidence.model.LicenseCustomer[ lcId=" + lcId + " ]";
     }
     
 }

@@ -24,7 +24,7 @@ import javax.faces.convert.FacesConverter;
 public class LicenseCustomerController implements Serializable {
 
     @EJB
-    private tnt.npse.beans.LicenseCustomerFacade ejbFacade;
+    private LicenseCustomerFacade ejbFacade;
     private List<LicenseCustomer> items = null;
     private LicenseCustomer selected;
 
@@ -40,12 +40,9 @@ public class LicenseCustomerController implements Serializable {
     }
 
     protected void setEmbeddableKeys() {
-        selected.getLicenseCustomerPK().setLicenseId(selected.getLicense().getLicenseId());
-        selected.getLicenseCustomerPK().setCustomerId(selected.getCustomer().getCustomerId());
     }
 
     protected void initializeEmbeddableKey() {
-        selected.setLicenseCustomerPK(new tnt.npse.entities.LicenseCustomerPK());
     }
 
     private LicenseCustomerFacade getFacade() {
@@ -112,7 +109,7 @@ public class LicenseCustomerController implements Serializable {
         }
     }
 
-    public LicenseCustomer getLicenseCustomer(tnt.npse.entities.LicenseCustomerPK id) {
+    public LicenseCustomer getLicenseCustomer(java.lang.Integer id) {
         return getFacade().find(id);
     }
 
@@ -127,9 +124,6 @@ public class LicenseCustomerController implements Serializable {
     @FacesConverter(forClass = LicenseCustomer.class)
     public static class LicenseCustomerControllerConverter implements Converter {
 
-        private static final String SEPARATOR = "#";
-        private static final String SEPARATOR_ESCAPED = "\\#";
-
         @Override
         public Object getAsObject(FacesContext facesContext, UIComponent component, String value) {
             if (value == null || value.length() == 0) {
@@ -140,20 +134,15 @@ public class LicenseCustomerController implements Serializable {
             return controller.getLicenseCustomer(getKey(value));
         }
 
-        tnt.npse.entities.LicenseCustomerPK getKey(String value) {
-            tnt.npse.entities.LicenseCustomerPK key;
-            String values[] = value.split(SEPARATOR_ESCAPED);
-            key = new tnt.npse.entities.LicenseCustomerPK();
-            key.setLicenseId(Integer.parseInt(values[0]));
-            key.setCustomerId(Integer.parseInt(values[1]));
+        java.lang.Integer getKey(String value) {
+            java.lang.Integer key;
+            key = Integer.valueOf(value);
             return key;
         }
 
-        String getStringKey(tnt.npse.entities.LicenseCustomerPK value) {
+        String getStringKey(java.lang.Long value) {
             StringBuilder sb = new StringBuilder();
-            sb.append(value.getLicenseId());
-            sb.append(SEPARATOR);
-            sb.append(value.getCustomerId());
+            sb.append(value);
             return sb.toString();
         }
 
@@ -164,7 +153,7 @@ public class LicenseCustomerController implements Serializable {
             }
             if (object instanceof LicenseCustomer) {
                 LicenseCustomer o = (LicenseCustomer) object;
-                return getStringKey(o.getLicenseCustomerPK());
+                return getStringKey(o.getLcId());
             } else {
                 Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, "object {0} is of type {1}; expected type: {2}", new Object[]{object, object.getClass().getName(), LicenseCustomer.class.getName()});
                 return null;
@@ -174,3 +163,11 @@ public class LicenseCustomerController implements Serializable {
     }
 
 }
+
+
+
+    
+    
+    
+    
+    

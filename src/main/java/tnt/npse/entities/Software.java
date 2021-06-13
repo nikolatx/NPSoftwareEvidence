@@ -54,6 +54,10 @@ public class Software implements Serializable {
     public Software() {
     }
 
+    public Software(String name) {
+        this.name = name;
+    }
+
     public Software(Integer softwareId) {
         this.softwareId = softwareId;
     }
