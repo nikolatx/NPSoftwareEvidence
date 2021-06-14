@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.faces.context.ExternalContext;
@@ -97,8 +98,9 @@ public class SellMenuView implements Serializable {
         allsoftware=softwareController.getItems();
         licenses=licenseController.getItems();
         
-        resellers=customerController.getItems(); 
-        endUsers=customerController.getItems(); 
+        customerController.getItems().stream().forEach(e->resellers.add(e));
+        customerController.getItems().stream().forEach(e->endUsers.add(e));
+        //endUsers=customerController.getItems(); 
         
         resellers.forEach(res->contacts.addAll(res.getPersonSet()));
         endUsers.forEach(endU->econtacts.addAll(endU.getPersonSet()));
@@ -115,7 +117,6 @@ public class SellMenuView implements Serializable {
         cal.add(Calendar.YEAR, 1);
         cal.add(Calendar.DAY_OF_MONTH, -1);
         expDate=cal.getTime();
-        
     }
     
     
@@ -125,6 +126,7 @@ public class SellMenuView implements Serializable {
     
     
     private void resetAllData() {
+        /*
         selLicense=null;
         selReseller=null;
         selEndUser=null;
@@ -139,6 +141,7 @@ public class SellMenuView implements Serializable {
         allsoftware=new ArrayList<>();
         smaCode="";
         init();
+        */
     }
     
         
@@ -217,8 +220,8 @@ public class SellMenuView implements Serializable {
             JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("SoftwareExists"));
         }
         else {
-            selSoftware=softwareController.create(softwareName);
             allsoftware.add(new Software(softwareName));
+            selSoftware=allsoftware.stream().filter(e->e.getName().equalsIgnoreCase(softwareName)).findFirst().orElse(null);
         }
     }
     
@@ -260,19 +263,21 @@ public class SellMenuView implements Serializable {
         
         customerController.create(newCompany, newContact);
         
-        if (selReseller==null)
-            selReseller=newCompany;
-        contacts.add(newContact);
-
 
         endUsers.add(newCompany);
+        resellers.add(newCompany);
+        contacts.add(newContact);
+        econtacts.add(newContact);
+        
+        if (selReseller==null)
+            selReseller=resellers.stream().filter(e->e.getCustomerId().equals(newCompany.getCustomerId())).findFirst().orElse(null);
+        
+        
         if (selEndUser==null)
             selEndUser=newCompany;
-        econtacts.add(newContact);
-
         
-        selContact=newContact;
-        selEContact=newContact;
+       selContact=selReseller.getPersonSet().stream().filter(c->c.getPersonId().equals(newCompany.getCustomerId())).findFirst().orElse(null);
+       selEContact=selEndUser.getPersonSet().stream().filter(c->c.getPersonId().equals(newCompany.getCustomerId())).findFirst().orElse(null);;
     }
     
     public void sellLicense() {

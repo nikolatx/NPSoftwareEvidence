@@ -72,8 +72,8 @@ public class CustomerController implements Serializable {
             customer.getPersonSet().add(contact);
             selected=customer;
             persist(PersistAction.CREATE, ResourceBundle.getBundle("/Bundle").getString("CustomerCreated"));
-            items=null;
-            items=getItems();
+            //items=null;
+            //items=getItems();
             
             if (!JsfUtil.isValidationFailed()) {
                 items = null;    // Invalidate list of items to trigger re-query.
