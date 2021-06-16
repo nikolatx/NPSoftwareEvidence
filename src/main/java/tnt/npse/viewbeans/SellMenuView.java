@@ -22,6 +22,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+import org.apache.commons.lang3.SerializationUtils;
 import tnt.npse.controllers.CustomerController;
 import tnt.npse.controllers.LicenseController;
 import tnt.npse.controllers.LicenseCustomerController;
@@ -49,10 +50,12 @@ public class SellMenuView implements Serializable {
     private List<Software> allsoftware = new ArrayList<>();
     private Software selSoftware;
     
-    private List<Customer> resellers = new ArrayList<>();
+    //private List<Customer> resellers = new ArrayList<>();
     private Customer selReseller;
     
-    private List<Customer> endUsers = new ArrayList<>();
+    private List<Customer> customers = new ArrayList<>();
+    
+    //private List<Customer> endUsers = new ArrayList<>();
     private Customer selEndUser;
     
     private List<License> licenses;
@@ -98,12 +101,16 @@ public class SellMenuView implements Serializable {
         allsoftware=softwareController.getItems();
         licenses=licenseController.getItems();
         
-        customerController.getItems().stream().forEach(e->resellers.add(e));
-        customerController.getItems().stream().forEach(e->endUsers.add(e));
+        //customerController.getItems().stream().forEach(e->resellers.add(e));
+        //customerController.getItems().stream().forEach(e->endUsers.add(e));
+        customerController.getItems().stream().forEach(e->customers.add(e));
         //endUsers=customerController.getItems(); 
         
-        resellers.forEach(res->contacts.addAll(res.getPersonSet()));
-        endUsers.forEach(endU->econtacts.addAll(endU.getPersonSet()));
+        //resellers.forEach(res->contacts.addAll(res.getPersonSet()));
+        //endUsers.forEach(endU->econtacts.addAll(endU.getPersonSet()));
+        
+        customers.forEach(endU->contacts.addAll(endU.getPersonSet()));
+        customers.forEach(endU->econtacts.addAll(endU.getPersonSet()));
         newCompany=new Customer();
         newContact=new Person();
         selLicense=new License();
@@ -186,7 +193,9 @@ public class SellMenuView implements Serializable {
         //fill end user contact list
         econtacts=null;
         selEContact=null;
+        //econtacts=new ArrayList<>();
         econtacts=new ArrayList<>();
+        
         selEndUser.getPersonSet().stream().forEach(pers->econtacts.add(pers));
         //set first contact from end user list
         selEContact=(Person)selEndUser.getPersonSet().stream().findFirst().orElse(null);
@@ -199,10 +208,13 @@ public class SellMenuView implements Serializable {
             return;
         }
         selEndUser=null;
-        econtacts=null;
+        //econtacts=null;
+        contacts=null;
         //fill list of contact persons
-        econtacts=new ArrayList<>();
-        selEndUser.getPersonSet().stream().forEach(pers->econtacts.add(pers));
+        //econtacts=new ArrayList<>();
+        contacts=new ArrayList<>();
+        //selEndUser.getPersonSet().stream().forEach(pers->econtacts.add(pers));
+        selEndUser.getPersonSet().stream().forEach(pers->contacts.add(pers));
         //select end user
         selEndUser=(Customer)selEContact.getCustomerId();
     }
@@ -234,6 +246,7 @@ public class SellMenuView implements Serializable {
     
     public void createLicense() {
         
+        
     }
     
     public void createSMA() {
@@ -261,23 +274,35 @@ public class SellMenuView implements Serializable {
     
     public void addNewCompany() {
         
-        customerController.create(newCompany, newContact);
+        //Customer newComp=new Customer();
+        //ne moze da se radi sa newCompany vec mora da se pravi lokalna promenljiva koja se unistava posle upisa
+        //User deepCopy = (User) SerializationUtils.clone(pm);
         
-
-        endUsers.add(newCompany);
-        resellers.add(newCompany);
-        contacts.add(newContact);
-        econtacts.add(newContact);
+        
+        
+        
+        customerController.create(newCompany, newContact);
+        Customer savedCompany = (Customer) SerializationUtils.clone(newCompany);
+        //endUsers.add(newCompany);
+        //resellers.add(newCompany);
+        customers.add(savedCompany);
+        
+        contacts.add(savedCompany.getPersonSet().stream().findFirst().orElse(null));
+        //econtacts.add(newCompany.getPersonSet().stream().findFirst().orElse(null));
         
         if (selReseller==null)
-            selReseller=resellers.stream().filter(e->e.getCustomerId().equals(newCompany.getCustomerId())).findFirst().orElse(null);
-        
+            selReseller=customers.stream().filter(e->e.getCustomerId().equals(newCompany.getCustomerId())).findFirst().orElse(null);
+        //selReseller=resellers.stream().filter(e->e.getCustomerId().equals(newCompany.getCustomerId())).findFirst().orElse(null);
         
         if (selEndUser==null)
-            selEndUser=newCompany;
+            selEndUser=customers.stream().filter(e->e.getCustomerId().equals(newCompany.getCustomerId())).findFirst().orElse(null);
         
-       selContact=selReseller.getPersonSet().stream().filter(c->c.getPersonId().equals(newCompany.getCustomerId())).findFirst().orElse(null);
-       selEContact=selEndUser.getPersonSet().stream().filter(c->c.getPersonId().equals(newCompany.getCustomerId())).findFirst().orElse(null);;
+       selContact=selReseller.getPersonSet().stream().filter(c->c.getPersonId().equals(newContact.getPersonId())).findFirst().orElse(null);
+       selEContact=selEndUser.getPersonSet().stream().filter(c->c.getPersonId().equals(newContact.getPersonId())).findFirst().orElse(null);
+       newCompany=null;
+       newCompany=new Customer();
+       newContact=null;
+       newContact=new Person();
     }
     
     public void sellLicense() {
@@ -310,7 +335,7 @@ public class SellMenuView implements Serializable {
         lcSet.add(lcEndUser);
         selLicense.setLicenseCustomerSet(lcSet);
         selLicense.setSoftwareId(selSoftware);
-        selSoftware.getLicenseSet().add(selLicense);
+        //selSoftware.getLicenseSet().add(selLicense);
         licenseController.sellLicense(selSoftware, selLicense, selReseller, selEndUser);
     }
     
@@ -346,10 +371,6 @@ public class SellMenuView implements Serializable {
         this.customerController = customerController;
     }
 
-    public List<Customer> getResellers() {
-        return resellers;
-    }
-
     public LicenseController getLicenseController() {
         return licenseController;
     }
@@ -358,24 +379,12 @@ public class SellMenuView implements Serializable {
         this.licenseController = licenseController;
     }
     
-    public void setResellers(List<Customer> resellers) {
-        this.resellers = resellers;
-    }
-
     public Customer getSelReseller() {
         return selReseller;
     }
 
     public void setSelReseller(Customer selReseller) {
         this.selReseller = selReseller;
-    }
-
-    public List<Customer> getEndUsers() {
-        return endUsers;
-    }
-
-    public void setEndUsers(List<Customer> endUsers) {
-        this.endUsers = endUsers;
     }
 
     public Customer getSelEndUser() {
@@ -432,14 +441,6 @@ public class SellMenuView implements Serializable {
 
     public void setEmptyLicense(License emptyLicense) {
         this.emptyLicense = emptyLicense;
-    }
-
-    public List<Person> getEcontacts() {
-        return econtacts;
-    }
-
-    public void setEcontacts(List<Person> econtacts) {
-        this.econtacts = econtacts;
     }
 
     public Person getSelEContact() {
@@ -504,6 +505,22 @@ public class SellMenuView implements Serializable {
 
     public void setExpDate(Date expDate) {
         this.expDate = expDate;
+    }
+
+    public List<Customer> getCustomers() {
+        return customers;
+    }
+
+    public void setCustomers(List<Customer> customers) {
+        this.customers = customers;
+    }
+
+    public List<Person> getEcontacts() {
+        return econtacts;
+    }
+
+    public void setEcontacts(List<Person> econtacts) {
+        this.econtacts = econtacts;
     }
 
   

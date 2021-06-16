@@ -63,6 +63,7 @@ public class CustomerController implements Serializable {
 
     //creates a new customer with one contact (person)
     public void create(Customer customer, Person contact) {
+        items=getItems();
         Customer cust=items.stream().filter(cu->
                 cu.getName().equalsIgnoreCase(customer.getName()) &&
                 cu.getStreet().equalsIgnoreCase(customer.getStreet()) &&

@@ -48,7 +48,7 @@ public class License implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
     @Column(name = "license_id")
     private Integer licenseId;
@@ -67,7 +67,7 @@ public class License implements Serializable {
     private Date expDate;
     
     @JoinColumn(name = "software_id", referencedColumnName = "software_id")
-    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    @ManyToOne(cascade = CascadeType.PERSIST, optional = false, fetch = FetchType.EAGER)
     private Software softwareId;
     @JoinColumn(name = "status_id", referencedColumnName = "status_id")
     @ManyToOne(optional = false, fetch = FetchType.EAGER)

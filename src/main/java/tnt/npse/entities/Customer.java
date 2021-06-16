@@ -44,7 +44,7 @@ public class Customer implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
     @Column(name = "customer_id")
     private Integer customerId;
@@ -81,7 +81,9 @@ public class Customer implements Serializable {
 
     public Customer() {
     }
-
+    
+    
+    
     public Customer(Integer customerId) {
         this.customerId = customerId;
     }

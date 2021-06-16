@@ -108,22 +108,17 @@
                                     <p:column colspan="2">
                                         <p:selectOneMenu id="selRData" value="#{sellMenuView.selReseller}" style="margin-top: 9px;width:90%;" filter="true">
                                             <f:selectItem itemLabel="Select/Reset Reseller" itemValue="#{null}" />
-                                            <f:selectItems value="#{sellMenuView.resellers}" var="selReseller" itemValue="#{selReseller}" itemLabel="#{selReseller.name}, #{selReseller.country}"/>
-                                            <p:ajax event="change" listener="#{sellMenuView.resellerSelected}" update="panRes selrContacts :messages"/>
+                                            <f:selectItems value="#{sellMenuView.customers}" var="selReseller" itemValue="#{selReseller}" itemLabel="#{selReseller.name}, #{selReseller.country}"/>
+                                            <p:ajax event="change" listener="#{sellMenuView.resellerSelected}" process="selRData" update="panRes selrContacts :messages"/>
                                         </p:selectOneMenu>
                                     </p:column>
 
                                 </p:row>
-                                <p:row>
-                                    <p:column colspan="2">
-                                        <p:selectOneMenu id="selEData" value="#{sellMenuView.selEndUser}" style="margin-top: 9px;width:90%"
-                                                             required="false">
-                                            <f:selectItem itemLabel="Select/Reset End User" itemValue="#{null}" />
-                                            <f:selectItems value="#{sellMenuView.endUsers}" var="selEndUser" itemValue="#{selEndUser}" itemLabel="#{selEndUser.name}, #{selEndUser.country}"/>
-                                            <p:ajax event="change" listener="#{sellMenuView.endUserSelected}" update="panEnd, seleContacts, :messages"/>
-                                        </p:selectOneMenu>
-                                    </p:column>
-                                </p:row>
+                                
+                                
+                                
+                                
+                                
                                 <p:row>
                                     <p:column>
                                         <h:outputText value="Company name:"/>
@@ -219,11 +214,11 @@
                                 </f:facet>
                                 <p:row>
                                     <p:column colspan="2">
-                                        <p:selectOneMenu id="selEData1" value="#{sellMenuView.selEndUser}" style="margin-top: 9px;width:90%" filter="true"
+                                        <p:selectOneMenu id="selEData" value="#{sellMenuView.selEndUser}" style="margin-top: 9px;width:90%" filter="true"
                                                          required="true" requiredMessage="#{bundle.SellLicenseRequiredMessage_endUser}">
                                             <f:selectItem itemLabel="Select/Reset End User" itemValue="#{null}" />
-                                            <f:selectItems value="#{sellMenuView.endUsers}" var="selEndUser" itemValue="#{selEndUser}" itemLabel="#{selEndUser.name}, #{selEndUser.country}"/>
-                                            <p:ajax event="change" listener="#{sellMenuView.endUserSelected}" update="panEnd, seleContacts, :messages"/>
+                                            <f:selectItems value="#{sellMenuView.customers}" var="selEndUser" itemValue="#{selEndUser}" itemLabel="#{selEndUser.name}, #{selEndUser.country}"/>
+                                            <p:ajax event="change" listener="#{sellMenuView.endUserSelected}" process="selEData" update="panEnd seleContacts :messages"/>
                                         </p:selectOneMenu>
                                     </p:column>
                                 </p:row>
@@ -339,6 +334,7 @@
                         <p:outputLabel value="#{bundle.SellLicenseQuestion}"/>
                         <p:panelGrid columns="2" >
                             <p:commandButton actionListener="#{sellMenuView.sellLicense}" value="#{bundle.SellButton}" 
+                                             process=":SellForm :form1"
                                              update="SellForm, :messages, :form1" oncomplete="handleSubmit(args,'SellDialog');"
                                              />
                             <p:commandButton value="#{bundle.Cancel}" oncomplete="PF('SellDialog').hide()" immediate="true"/>    
@@ -368,7 +364,8 @@
                                              value="#{bundle.Save}"
                                              oncomplete="if (args &amp;&amp; !args.validationFailed) 
                                                             PF('SoftwareCreateDialog').hide();"
-                                             update=":messages :form1:somsoft" 
+                                             process="SoftwareCreateForm"
+                                             update=":messages :form1:somsoft :form1:panRes" 
                                              />
                             
                             <p:commandButton value="#{bundle.Cancel}" oncomplete="PF('SoftwareCreateDialog').hide()" immediate="true"/>
@@ -481,11 +478,11 @@
 
                             </p:panelGrid>
                             
-                            <p:commandButton actionListener="#{sellMenuView.addNewCompany()}" value="#{bundle.AddNewCompany}" 
+                            <p:commandButton id ="addnb" actionListener="#{sellMenuView.addNewCompany()}" value="#{bundle.AddNewCompany}" 
+                                             process="AddCompForm form1:panRes"
+                                             update=":messages :form1:panRes :form1:panEnd AddCompForm"
                                              oncomplete="if (args &amp;&amp; !args.validationFailed) 
-                                                            PF('AddCompDialog').hide();"
-                                             
-                                             update=":messages :form1:panRes :form1:panEnd" >
+                                                         PF('AddCompDialog').hide();">
                             </p:commandButton>
                             
                             <p:commandButton value="#{bundle.Cancel}" oncomplete="PF('AddCompDialog').hide()" immediate="true"/>

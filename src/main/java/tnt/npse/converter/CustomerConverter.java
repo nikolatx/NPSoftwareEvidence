@@ -31,7 +31,7 @@ public class CustomerConverter implements Converter {
         ValueExpression vex=context.getApplication().getExpressionFactory()
                 .createValueExpression(context.getELContext(), "#{sellMenuView}", SellMenuView.class);
         SellMenuView sellMenuView=(SellMenuView)vex.getValue(context.getELContext());
-        return sellMenuView.getResellers().stream().filter(e->e.getName().equalsIgnoreCase(value));
+        return sellMenuView.getCustomers().stream().filter(e->e.getName().equalsIgnoreCase(value));
     }
 
     @Override
