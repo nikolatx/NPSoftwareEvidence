@@ -132,7 +132,7 @@ public class SellMenuView_old implements Serializable {
         licenses=null;
         licenses=(List<License>) licenseController.getItems()
             .stream()
-            .filter(e->e.getSoftwareId()
+            .filter(e->e.getSoftware()
             .getName()
             .equalsIgnoreCase(selSoftware.getName())).collect(Collectors.toList());
 /*
@@ -181,7 +181,7 @@ public class SellMenuView_old implements Serializable {
         }
         smaCode = selLicense.getSmaCode();
         expDate = selLicense.getExpDate();
-        selSoftware=selLicense.getSoftwareId();
+        selSoftware=selLicense.getSoftware();
         //if smaCode already exists, set input box to readonly
         smaDisabled = smaCode != null && !smaCode.isEmpty();
         extendDisabled = smaCode==null || smaCode.isEmpty();
@@ -287,7 +287,7 @@ public class SellMenuView_old implements Serializable {
         lic.setLicenseCode(selLicense.getLicenseCode());   //(licenseCode);
         lic.setSmaCode("");
         lic.setExpDate(null);
-        lic.setSoftwareId(selSoftware);
+        lic.setSoftware(selSoftware);
         lic.setStatusId(null);
         licenses.add(lic);
         selLicense=lic;

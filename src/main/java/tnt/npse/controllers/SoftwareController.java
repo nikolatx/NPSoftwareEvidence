@@ -21,6 +21,8 @@ import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 import javax.faces.convert.FacesConverter;
 import javax.faces.view.ViewScoped;
+import tnt.npse.entities.Customer;
+import tnt.npse.entities.License;
 
 @Named("softwareController")
 @RequestScoped
@@ -31,6 +33,8 @@ public class SoftwareController implements Serializable {
     
     private List<Software> items = null;
     private Software selected;
+    private License license;
+    
     //private String name;
     
     public SoftwareController() {
@@ -133,9 +137,39 @@ public class SoftwareController implements Serializable {
         return items;
     }
 
+    public void sellLicense(Software selSoftware, License selLicense, Customer selReseller, Customer selEndUser) {
+        int a=1;
+        a=2;
+        selected=selSoftware;
+        license=selLicense;
+        FacesContext context=FacesContext.getCurrentInstance();
+        ExternalContext ec = context.getExternalContext();
+        ec.getFlash().setKeepMessages(true);
+        persist(PersistAction.CREATE, ResourceBundle.getBundle("/Bundle").getString("LicenseCreated"));
+        items=null;
+        items=getItems();
+        if (!JsfUtil.isValidationFailed()) {
+            items = null;    // Invalidate list of items to trigger re-query.
+        }
+    }
+
+    
+    
     private void persist(PersistAction persistAction, String successMessage) {
         if (selected != null) {
-            setEmbeddableKeys();
+            //setEmbeddableKeys();
+            //boolean endu=selected.getLicenseCustomerSet().stream().anyMatch(lc->lc.getEndUser()==true);
+            if (license.getLicenseCustomerSet()==null) {
+                JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("SellLicenseRequiredMessage_endUser"));
+                return;
+            }
+            
+            if (!(license.getLicenseCustomerSet().stream().anyMatch(lc->lc.getEndUser()==true)==true)) {
+                JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("SellLicenseRequiredMessage_endUser"));
+                return;
+            } 
+
+
             try {
                 if (persistAction == PersistAction.CREATE) {
                     getFacade().create(selected);
@@ -174,6 +208,16 @@ public class SoftwareController implements Serializable {
     public List<Software> getItemsAvailableSelectOne() {
         return getFacade().findAll();
     }
+
+    public License getLicense() {
+        return license;
+    }
+
+    public void setLicense(License license) {
+        this.license = license;
+    }
+
+    
 
     @FacesConverter(forClass = Software.class)
     public static class SoftwareControllerConverter implements Converter {

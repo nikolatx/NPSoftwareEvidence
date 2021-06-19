@@ -67,11 +67,13 @@ public class License implements Serializable {
     private Date expDate;
     
     @JoinColumn(name = "software_id", referencedColumnName = "software_id")
-    @ManyToOne(cascade = CascadeType.PERSIST, optional = false, fetch = FetchType.EAGER)
-    private Software softwareId;
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    private Software software;
+    
     @JoinColumn(name = "status_id", referencedColumnName = "status_id")
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     private Status statusId;
+    
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "license", fetch = FetchType.EAGER)
     private Set<LicenseCustomer> licenseCustomerSet;
 
@@ -122,8 +124,8 @@ public class License implements Serializable {
         this.expDate = expDate;
     }
 
-    public Software getSoftwareId() {
-        return softwareId;
+    public Software getSoftware() {
+        return software;
     }
     
     @XmlTransient
@@ -135,8 +137,8 @@ public class License implements Serializable {
         this.licenseCustomerSet = licenseCustomerSet;
     }
 
-    public void setSoftwareId(Software softwareId) {
-        this.softwareId = softwareId;
+    public void setSoftware(Software software) {
+        this.software = software;
     }
 
     public Status getStatusId() {

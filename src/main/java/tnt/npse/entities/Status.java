@@ -6,6 +6,7 @@
 package tnt.npse.entities;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
@@ -49,7 +50,7 @@ public class Status implements Serializable {
     @Column(name = "name")
     private String name;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "statusId", fetch = FetchType.EAGER)
-    private Set<License> licenseSet;
+    private Set<License> licenseSet=new HashSet<>();
 
     public Status() {
     }

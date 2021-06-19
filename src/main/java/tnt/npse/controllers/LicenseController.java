@@ -6,8 +6,11 @@ import tnt.npse.controllers.util.JsfUtil.PersistAction;
 import tnt.npse.beans.LicenseFacade;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
@@ -23,6 +26,7 @@ import javax.faces.convert.Converter;
 import javax.faces.convert.FacesConverter;
 import javax.inject.Inject;
 import tnt.npse.entities.Customer;
+import tnt.npse.entities.LicenseCustomer;
 import tnt.npse.entities.Software;
 import tnt.npse.entities.Status;
 
@@ -64,7 +68,7 @@ public class LicenseController implements Serializable {
     }
     
     
-    
+    /*
     public License create(String licenseCode, String softwareName) {
         FacesContext context=FacesContext.getCurrentInstance();
         ExternalContext ec = context.getExternalContext();
@@ -75,7 +79,7 @@ public class LicenseController implements Serializable {
         
         
         if (licenseCode!=null && !licenseCode.isEmpty()) {
-            lic=items.stream().filter(e->e.getLicenseCode().equalsIgnoreCase(licenseCode)&&e.getSoftwareId().getName().equalsIgnoreCase(softwareName)).findFirst().orElse(null);
+            lic=items.stream().filter(e->e.getLicenseCode().equalsIgnoreCase(licenseCode)&&e.getSoftware().getName().equalsIgnoreCase(softwareName)).findFirst().orElse(null);
             if (lic==null) {
                 lic=new License();
                 lic.setLicenseCode(licenseCode);
@@ -87,7 +91,7 @@ public class LicenseController implements Serializable {
 
                 Software soft=null;
                 soft=softwareController.getItems().stream().filter(so->so.getName().equalsIgnoreCase(softwareName)).findFirst().orElse(null);
-                lic.setSoftwareId(soft);
+                lic.setSoftware(soft);
                 selected=lic;
                 persist(PersistAction.CREATE, ResourceBundle.getBundle("/Bundle").getString("LicenseCreated"));
                 items=null;
@@ -105,7 +109,7 @@ public class LicenseController implements Serializable {
         }
         return lic;
     }
-    
+    */
     
     public License getSelected() {
         return selected;
@@ -159,7 +163,19 @@ public class LicenseController implements Serializable {
 
     private void persist(PersistAction persistAction, String successMessage) {
         if (selected != null) {
-            setEmbeddableKeys();
+            //setEmbeddableKeys();
+            //boolean endu=selected.getLicenseCustomerSet().stream().anyMatch(lc->lc.getEndUser()==true);
+            if (selected.getLicenseCustomerSet()==null) {
+                JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("SellLicenseRequiredMessage_endUser"));
+                return;
+            }
+            
+            if (!(selected.getLicenseCustomerSet().stream().anyMatch(lc->lc.getEndUser()==true)==true)) {
+                JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("SellLicenseRequiredMessage_endUser"));
+                return;
+            } 
+
+
             try {
                 if (persistAction == PersistAction.CREATE) {
                     getFacade().create(selected);

@@ -6,6 +6,7 @@
 package tnt.npse.entities;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
@@ -43,13 +44,15 @@ public class Software implements Serializable {
     @Basic(optional = false)
     @Column(name = "software_id")
     private Integer softwareId;
+    
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 255)
     @Column(name = "name")
     private String name;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "softwareId", fetch = FetchType.EAGER)
-    private Set<License> licenseSet;
+    
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "software", fetch = FetchType.EAGER)
+    private Set<License> licenseSet=new HashSet<>();
 
     public Software() {
     }
@@ -106,7 +109,8 @@ public class Software implements Serializable {
             return false;
         }
         Software other = (Software) object;
-        if ((this.softwareId == null && other.softwareId != null) || (this.softwareId != null && !this.softwareId.equals(other.softwareId))) {
+        if ((this.softwareId == null && other.softwareId != null) || (this.softwareId != null && 
+                (!this.softwareId.equals(other.softwareId) && !this.name.equalsIgnoreCase(other.name)))) {
             return false;
         }
         return true;
