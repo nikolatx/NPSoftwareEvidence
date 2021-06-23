@@ -7,6 +7,7 @@ package tnt.npse.entities;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
@@ -17,8 +18,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
@@ -67,7 +66,7 @@ public class License implements Serializable {
     private Date expDate;
     
     @JoinColumn(name = "software_id", referencedColumnName = "software_id")
-    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    @ManyToOne(cascade = CascadeType.PERSIST, optional = false, fetch = FetchType.EAGER)
     private Software software;
     
     @JoinColumn(name = "status_id", referencedColumnName = "status_id")
@@ -75,7 +74,7 @@ public class License implements Serializable {
     private Status statusId;
     
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "license", fetch = FetchType.EAGER)
-    private Set<LicenseCustomer> licenseCustomerSet;
+    private Set<LicenseCustomer> licenseCustomerSet=new HashSet<>();
 
     
     public License() {

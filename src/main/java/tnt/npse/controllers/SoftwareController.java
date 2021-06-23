@@ -20,7 +20,6 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 import javax.faces.convert.FacesConverter;
-import javax.faces.view.ViewScoped;
 import tnt.npse.entities.Customer;
 import tnt.npse.entities.License;
 
@@ -35,7 +34,6 @@ public class SoftwareController implements Serializable {
     private Software selected;
     private License license;
     
-    //private String name;
     
     public SoftwareController() {
     }
@@ -67,26 +65,29 @@ public class SoftwareController implements Serializable {
         return selected;
     }
 
+    //creates a new software with a given name
     public Software create(String name) {
         FacesContext context=FacesContext.getCurrentInstance();
         ExternalContext ec = context.getExternalContext();
         ec.getFlash().setKeepMessages(true);
         selected=null;
         items=getItems();
-        Software soft=items.stream().filter(e->e.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
-        if (soft==null) {
-            selected=new Software();
-            selected.setName(name);
+        
+        if (name==null || name.isEmpty())
+            JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("CreateSoftwareRequiredMessage_name"));
+        else if (items.stream().anyMatch(sof->sof.getName().equalsIgnoreCase(name))) {
+            context.validationFailed();
+            JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("SoftwareExists"));
+        }
+        else {
+            selected=new Software(name);
             persist(PersistAction.CREATE, ResourceBundle.getBundle("/Bundle").getString("SoftwareCreated"));
             items=null;
             items=getItems();
             selected=items.stream().filter(e->e.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
-        } else {
-            JsfUtil.addSuccessMessage(ResourceBundle.getBundle("/Bundle").getString("SoftwareExists"));
-            selected=null;
-        }
-        if (!JsfUtil.isValidationFailed()) {
-            items = null;    // Invalidate list of items to trigger re-query.
+            if (!JsfUtil.isValidationFailed()) {
+                items = null;    // Invalidate list of items to trigger re-query.
+            }
         }
         return selected;
     }
@@ -137,6 +138,7 @@ public class SoftwareController implements Serializable {
         return items;
     }
 
+    /*
     public void sellLicense(Software selSoftware, License selLicense, Customer selReseller, Customer selEndUser) {
         int a=1;
         a=2;
@@ -152,13 +154,14 @@ public class SoftwareController implements Serializable {
             items = null;    // Invalidate list of items to trigger re-query.
         }
     }
-
+*/
     
     
     private void persist(PersistAction persistAction, String successMessage) {
         if (selected != null) {
-            //setEmbeddableKeys();
-            //boolean endu=selected.getLicenseCustomerSet().stream().anyMatch(lc->lc.getEndUser()==true);
+            
+            
+            /*
             if (license.getLicenseCustomerSet()==null) {
                 JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("SellLicenseRequiredMessage_endUser"));
                 return;
@@ -168,12 +171,10 @@ public class SoftwareController implements Serializable {
                 JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("SellLicenseRequiredMessage_endUser"));
                 return;
             } 
-
+            */
 
             try {
-                if (persistAction == PersistAction.CREATE) {
-                    getFacade().create(selected);
-                } else if (persistAction != PersistAction.DELETE) {
+                if (persistAction != PersistAction.DELETE) {
                     getFacade().edit(selected);
                 } else {
                     getFacade().remove(selected);

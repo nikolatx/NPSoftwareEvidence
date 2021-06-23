@@ -6,11 +6,9 @@ import tnt.npse.controllers.util.JsfUtil.PersistAction;
 import tnt.npse.beans.LicenseFacade;
 
 import java.io.Serializable;
-import java.util.HashSet;
+import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
@@ -18,17 +16,13 @@ import javax.ejb.EJB;
 import javax.ejb.EJBException;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Named;
-import javax.enterprise.context.SessionScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 import javax.faces.convert.FacesConverter;
-import javax.inject.Inject;
 import tnt.npse.entities.Customer;
-import tnt.npse.entities.LicenseCustomer;
 import tnt.npse.entities.Software;
-import tnt.npse.entities.Status;
 
 @Named("licenseController")
 @RequestScoped
@@ -39,10 +33,6 @@ public class LicenseController implements Serializable {
     private List<License> items = null;
     private License selected;
 
-    @Inject
-    private StatusController statusController;
-    @Inject
-    private SoftwareController softwareController;
     
     public LicenseController() {
     }
@@ -53,64 +43,36 @@ public class LicenseController implements Serializable {
     }
     
     public void sellLicense(Software software, License license, Customer reseller, Customer endUser) {
-        int a=1;
-        a=2;
-        selected=license;
         FacesContext context=FacesContext.getCurrentInstance();
         ExternalContext ec = context.getExternalContext();
         ec.getFlash().setKeepMessages(true);
-        persist(PersistAction.CREATE, ResourceBundle.getBundle("/Bundle").getString("LicenseCreated"));
-        items=null;
-        items=getItems();
-        if (!JsfUtil.isValidationFailed()) {
-            items = null;    // Invalidate list of items to trigger re-query.
-        }
-    }
-    
-    
-    /*
-    public License create(String licenseCode, String softwareName) {
-        FacesContext context=FacesContext.getCurrentInstance();
-        ExternalContext ec = context.getExternalContext();
-        ec.getFlash().setKeepMessages(true);
-        License lic=null;
-        
-        ///selected umesto lic!!!!!!
-        
-        
-        if (licenseCode!=null && !licenseCode.isEmpty()) {
-            lic=items.stream().filter(e->e.getLicenseCode().equalsIgnoreCase(licenseCode)&&e.getSoftware().getName().equalsIgnoreCase(softwareName)).findFirst().orElse(null);
-            if (lic==null) {
-                lic=new License();
-                lic.setLicenseCode(licenseCode);
-                lic.setSmaCode("");
-                lic.setExpDate(null);
-                lic.setLicenseCustomerSet(null);
-                Status status=statusController.getItems().stream().filter(st->st.getName().equalsIgnoreCase("not activated")).findFirst().orElse(null);
-                lic.setStatusId(status);
 
-                Software soft=null;
-                soft=softwareController.getItems().stream().filter(so->so.getName().equalsIgnoreCase(softwareName)).findFirst().orElse(null);
-                lic.setSoftware(soft);
-                selected=lic;
-                persist(PersistAction.CREATE, ResourceBundle.getBundle("/Bundle").getString("LicenseCreated"));
-                items=null;
-                items=getItems();
-                lic=items.stream().filter(li->li.getLicenseCode().equalsIgnoreCase(licenseCode)).findFirst().orElse(null);
-                selected=lic;
-                int a=1;
+        if (!getItems().stream().anyMatch(lic->
+                (lic.getLicenseCode().equalsIgnoreCase(license.getLicenseCode())
+                && lic.getSoftware().equals(license.getSoftware())))) {
+            if (endUser!=null) {
+                if (license.getSmaCode()!=null && license.getExpDate()==null || license.getExpDate().before(new Date())) {
+                    context.validationFailed();
+                    JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("SellLicenseRequiredMessage_expDate"));
+                } else {
+                    selected=license;
+                    persist(PersistAction.CREATE, ResourceBundle.getBundle("/Bundle").getString("LicenseCreated"));
+                    items=null;
+                    items=getItems();
+                    if (!JsfUtil.isValidationFailed()) {
+                        items = null;    // Invalidate list of items to trigger re-query.
+                    }
+                }
             } else {
-                JsfUtil.addSuccessMessage(ResourceBundle.getBundle("/Bundle").getString("LicenseExists"));
-                lic=null;
+                context.validationFailed();
+                JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("SellLicenseRequiredMessage_endUser"));
             }
+        } else {
+            context.validationFailed();
+            JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("LicenseExists"));
         }
-        if (!JsfUtil.isValidationFailed()) {
-            items = null;    // Invalidate list of items to trigger re-query.
-        }
-        return lic;
     }
-    */
-    
+
     public License getSelected() {
         return selected;
     }
@@ -163,23 +125,8 @@ public class LicenseController implements Serializable {
 
     private void persist(PersistAction persistAction, String successMessage) {
         if (selected != null) {
-            //setEmbeddableKeys();
-            //boolean endu=selected.getLicenseCustomerSet().stream().anyMatch(lc->lc.getEndUser()==true);
-            if (selected.getLicenseCustomerSet()==null) {
-                JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("SellLicenseRequiredMessage_endUser"));
-                return;
-            }
-            
-            if (!(selected.getLicenseCustomerSet().stream().anyMatch(lc->lc.getEndUser()==true)==true)) {
-                JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("SellLicenseRequiredMessage_endUser"));
-                return;
-            } 
-
-
             try {
-                if (persistAction == PersistAction.CREATE) {
-                    getFacade().create(selected);
-                } else if (persistAction != PersistAction.DELETE) {
+                if (persistAction != PersistAction.DELETE) {
                     getFacade().edit(selected);
                 } else {
                     getFacade().remove(selected);

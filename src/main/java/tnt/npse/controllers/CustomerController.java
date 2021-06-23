@@ -18,7 +18,6 @@ import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 import javax.faces.convert.FacesConverter;
-import javax.inject.Inject;
 import tnt.npse.entities.Person;
 
 @Named("customerController")
@@ -30,9 +29,6 @@ public class CustomerController implements Serializable {
     private List<Customer> items = null;
     private Customer selected;
 
-    
-    @Inject
-    private PersonController personController;
     
     public CustomerController() {
     }
@@ -73,14 +69,12 @@ public class CustomerController implements Serializable {
             customer.getPersonSet().add(contact);
             selected=customer;
             persist(PersistAction.CREATE, ResourceBundle.getBundle("/Bundle").getString("CustomerCreated"));
-            //items=null;
-            //items=getItems();
             
             if (!JsfUtil.isValidationFailed()) {
                 items = null;    // Invalidate list of items to trigger re-query.
             }
         } else {
-            JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("PersistenceErrorOccured"));
+            JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("NewCompanyExists"));
         }
     }
     
@@ -114,9 +108,7 @@ public class CustomerController implements Serializable {
         if (selected != null) {
             setEmbeddableKeys();
             try {
-                if (persistAction == PersistAction.CREATE) {
-                    getFacade().create(selected);
-                } else if (persistAction != PersistAction.DELETE) {
+                if (persistAction != PersistAction.DELETE) {
                     getFacade().edit(selected);
                 } else {
                     getFacade().remove(selected);
