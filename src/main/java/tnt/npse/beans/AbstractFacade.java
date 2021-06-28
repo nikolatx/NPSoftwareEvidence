@@ -59,7 +59,7 @@ public abstract class AbstractFacade<T> {
                 JsfUtil.addErrorMessage(cv.getRootBeanClass().getSimpleName()+"."+cv.getPropertyPath() + " " +cv.getMessage());
             }
         }else{
-            getEntityManager().merge(entity);
+            entity=getEntityManager().merge(entity);
         }
     }
 

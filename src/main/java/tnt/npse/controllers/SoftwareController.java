@@ -20,8 +20,8 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 import javax.faces.convert.FacesConverter;
-import tnt.npse.entities.Customer;
 import tnt.npse.entities.License;
+import tnt.npse.model.LicenseData;
 
 @Named("softwareController")
 @RequestScoped
@@ -82,19 +82,18 @@ public class SoftwareController implements Serializable {
         else {
             selected=new Software(name);
             persist(PersistAction.CREATE, ResourceBundle.getBundle("/Bundle").getString("SoftwareCreated"));
-            items=null;
-            items=getItems();
-            selected=items.stream().filter(e->e.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
             if (!JsfUtil.isValidationFailed()) {
                 items = null;    // Invalidate list of items to trigger re-query.
+                items=getItems();
             }
+            selected=items.stream().filter(e->e.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
         }
         return selected;
     }
     
-    
+    /*
     public void create() {
-        /*
+        
         if (selected==null) {
             items=getItems();
             Software soft=items.stream().filter(e->e.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
@@ -110,13 +109,34 @@ public class SoftwareController implements Serializable {
                 JsfUtil.addSuccessMessage(ResourceBundle.getBundle("/Bundle").getString("SoftwareExists"));
                 selected=null;
             }
-        }*/
+        }
         if (!JsfUtil.isValidationFailed()) {
             items = null;    // Invalidate list of items to trigger re-query.
         }
         FacesContext context=FacesContext.getCurrentInstance();
         ExternalContext ec = context.getExternalContext();
         ec.getFlash().setKeepMessages(true);
+    }
+    */
+    
+    public void update(LicenseData selectedLic, String newName) {
+        FacesContext context=FacesContext.getCurrentInstance();
+        ExternalContext ec = context.getExternalContext();
+        ec.getFlash().setKeepMessages(true);
+        items=getItems();
+        String oldName=selectedLic.getSoftwareName();
+        selected=items.stream().filter(s->s.getName().equalsIgnoreCase(oldName)).findFirst().orElse(null);
+        if (selected!=null) {
+            long count=items.stream().filter(s->s.getName().equalsIgnoreCase(newName)).count();
+            if (count==0) {
+                selected.setName(newName);
+                persist(PersistAction.UPDATE, ResourceBundle.getBundle("/Bundle").getString("SoftwareUpdated"));
+                selectedLic.setSoftwareName(newName);
+            } else {
+                context.validationFailed();
+                JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("SoftwareExists"));
+            }
+        }
     }
     
     public void update() {

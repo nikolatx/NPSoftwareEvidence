@@ -15,9 +15,11 @@ import javax.ejb.EJBException;
 import javax.inject.Named;
 import javax.enterprise.context.SessionScoped;
 import javax.faces.component.UIComponent;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 import javax.faces.convert.FacesConverter;
+import tnt.npse.model.LicenseData;
 
 @Named("statusController")
 @SessionScoped
@@ -54,14 +56,55 @@ public class StatusController implements Serializable {
         initializeEmbeddableKey();
         return selected;
     }
+    
+    public void create(String name) {
+        FacesContext context=FacesContext.getCurrentInstance();
+        ExternalContext ec = context.getExternalContext();
+        ec.getFlash().setKeepMessages(true);
+        items=getItems();
+        long count=items.stream().filter(st->st.getName().equalsIgnoreCase(name)).count();
+        if (count==0) {
+            Status stat=new Status();
+            stat.setName(name);
+            selected=stat;
+            create();
+            selected=items.stream().filter(e->e.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
+        } else {
+            context.validationFailed();
+            JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("EditStatusExists"));
+        }
+    }
+    
 
     public void create() {
         persist(PersistAction.CREATE, ResourceBundle.getBundle("/Bundle").getString("StatusCreated"));
         if (!JsfUtil.isValidationFailed()) {
             items = null;    // Invalidate list of items to trigger re-query.
+            items=getItems();
         }
     }
 
+    public void update(LicenseData selectedLic, String newName) {
+        FacesContext context=FacesContext.getCurrentInstance();
+        ExternalContext ec = context.getExternalContext();
+        ec.getFlash().setKeepMessages(true);
+        items=getItems();
+        String oldName=selectedLic.getStatusName();
+        selected=items.stream().filter(s->s.getName().equalsIgnoreCase(oldName)).findFirst().orElse(null);
+        if (selected!=null) {
+            long count=items.stream().filter(s->s.getName().equalsIgnoreCase(newName)).count();
+            if (count==0) {
+                selected.setName(newName);
+                persist(PersistAction.UPDATE, ResourceBundle.getBundle("/Bundle").getString("StatusUpdated"));
+                selectedLic.setStatusName(newName);
+            } else {
+                context.validationFailed();
+                JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("StatusExists"));
+            }
+        }
+    }
+    
+    
     public void update() {
         persist(PersistAction.UPDATE, ResourceBundle.getBundle("/Bundle").getString("StatusUpdated"));
     }

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package tnt.npse.entities;
+package tnt.npse.model;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -14,23 +14,49 @@ import java.util.Map;
 import org.primefaces.model.FilterMeta;
 import org.primefaces.model.LazyDataModel;
 import org.primefaces.model.SortMeta;
-import tnt.npse.util.LazyLicenseSorter;
+import tnt.npse.util.LazyLicenseDataSorter;
+import tnt.npse.entities.License;
+import tnt.npse.entities.LicenseCustomer;
+
 
 /**
  *
  * @author NN
  */
-public class LazyLicenseDataModel extends LazyDataModel<License> {
+public class LazyLicenseDataModel extends LazyDataModel<LicenseData> {
 
-    private List<License> licenses=new ArrayList<>();
+    private List<LicenseData> licenses=new ArrayList<>();
 
-    public LazyLicenseDataModel(List<License> licenses) {
-        this.licenses = licenses;
+    //od liste licenci pravi se lista LicenseData
+    public LazyLicenseDataModel(List<License> licenses1) {
+        licenses1.forEach(lic->{
+            LicenseData ld=new LicenseData();
+            ld.setLicenseId(lic.getLicenseId());
+            ld.setLicenseCode(lic.getLicenseCode());
+            ld.setSmaCode(lic.getSmaCode());
+            ld.setExpDate(lic.getExpDate());
+            ld.setSoftwareName(lic.getSoftware().getName());
+            ld.setStatusName(lic.getStatusId().getName());
+            
+            LicenseCustomer lc=new LicenseCustomer();
+            lc=lic.getLicenseCustomerSet().stream().filter(f->f.getEndUser()==false).findFirst().orElse(null);
+            if (lc!=null && lc.getCustomer()!=null)
+                ld.setReseller(lc.getCustomer());
+            else
+                ld.setReseller(null);
+            lc=lic.getLicenseCustomerSet().stream().filter(f->f.getEndUser()==true).findFirst().orElse(null);
+            if (lc!=null && lc.getCustomer()!=null)
+                ld.setEndUser(lc.getCustomer());
+            else
+                ld.setEndUser(null);
+            
+            this.licenses.add(ld);
+        });
     }
 
     @Override
-    public License getRowData(String rowKey) {
-        for(License license : licenses) {
+    public LicenseData getRowData(String rowKey) {
+        for(LicenseData license : licenses) {
             if (license.getLicenseId() == Long.parseLong(rowKey))
                 return license;
         }
@@ -38,20 +64,17 @@ public class LazyLicenseDataModel extends LazyDataModel<License> {
     }
 
     @Override
-    public String getRowKey(License license) {
+    public String getRowKey(LicenseData license) {
         return String.valueOf(license.getLicenseId());
     }
 
     @Override
-    public List<License> load(int first, int pageSize, Map<String, SortMeta> sortBy, Map<String, FilterMeta> filterBy) {
+    public List<LicenseData> load(int first, int pageSize, Map<String, SortMeta> sortBy, Map<String, FilterMeta> filterBy) {
         
-        //long rowCount = licenses.stream().filter(o->filter(FacesContext.getCurrentInstance(), filterBy.values(), o)).count();
-        List<License> data = new ArrayList<>();
+        List<LicenseData> data = new ArrayList<>();
         
         //u listu data se ubacuju knjige iz pocetne liste svih knjiga koje zadovoljavaju filtere
-        for (License k : licenses) {
-            //k.getAutori();
-            //k.getKategorije();
+        for (LicenseData k : licenses) {
             boolean match = false, notEmpty=false;
             
             //ukoliko su zadati kriterijumi filtriranja radi se filtriranje; kriterijumi su zadati mapom filterBy u kojoj
@@ -92,7 +115,7 @@ public class LazyLicenseDataModel extends LazyDataModel<License> {
         //sort
         if (sortBy != null && !sortBy.isEmpty()) {
             for (SortMeta meta : sortBy.values()) {
-                Collections.sort(data, new LazyLicenseSorter(meta.getSortField(), meta.getSortOrder()));
+                Collections.sort(data, new LazyLicenseDataSorter(meta.getSortField(), meta.getSortOrder()));
             }
         }
         
@@ -114,16 +137,12 @@ public class LazyLicenseDataModel extends LazyDataModel<License> {
         }
     }
 
-    public List<License> getLicenses() {
+    public List<LicenseData> getLicenses() {
         return licenses;
     }
 
-    public void setLicenses(List<License> licenses) {
+    public void setLicenses(List<LicenseData> licenses) {
         this.licenses = licenses;
     }
-    
-    
-    
-    
     
 }

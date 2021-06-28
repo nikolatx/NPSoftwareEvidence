@@ -21,16 +21,16 @@
         
                 <h:form id="form1">
 
-                    <p:dataTable var="license" value="#{dtLazyView.lazyModel}" paginator="true" rows="10"
+                    <p:dataTable var="license" value="#{licDataLazyView.lazyModel}" paginator="true" rows="10"
                              paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
-                             rowsPerPageTemplate="5,10,15" selectionMode="single" selection="#{dtLazyView.selectedLic}"  
+                             rowsPerPageTemplate="5,10,15" selectionMode="single" selection="#{licDataLazyView.selectedLic}"  
                              id="licenseTable" lazy="true">
 
                         <f:facet name="header">
                             <h:outputText value="License Data"/>
                         </f:facet>
 
-                        <p:ajax event="rowSelect" listener="#{dtLazyView.onRowSelect}" update="form1"  />
+                        <p:ajax event="rowSelect" listener="#{licDataLazyView.onRowSelect}" update="form1"  />
 
                         <p:column headerText="Expiry date" sortBy="#{license.expDate}" filterBy="#{license.expDate}">
                             <h:outputText value="#{license.expDate}">
@@ -67,22 +67,22 @@
                         <p:panelGrid columns="2" columnClasses="firstColumn, secondColumn" style="width: 100%;overflow: hidden" >
 
                             <h:outputText value="Company Name:" />
-                            <h:outputText value="#{dtLazyView.reseller.name}"/>
+                            <h:outputText value="#{licDataLazyView.reseller.name}"/>
 
                             <h:outputText value="Street:" />
-                            <h:outputText value="#{dtLazyView.reseller.street}"/>
+                            <h:outputText value="#{licDataLazyView.reseller.street}"/>
 
                             <h:outputText value="Number" />
-                            <h:outputText value="#{dtLazyView.reseller.number}"/>
+                            <h:outputText value="#{licDataLazyView.reseller.number}"/>
 
                             <h:outputText value="City:" />
-                            <h:outputText value="#{dtLazyView.reseller.city}"/>
+                            <h:outputText value="#{licDataLazyView.reseller.city}"/>
 
                             <h:outputText value="Country:" />
-                            <h:outputText value="#{dtLazyView.reseller.country}"/>
+                            <h:outputText value="#{licDataLazyView.reseller.country}"/>
                         </p:panelGrid>
 
-                        <p:dataTable var="rperson" value="#{dtLazyView.reseller.personSet}" id="resPersonData" resizableColumns="true" reflow="true" >
+                        <p:dataTable var="rperson" value="#{licDataLazyView.reseller.personSet}" id="resPersonData" resizableColumns="true" reflow="true" >
                             <p:column headerText="First name" style="width: 20%;">
                                 <h:outputText value="#{rperson.firstName}" />
                             </p:column>
@@ -118,22 +118,22 @@
                         <p:panelGrid columns="2" columnClasses="firstColumn, secondColumn" style="width:100%" >
 
                             <h:outputText value="Company Name:" />
-                            <h:outputText value="#{dtLazyView.endUser.name}"/>
+                            <h:outputText value="#{licDataLazyView.endUser.name}"/>
 
                             <h:outputText value="Street:" />
-                            <h:outputText value="#{dtLazyView.endUser.street}"/>
+                            <h:outputText value="#{licDataLazyView.endUser.street}"/>
 
                             <h:outputText value="Number" />
-                            <h:outputText value="#{dtLazyView.endUser.number}"/>
+                            <h:outputText value="#{licDataLazyView.endUser.number}"/>
 
                             <h:outputText value="City:" />
-                            <h:outputText value="#{dtLazyView.endUser.city}"/>
+                            <h:outputText value="#{licDataLazyView.endUser.city}"/>
 
                             <h:outputText value="Country:" />
-                            <h:outputText value="#{dtLazyView.endUser.country}"/>
+                            <h:outputText value="#{licDataLazyView.endUser.country}"/>
                         </p:panelGrid>
 
-                        <p:dataTable var="eperson" value="#{dtLazyView.endUser.personSet}" id="endPersonData" resizableColumns="true" reflow="true" >
+                        <p:dataTable var="eperson" value="#{licDataLazyView.endUser.personSet}" id="endPersonData" resizableColumns="true" reflow="true" >
                             <p:column headerText="First name" style="width: 20%;" class="20percent">
                                 <h:outputText value="#{eperson.firstName}" />
                             </p:column>
@@ -170,4 +170,3 @@
 
 
 </html>
-

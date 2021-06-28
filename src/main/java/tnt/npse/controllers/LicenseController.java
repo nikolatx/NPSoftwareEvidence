@@ -7,8 +7,10 @@ import tnt.npse.beans.LicenseFacade;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
@@ -21,8 +23,12 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 import javax.faces.convert.FacesConverter;
+import javax.inject.Inject;
 import tnt.npse.entities.Customer;
+import tnt.npse.entities.LicenseCustomer;
 import tnt.npse.entities.Software;
+import tnt.npse.entities.Status;
+import tnt.npse.model.LicenseData;
 
 @Named("licenseController")
 @RequestScoped
@@ -33,6 +39,11 @@ public class LicenseController implements Serializable {
     private List<License> items = null;
     private License selected;
 
+    @Inject
+    private StatusController statusController;
+    @Inject
+    private SoftwareController softwareController;
+    
     
     public LicenseController() {
     }
@@ -104,6 +115,48 @@ public class LicenseController implements Serializable {
         }
     }
 
+    public void update(LicenseData ld) {
+        FacesContext context=FacesContext.getCurrentInstance();
+        ExternalContext ec = context.getExternalContext();
+        //ec.getFlash().setKeepMessages(true);
+        
+        License license = new License();
+        items=getItems();
+        license=items.stream().filter(lc->lc.getLicenseId().equals(ld.getLicenseId())).findFirst().orElse(null);
+        
+        
+        license.setLicenseCode(ld.getLicenseCode());
+        license.setSmaCode(ld.getSmaCode());
+        license.setExpDate(ld.getExpDate());
+        
+        Status stat=statusController.getItems().stream().filter(st->st.getName().equalsIgnoreCase(ld.getStatusName())).findFirst().orElse(null);
+        Software soft=softwareController.getItems().stream().filter(so->so.getName().equalsIgnoreCase(ld.getSoftwareName())).findFirst().orElse(null);
+        
+        license.setSoftware(soft);
+        license.setStatusId(stat);
+        
+        Set<LicenseCustomer> lcSet=new HashSet<>();
+        
+        LicenseCustomer lc1=null;
+        if (ld.getReseller()!=null) {
+            lc1=new LicenseCustomer();
+            lc1.setCustomer(ld.getReseller());
+            lc1.setEndUser(false);
+            lc1.setLicense(license);
+            lcSet.add(lc1);
+        }
+        
+        LicenseCustomer lc2=new LicenseCustomer();
+        lc2.setCustomer(ld.getEndUser());
+        lc2.setEndUser(true);
+        lc2.setLicense(license);
+        lcSet.add(lc2);
+        
+        selected=license;
+        update();
+    }
+    
+    
     public void update() {
         persist(PersistAction.UPDATE, ResourceBundle.getBundle("/Bundle").getString("LicenseUpdated"));
     }

@@ -29,4 +29,8 @@ public class PersonFacade extends AbstractFacade<Person> {
         super(Person.class);
     }
     
+    public void refresh() {
+        em.getEntityManagerFactory().getCache().evictAll();
+    }
+    
 }

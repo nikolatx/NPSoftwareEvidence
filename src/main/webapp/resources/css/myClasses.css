@@ -8,6 +8,10 @@ and open the template in the editor.
     Author     : NN
 */
 
+.5percent {
+    width: 5%;
+    vertical-align: top;
+}
 .20percent {
     width: 20%;
     vertical-align: top;
@@ -39,10 +43,17 @@ and open the template in the editor.
     border: 1px solid #fafafa;
 }
 
-.ui-panelgrid.showcase-text-align-center .ui-grid-responsive .ui-panelgrid-cell {
+.ui-panelgrid.showcase-text-align-center {
         text-align: left;
 }
  
+.ui-panelgrid.showcase-text-align-left .ui-grid-responsive .ui-panelgrid-cell {
+    text-align: left;
+    vertical-align: middle;
+
+}
+
+
 .customPanelGrid .ui-panelgrid-content {
     align-items: center;
 }
@@ -57,7 +68,7 @@ and open the template in the editor.
        border: 2px solid #232323;
   }
   .thirdColumn { 
-       width: 30%;
+       width: 60%;
        border: 2px solid #232323;
   }
 

@@ -12,25 +12,27 @@
         <h:outputStylesheet name="primeicons/primeicons.css" library="primefaces" />
     </h:head>
     <h:body>
-
+        
         <ui:composition template="./template.xhtml">
 
-            <ui:define name="title">NP Software</ui:define> 
-
+            <ui:define name="title">View Licenses</ui:define> 
+           
             <ui:define name="content">
-
+        
                 <h:form id="form1">
 
                     <p:dataTable var="license" value="#{lazyLicenseDataView.lazyModel}" paginator="true" rows="10"
-                                 paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
-                                 rowsPerPageTemplate="5,10,15" selectionMode="single" selection="#{lazyLicenseDataView.selectedLic}"  
-                                 id="licenseTable" lazy="true">
+                             paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                             rowsPerPageTemplate="5,10,15" selection="#{lazyLicenseDataView.selectedLic}" selectionMode="single"
+                             rowKey="#{license.licenseId}"
+                             id="licenseTable" lazy="true">
 
+                        <p:ajax event="rowSelect" listener="#{lazyLicenseDataView.onRowSelect}" update=":form1:panRes :form1:resPersonData"/>
+                        
+                        
                         <f:facet name="header">
                             <h:outputText value="License Data"/>
                         </f:facet>
-
-                        <p:ajax event="rowSelect" listener="#{lazyLicenseDataView.onRowSelect}" update="form1"  />
 
                         <p:column headerText="Expiry date" sortBy="#{license.expDate}" filterBy="#{license.expDate}">
                             <h:outputText value="#{license.expDate}">
@@ -56,34 +58,33 @@
 
                     </p:dataTable>
 
-                    <br/>
-                    <h:link outcome="/customer/List.xhtml" value="Show All Customer Items"/>
-                    <br/>
+                        <br/>
+                        <br/>
 
-                    <h3 style="margin-top:10"></h3>
-                    <p:panelGrid columns="2" columnClasses="firstColumn valigntop, secondColumn valigntop" style="width: 100%">
+                    <h3 style="margin-top:10px"></h3>
+                    <p:panelGrid id="panRes" columns="2" columnClasses="firstColumn valigntop, secondColumn valigntop" style="width: 100%">
                         <f:facet name="header">
                             <h:outputText value="Reseller Data"/>
                         </f:facet>
                         <p:panelGrid columns="2" columnClasses="firstColumn, secondColumn" style="width: 100%;overflow: hidden" >
 
-                            <h:outputText value="Company Name:" />
+                            <h:outputText value="Company Name:xxx" />
                             <h:outputText value="#{lazyLicenseDataView.selectedLic.reseller.name}"/>
 
                             <h:outputText value="Street:" />
-                            <h:outputText value="#{lazyLicenseDataView.selectedLic.reseller.street}"/>
+                            <h:outputText value="#{license.smaCode}"/>
 
                             <h:outputText value="Number" />
-                            <h:outputText value="#{lazyLicenseDataView.selectedLic.reseller.number}"/>
+                            <h:outputText value="#{lazyLicenseDataView.reseller.number}"/>
 
                             <h:outputText value="City:" />
-                            <h:outputText value="#{lazyLicenseDataView.selectedLic.reseller.city}"/>
+                            <h:outputText value="#{lazyLicenseDataView.reseller.city}"/>
 
                             <h:outputText value="Country:" />
-                            <h:outputText value="#{lazyLicenseDataView.selectedLic.reseller.country}"/>
+                            <h:outputText value="#{lazyLicenseDataView.reseller.country}"/>
                         </p:panelGrid>
 
-                        <p:dataTable var="rperson" value="#{lazyLicenseDataView.selectedLic.reseller.personSet}" id="resPersonData" resizableColumns="true" reflow="true" >
+                        <p:dataTable var="rperson" value="#{lazyLicenseDataView.reseller.personSet}" id="resPersonData" resizableColumns="true" reflow="true" >
                             <p:column headerText="First name" style="width: 20%;">
                                 <h:outputText value="#{rperson.firstName}" />
                             </p:column>
@@ -104,7 +105,6 @@
                             </p:column>
 
                         </p:dataTable>
-                        
                     </p:panelGrid>
 
 
@@ -120,22 +120,22 @@
                         <p:panelGrid columns="2" columnClasses="firstColumn, secondColumn" style="width:100%" >
 
                             <h:outputText value="Company Name:" />
-                            <h:outputText value="#{lazyLicenseDataView.selectedLic.endUser.name}"/>
+                            <h:outputText value="#{lazyLicenseDataView.endUser.name}"/>
 
                             <h:outputText value="Street:" />
-                            <h:outputText value="#{lazyLicenseDataView.selectedLic.endUser.street}"/>
+                            <h:outputText value="#{lazyLicenseDataView.endUser.street}"/>
 
                             <h:outputText value="Number" />
-                            <h:outputText value="#{lazyLicenseDataView.selectedLic.endUser.number}"/>
+                            <h:outputText value="#{lazyLicenseDataView.endUser.number}"/>
 
                             <h:outputText value="City:" />
-                            <h:outputText value="#{lazyLicenseDataView.selectedLic.endUser.city}"/>
+                            <h:outputText value="#{lazyLicenseDataView.endUser.city}"/>
 
                             <h:outputText value="Country:" />
-                            <h:outputText value="#{lazyLicenseDataView.selectedLic.endUser.country}"/>
+                            <h:outputText value="#{lazyLicenseDataView.endUser.country}"/>
                         </p:panelGrid>
 
-                        <p:dataTable var="eperson" value="#{lazyLicenseDataView.selectedLic.endUser.personSet}" id="endPersonData" resizableColumns="true" reflow="true" >
+                        <p:dataTable var="eperson" value="#{lazyLicenseDataView.endUser.personSet}" id="endPersonData" resizableColumns="true" reflow="true" >
                             <p:column headerText="First name" style="width: 20%;" class="20percent">
                                 <h:outputText value="#{eperson.firstName}" />
                             </p:column>
@@ -145,8 +145,13 @@
                             <p:column headerText="Phone" style="width: 20%;" class="20percent">
                                 <h:outputText value="#{eperson.phone}"/>
                             </p:column>
-                            <p:column headerText="Email" style="width: 40%;" class="40percent">
+                            <p:column headerText="Email" style="width: 33%;" class="40percent">
                                 <h:outputText value="#{eperson.email}"/>
+                            </p:column>
+                            <p:column headerText="Edit" style="width: 7%; text-align: center">
+                                <p:commandLink style="text-align: center">
+                                    <h:graphicImage name="images/pencilE.png" style="width: 16px;height: 16px" />
+                                </p:commandLink>
                             </p:column>
                         </p:dataTable>
                     </p:panelGrid>
@@ -159,71 +164,13 @@
 
 
                 </h:form>
-
-
+                
+                
             </ui:define>
         </ui:composition>
-
-
-
-
-        <br />
-        <h:link outcome="/customer/List" value="Show All Customer Items"/>
-        <br />
-        <h:link outcome="/license/List" value="Show All License Items"/>
-        <br />
-        <h:link outcome="/licenseCustomer/List" value="Show All LicenseCustomer Items"/>
-        <br />
-        <h:link outcome="/person/List" value="Show All Person Items"/>
-        <br />
-        <h:link outcome="/software/List" value="Show All Software Items"/>
-        <br />
-        <h:link outcome="/status/List" value="Show All Status Items"/>
-        <br />
-        <h:link outcome="/customer/List" value="Show All Customer Items"/>
-        <br />
-        <h:link outcome="/license/List" value="Show All License Items"/>
-        <br />
-        <h:link outcome="/licenseCustomer/List" value="Show All LicenseCustomer Items"/>
-        <br />
-        <h:link outcome="/person/List" value="Show All Person Items"/>
-        <br />
-        <h:link outcome="/software/List" value="Show All Software Items"/>
-        <br />
-        <h:link outcome="/status/List" value="Show All Status Items"/>
+        
+        
     </h:body>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

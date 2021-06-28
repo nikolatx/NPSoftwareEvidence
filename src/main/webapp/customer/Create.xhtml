@@ -25,7 +25,7 @@
                         <p:outputLabel value="#{bundle.CreateCustomerLabel_country}" for="country" />
                         <p:inputText id="country" value="#{customerController.selected.country}" title="#{bundle.CreateCustomerTitle_country}" required="true" requiredMessage="#{bundle.CreateCustomerRequiredMessage_country}"/>
                     </p:panelGrid>
-                    <p:commandButton actionListener="#{customerController.create}" value="#{bundle.Save}" update="display,:CustomerListForm:datalist,:growl" oncomplete="handleSubmit(args,'CustomerCreateDialog');"/>
+                    <p:commandButton actionListener="#{customerController.create}" value="#{bundle.Save}" update="display,:CustomerListForm:datalist" oncomplete="handleSubmit(args,'CustomerCreateDialog');"/>
                     <p:commandButton value="#{bundle.Cancel}" onclick="CustomerCreateDialog.hide()"/>
                 </h:panelGroup>
             </h:form>

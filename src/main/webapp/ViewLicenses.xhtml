@@ -4,7 +4,9 @@
       xmlns:h="http://xmlns.jcp.org/jsf/html"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
       xmlns:p="http://primefaces.org/ui"
-      xmlns:f="http://xmlns.jcp.org/jsf/core">
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:nt = "http://xmlns.jcp.org/jsf/composite/composites">
+    
     <h:head>
         <title>Facelet Title</title>
         <h:outputStylesheet name="css/jsfcrud.css"/>
@@ -21,16 +23,17 @@
         
                 <h:form id="form1">
 
-                    <p:dataTable var="license" value="#{dtLazyView.lazyModel}" paginator="true" rows="10"
+                    <p:dataTable var="license" value="#{lazyLicenseDataView.lazyModel}" paginator="true" rows="10"
                              paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
-                             rowsPerPageTemplate="5,10,15" selectionMode="single" selection="#{dtLazyView.selectedLic}"  
+                             rowsPerPageTemplate="5,10,15" selection="#{lazyLicenseDataView.selectedLic}" selectionMode="single"
+                             
                              id="licenseTable" lazy="true">
 
+                        <p:ajax event="rowSelect" listener="#{lazyLicenseDataView.onRowSelect}" update=":form1"/>
+                        
                         <f:facet name="header">
                             <h:outputText value="License Data"/>
                         </f:facet>
-
-                        <p:ajax event="rowSelect" listener="#{dtLazyView.onRowSelect}" update="form1"  />
 
                         <p:column headerText="Expiry date" sortBy="#{license.expDate}" filterBy="#{license.expDate}">
                             <h:outputText value="#{license.expDate}">
@@ -42,47 +45,109 @@
                             <h:outputText value="#{license.smaCode}"/>
                         </p:column>
 
-                        <p:column headerText="Status" sortBy="#{license.statusId.name}" filterBy="#{license.statusId.name}">
-                            <h:outputText value="#{license.statusId.name}"/>
+                        <p:column headerText="Status" sortBy="#{license.statusName}" filterBy="#{license.statusName}">
+                            <h:outputText value="#{license.statusName}"/>
                         </p:column>
 
                         <p:column headerText="License code" sortBy="#{license.licenseCode}" filterBy="#{license.licenseCode}">
                             <h:outputText value="#{license.licenseCode}"/>
                         </p:column>
 
-                        <p:column headerText="Software" sortBy="#{license.software.name}" filterBy="#{license.software}">
-                            <h:outputText value="#{license.software}"/>
+                        <p:column headerText="Software" sortBy="#{license.softwareName}" filterBy="#{license.softwareName}">
+                            <h:outputText value="#{license.softwareName}"/>
+                        </p:column>
+
+                        <p:column headerText="Edit" style="width: 25px; text-align: center">
+                            <p:commandLink style="text-align: center" process="form1" update=":editLicenseForm licenseTable"
+                                           actionListener="#{lazyLicenseDataView.onEditLicense(license)}" oncomplete="PF('EditLicenseDialog').show()" >
+                                
+                                <f:setPropertyActionListener value="#{license}" target="#{lazyLicenseDataView.selectedLic}" />
+                                
+                                <h:graphicImage name="images/pencilE.png" style="width: 16px;height: 16px" />
+                                
+                            </p:commandLink>
                         </p:column>
 
                     </p:dataTable>
 
-                        <br/>
-                        <br/>
+                       
+                    <br/>
+                    <br/>
 
-                    <h3 style="margin-top:10"></h3>
-                    <p:panelGrid columns="2" columnClasses="firstColumn valigntop, secondColumn valigntop" style="width: 100%">
+                    
+                    
+                    <h3 style="margin-top:10px"></h3>
+                    <p:panelGrid id="panRes" columns="2" columnClasses="firstColumn valigntop, secondColumn valigntop" 
+                                 style="width: 100%" rendered="#{lazyLicenseDataView.selectedLic!=null}">
                         <f:facet name="header">
                             <h:outputText value="Reseller Data"/>
                         </f:facet>
-                        <p:panelGrid columns="2" columnClasses="firstColumn, secondColumn" style="width: 100%;overflow: hidden" >
+                        
+                        <p:panelGrid style="width: 100%;overflow: hidden" >
+                            
+                            <p:row>
+                                <p:column styleClass="firstColumn">
+                                    <h:outputText value="Company Name:" />
+                                </p:column>
+                                <p:column styleClass="secondColumn">
+                                    <h:outputText value="#{lazyLicenseDataView.selectedLic.reseller.name}"/>
+                                </p:column>
+                            </p:row>
 
-                            <h:outputText value="Company Name:" />
-                            <h:outputText value="#{dtLazyView.reseller.name}"/>
+                            <p:row>
+                                <p:column styleClass="firstColumn">
+                                    <h:outputText value="Street:" />
+                                </p:column>
+                                <p:column styleClass="secondColumn">
+                                    <h:outputText value="#{lazyLicenseDataView.selectedLic.reseller.street}"/>
+                                </p:column>
+                            </p:row>
 
-                            <h:outputText value="Street:" />
-                            <h:outputText value="#{dtLazyView.reseller.street}"/>
+                            <p:row>
+                                <p:column styleClass="firstColumn">
+                                    <h:outputText value="Number" />
+                                </p:column>
+                                <p:column styleClass="secondColumn">
+                                    <h:outputText value="#{lazyLicenseDataView.selectedLic.reseller.number}"/>
+                                </p:column>
+                            </p:row>
 
-                            <h:outputText value="Number" />
-                            <h:outputText value="#{dtLazyView.reseller.number}"/>
-
-                            <h:outputText value="City:" />
-                            <h:outputText value="#{dtLazyView.reseller.city}"/>
-
-                            <h:outputText value="Country:" />
-                            <h:outputText value="#{dtLazyView.reseller.country}"/>
+                            <p:row>
+                                <p:column styleClass="firstColumn">
+                                    <h:outputText value="City:" />
+                                </p:column>
+                                <p:column styleClass="secondColumn">
+                                    <h:outputText value="#{lazyLicenseDataView.selectedLic.reseller.city}"/>
+                                </p:column>
+                            </p:row>
+                            
+                            <p:row>
+                                <p:column styleClass="firstColumn">
+                                    <h:outputText value="Country:" />
+                                </p:column>
+                                <p:column styleClass="secondColumn">
+                                    <h:outputText value="#{lazyLicenseDataView.selectedLic.reseller.country}"/>
+                                </p:column>
+                            </p:row>
+                            
+                            <p:row>
+                                <p:column colspan="2">
+                                    <center>
+                                    <p:commandLink style="text-align: center" type="button" onclick="PF('EditResellerDialog').show()" ajax="true"
+                                                   update="EditResellerForm"> 
+                                        <h:graphicImage name="images/pencilE.png" style="width: 16px;height: 16px" />
+                                    </p:commandLink>
+                                    </center>
+                                </p:column>
+                            </p:row>
                         </p:panelGrid>
 
-                        <p:dataTable var="rperson" value="#{dtLazyView.reseller.personSet}" id="resPersonData" resizableColumns="true" reflow="true" >
+                            
+                        
+                            
+                        <p:dataTable var="rperson" value="#{lazyLicenseDataView.selectedLic.reseller.personSet}" 
+                                     id="resPersonData" resizableColumns="true" reflow="true" selectionMode="single"
+                                     selection="#{lazyLicenseDataView.person}" rowKey="#{rperson.personId}">
                             <p:column headerText="First name" style="width: 20%;">
                                 <h:outputText value="#{rperson.firstName}" />
                             </p:column>
@@ -96,44 +161,115 @@
                                 <h:outputText value="#{rperson.email}"/>
                             </p:column>
 
-                            <p:column headerText="Edit" style="width: 7%; text-align: center">
-                                <p:commandLink style="text-align: center">
-                                    <h:graphicImage name="images/pencilE.png" style="width: 16px;height: 16px" />
+                            
+                            <p:column headerText="Add" style="width: 7%; text-align: center">
+                                <p:commandLink style="text-align: center" type="button" actionListener="#{lazyLicenseDataView.prepareContact()}"
+                                               onclick="PF('AddResellerContactDialog').show()" ajax="true"
+                                               update=":messages"> 
+                                    <h:graphicImage name="images/add96blck.png" style="width: 16px;height: 16px" />
                                 </p:commandLink>
                             </p:column>
+                            
+                            <p:column headerText="Edit" style="width: 7%; text-align: center">
+                                <p:commandLink style="text-align: center" type="button" onclick="PF('EditResellerContactDialog').show()" ajax="true"
+                                               update=":messages EditResellerContactForm" > 
+                                    <h:graphicImage name="images/pencilE.png" style="width: 16px;height: 16px" />
+                                    <f:setPropertyActionListener value="#{rperson}" target="#{lazyLicenseDataView.person}" />
+                                </p:commandLink>
+                            </p:column>
+                            
+                            <p:column headerText="Del" style="width: 7%; text-align: center">
+                                <p:commandLink style="text-align: center" type="button" onclick="PF('DeleteResellerContactDialog').show()" ajax="true"
+                                               update=":messages DeleteResellerContactForm" 
+                                               disabled="#{lazyLicenseDataView.selectedLic.reseller.personSet.size() le 1}">
+                                    <h:graphicImage name="images/del96blck.png" style="width: 16px;height: 16px" />
+                                    <f:setPropertyActionListener value="#{rperson}" target="#{lazyLicenseDataView.person}" />
+                                </p:commandLink>
+                            </p:column>
+                            
 
                         </p:dataTable>
+                   
+                    
                     </p:panelGrid>
 
+                    
+                    
 
                     <br/>
                     <br/>
 
-                    <h3 style="margin-top:10"></h3>
-                    <p:panelGrid columns="2" columnClasses="firstColumn valigntop, secondColumn valigntop" style="width: 100%;background-color: red;vertical-align: top">
+                    
+                    
+                   
+                    <h3 style="margin-top:10px"></h3>
+                    <p:panelGrid id="panEnd" columns="2" columnClasses="firstColumn valigntop, secondColumn valigntop" 
+                                 style="width: 100%;background-color: red;vertical-align: top" rendered="#{lazyLicenseDataView.selectedLic!=null}">
                         <f:facet name="header">
                             <h:outputText value="End User Data"/>
                         </f:facet>
 
-                        <p:panelGrid columns="2" columnClasses="firstColumn, secondColumn" style="width:100%" >
+                        <p:panelGrid style="width:100%" >
 
-                            <h:outputText value="Company Name:" />
-                            <h:outputText value="#{dtLazyView.endUser.name}"/>
+                            <p:row>
+                                <p:column styleClass="firstColumn">
+                                    <h:outputText value="Company Name:" />
+                                </p:column>
+                                <p:column styleClass="secondColumn">
+                                    <h:outputText value="#{lazyLicenseDataView.selectedLic.endUser.name}"/>
+                                </p:column>
+                            </p:row>
 
-                            <h:outputText value="Street:" />
-                            <h:outputText value="#{dtLazyView.endUser.street}"/>
+                            <p:row>
+                                <p:column styleClass="firstColumn">
+                                    <h:outputText value="Street:" />
+                                </p:column>
+                                <p:column styleClass="secondColumn">
+                                    <h:outputText value="#{lazyLicenseDataView.selectedLic.endUser.street}"/>
+                                </p:column>
+                            </p:row>
 
-                            <h:outputText value="Number" />
-                            <h:outputText value="#{dtLazyView.endUser.number}"/>
+                            <p:row>
+                                <p:column styleClass="firstColumn">
+                                    <h:outputText value="Number" />
+                                </p:column>
+                                <p:column styleClass="secondColumn">
+                                    <h:outputText value="#{lazyLicenseDataView.selectedLic.endUser.number}"/>
+                                </p:column>
+                            </p:row>
 
-                            <h:outputText value="City:" />
-                            <h:outputText value="#{dtLazyView.endUser.city}"/>
+                            <p:row>
+                                <p:column styleClass="firstColumn">
+                                    <h:outputText value="City:" />
+                                </p:column>
+                                <p:column styleClass="secondColumn">
+                                    <h:outputText value="#{lazyLicenseDataView.selectedLic.endUser.city}"/>
+                                </p:column>
+                            </p:row>
 
-                            <h:outputText value="Country:" />
-                            <h:outputText value="#{dtLazyView.endUser.country}"/>
+                            <p:row>
+                                <p:column styleClass="firstColumn">
+                                    <h:outputText value="Country:" />
+                                </p:column>
+                                <p:column styleClass="secondColumn">
+                                    <h:outputText value="#{lazyLicenseDataView.selectedLic.endUser.country}"/>
+                                </p:column>
+                            </p:row>
+                            
+                            <p:row>
+                                <p:column colspan="2">
+                                    <center>
+                                    <p:commandLink style="text-align: center" type="button" onclick="PF('EditEndUserDialog').show()" ajax="true"
+                                                   update="EditEndUserForm">  
+                                        <h:graphicImage name="images/pencilE.png" style="width: 16px;height: 16px" />
+                                    </p:commandLink>
+                                    </center>
+                                </p:column>
+                            </p:row>
+                            
                         </p:panelGrid>
 
-                        <p:dataTable var="eperson" value="#{dtLazyView.endUser.personSet}" id="endPersonData" resizableColumns="true" reflow="true" >
+                        <p:dataTable var="eperson" value="#{lazyLicenseDataView.selectedLic.endUser.personSet}" id="endPersonData" resizableColumns="true" reflow="true" >
                             <p:column headerText="First name" style="width: 20%;" class="20percent">
                                 <h:outputText value="#{eperson.firstName}" />
                             </p:column>
@@ -146,22 +282,471 @@
                             <p:column headerText="Email" style="width: 33%;" class="40percent">
                                 <h:outputText value="#{eperson.email}"/>
                             </p:column>
+                            
+                            
+                            
+                            <p:column headerText="Add" style="width: 7%; text-align: center">
+                                <p:commandLink style="text-align: center" type="button" actionListener="#{lazyLicenseDataView.prepareContact()}"
+                                               onclick="PF('AddEndUserContactDialog').show()" ajax="true"
+                                               update=":messages AddEndUserContactForm"> 
+                                    <h:graphicImage name="images/add96blck.png" style="width: 16px;height: 16px" />
+                                </p:commandLink>
+                            </p:column>
+                            
                             <p:column headerText="Edit" style="width: 7%; text-align: center">
-                                <p:commandLink style="text-align: center">
+                                <p:commandLink style="text-align: center" type="button" onclick="PF('EditEndUserContactDialog').show()" ajax="true"
+                                               update=":messages EditEndUserContactForm"> 
                                     <h:graphicImage name="images/pencilE.png" style="width: 16px;height: 16px" />
+                                    <f:setPropertyActionListener value="#{eperson}" target="#{lazyLicenseDataView.person}" />
+                                </p:commandLink>
+                            </p:column>
+                            
+                            <p:column headerText="Del" style="width: 7%; text-align: center">
+                                <p:commandLink style="text-align: center" type="button" onclick="PF('DeleteEndUserContactDialog').show()" ajax="true"
+                                               update=":messages DeleteEndUserContactForm"
+                                               disabled="#{lazyLicenseDataView.selectedLic.endUser.personSet.size() le 1}"> 
+                                    <h:graphicImage name="images/del96blck.png" style="width: 16px;height: 16px" />
+                                    <f:setPropertyActionListener value="#{eperson}" target="#{lazyLicenseDataView.person}" />
                                 </p:commandLink>
                             </p:column>
                         </p:dataTable>
                     </p:panelGrid>
 
-
-
-
-
-
-
-
                 </h:form>
+
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                <p:dialog id="editLicDlg" widgetVar="EditLicenseDialog" modal="true" resizable="false" 
+                          appendTo="@(body)" header="#{bundle.EditLicenseTitle}" width="410">
+                    <h:form id="editLicenseForm">
+                        
+                        <h:panelGroup style="margin:10px">
+                        
+                            <p:panelGrid id="edLicPan" columns="4" styleClass="showcase-text-align-left"
+                                         layout="grid" columnClasses="ui-g-4, ui-g-6, ui-g-1, ui-g-1">
+                                
+                                <h:outputLabel value="#{bundle['EditLicenseLabel_licenseCode']}" for="licCode"/>
+                                <p:inputText id="licCode" value="#{lazyLicenseDataView.selectedLic.licenseCode}" 
+                                         required="true" requiredMessage="#{bundle.EditLicenseRequiredMessage_licenseCode}"/>
+                                <h:panelGroup/>
+                                <h:panelGroup/>
+
+                                <h:outputLabel value="#{bundle['EditLicenseLabel_smaCode']}" for="smaCode"/>
+                                <p:inputText id="smaCode" value="#{lazyLicenseDataView.selectedLic.smaCode}" />
+                                <h:panelGroup/>
+                                <h:panelGroup/>
+
+                                <h:outputLabel value="#{bundle['EditLicenseLabel_expDate']}" for="popup"/>
+                                <p:datePicker id="popup" value="#{lazyLicenseDataView.selectedLic.expDate}" />
+                                <h:panelGroup/>
+                                <h:panelGroup/>
+
+                                <h:outputLabel value="#{bundle['EditStatusLabel_name']}" for="licStat"/>
+                                <p:selectOneMenu id="licStat" value="#{lazyLicenseDataView.selectedLic.statusName}"
+                                                 style="width:90%" filter="true">
+                                    <f:selectItems value="#{lazyLicenseDataView.allStatuses}" var="selStatus" itemValue="#{selStatus}" itemLabel="#{selStatus}"/>
+                                    <p:ajax event="change" update="licStat"/>
+                                </p:selectOneMenu>
+                                <p:commandLink style="text-align: center" type="button" 
+                                               onclick="PF('StatusCreateDialog').show()" ajax="true"
+                                               update=":messages editLicenseForm">
+                                    <h:graphicImage name="images/add96blck.png" style="width:16px;height:16px"  />
+                                </p:commandLink>
+                                <p:commandLink style="text-align: center" type="button" actionListener="#{lazyLicenseDataView.selectStatus()}"
+                                               onclick="PF('StatusEditDialog').show()" ajax="true"
+                                               process="editLicenseForm" update=":messages editLicenseForm StatusEditForm">
+                                    <h:graphicImage name="images/pencilE.png" style="width:16px;height:16px" />
+                                </p:commandLink>
+
+                                <h:outputLabel value="#{bundle['EditSoftwareLabel_name']}" for="softStat"/>
+                                <p:selectOneMenu id="softStat" value="#{lazyLicenseDataView.selectedLic.softwareName}"
+                                                 style="width:90%" filter="true">
+                                    <f:selectItems value="#{lazyLicenseDataView.allSoftware}" var="selSoftware" itemValue="#{selSoftware}" itemLabel="#{selSoftware}"/>
+                                    <p:ajax event="change" update="softStat"/>
+                                </p:selectOneMenu>
+                                <p:commandLink style="text-align: center;" 
+                                               type="button" onclick="PF('SoftwareCreateDialog').show()" ajax="true"
+                                                 update=":messages editLicenseForm">
+                                    <h:graphicImage name="images/add96blck.png" style="width:16px;height:16px"/>
+                                </p:commandLink>
+                                <p:commandLink style="text-align: center;" actionListener="#{lazyLicenseDataView.selectSoftware()}"
+                                               oncomplete="PF('SoftwareEditDialog').show()" ajax="true"
+                                               process="editLicenseForm" update=":messages editLicenseForm SoftwareEditForm">
+                                    <h:graphicImage name="images/pencilE.png" style="width:16px;height:16px"/>
+                                </p:commandLink>
+                                
+                                <h:outputLabel value="#{bundle['EditResellerLabelName']}" for="resList"/>
+                                <p:selectOneMenu id="resList" value="#{lazyLicenseDataView.reseller}" style="width:90%;" filter="true">
+                                    <f:selectItem itemLabel="None" itemValue="#{null}" />
+                                    <f:selectItems value="#{lazyLicenseDataView.customers}" var="reseller" itemValue="#{reseller}" itemLabel="#{reseller.name}, #{reseller.country}"/>
+                                </p:selectOneMenu>
+                                
+                                <p:commandLink style="text-align: center;" 
+                                               type="button" onclick="PF('AddNewCustomerDialog').show()" ajax="true"
+                                                 update=":messages">
+                                    <h:graphicImage name="images/add96blck.png" style="width:16px;height:16px"/>
+                                </p:commandLink>
+                                <h:panelGroup/>
+                                
+                                <h:outputLabel value="#{bundle['EditEndUserLabelName']}" for="endList"/>
+                                <p:selectOneMenu id="endList" value="#{lazyLicenseDataView.endUser}" style="width:90%;" filter="true">
+                                    <f:selectItems value="#{lazyLicenseDataView.customers}" var="enduser" itemValue="#{enduser}" itemLabel="#{enduser.name}, #{enduser.city}"/>
+                                </p:selectOneMenu>
+                                
+                                <p:commandLink style="text-align: center;" 
+                                               type="button" onclick="PF('AddNewCustomerDialog').show()" ajax="true"
+                                                 update=":messages">
+                                    <h:graphicImage name="images/add96blck.png" style="width:16px;height:16px"/>
+                                </p:commandLink>
+                                <h:panelGroup/>
+                                
+                            </p:panelGrid>
+
+                            <center style="margin-top: 5px">
+                                <p:commandButton actionListener="#{lazyLicenseDataView.changeLicenseData()}" value="#{bundle.Save}" 
+                                                 process=":editLicenseForm" style="margin-right: 30px"
+                                                 update=":messages, :form1:licenseTable :form1:panRes :form1:panEnd" 
+                                                 oncomplete="if (args &amp;&amp; !args.validationFailed) 
+                                                            PF('EditLicenseDialog').hide();"/>
+
+                                <p:commandButton value="#{bundle.Cancel}" oncomplete="PF('EditLicenseDialog').hide()" immediate="true"/>    
+                            </center>
+
+                        </h:panelGroup>
+                    </h:form>
+                </p:dialog>
+
+                
+                
+                
+
+                
+                <p:dialog id="SoftwareCreateDlg" widgetVar="SoftwareCreateDialog" modal="true" resizable="false" appendTo="@(body)" header="#{bundle.CreateSoftwareTitle}">
+                    <h:form id="SoftwareCreateForm">
+                        <h:panelGroup id="displaySoft">
+                            <p:panelGrid columns="2" >
+                                <p:outputLabel value="#{bundle.CreateSoftwareLabel_name}" for="name" />
+                                <p:inputText id="name" value="#{lazyLicenseDataView.softwareName}" title="#{bundle.CreateSoftwareTitle_name}" 
+                                             required="true" requiredMessage="#{bundle.CreateSoftwareRequiredMessage_name}"/>
+                            </p:panelGrid>
+                            <p:commandButton actionListener="#{lazyLicenseDataView.createSoftware()}"  
+                                             value="#{bundle.Save}"
+                                             oncomplete="if (args &amp;&amp; !args.validationFailed) 
+                                                            PF('SoftwareCreateDialog').hide();"
+                                             process="SoftwareCreateForm"
+                                             update=":messages :editLicenseForm :form1"/>
+                            <p:commandButton value="#{bundle.Cancel}" oncomplete="PF('SoftwareCreateDialog').hide()" immediate="true"/>
+                        </h:panelGroup>
+                    </h:form>
+                </p:dialog>
+                
+                <p:dialog id="SoftwareEditDlg" widgetVar="SoftwareEditDialog" modal="true" resizable="false" appendTo="@(body)" header="#{bundle.EditSoftwareTitle}">
+                    <h:form id="SoftwareEditForm">
+                        <h:panelGroup>
+                            <p:panelGrid columns="2" >
+                                <p:outputLabel value="#{bundle.EditSoftwareLabel_name}" for="nameEd" />
+                                <p:inputText id="nameEd" value="#{lazyLicenseDataView.softwareName}" title="#{bundle.EditSoftwareTitle_name}" 
+                                             required="true" requiredMessage="#{bundle.CreateSoftwareRequiredMessage_name}"/>
+                            </p:panelGrid>
+                            <p:commandButton actionListener="#{lazyLicenseDataView.renameSoftware()}"  
+                                             value="#{bundle.Save}"
+                                             oncomplete="if (args &amp;&amp; !args.validationFailed) 
+                                                            PF('SoftwareEditDialog').hide();"
+                                             process="SoftwareEditForm"
+                                             update=":messages :editLicenseForm :form1"/>
+                            <p:commandButton value="#{bundle.Cancel}" oncomplete="PF('SoftwareEditDialog').hide()" immediate="true"/>
+                        </h:panelGroup>
+                    </h:form>
+                </p:dialog>
+
+                
+                
+                
+                
+                <p:dialog id="StatusCreateDlg" widgetVar="StatusCreateDialog" modal="true" resizable="false" appendTo="@(body)" header="#{bundle.CreateStatusTitle}">
+                    <h:form id="StatusCreateForm">
+                        <h:panelGroup>
+                            <p:panelGrid columns="2" >
+                                <p:outputLabel value="#{bundle.CreateStatusLabel_name}" for="name" />
+                                <p:inputText id="name" value="#{lazyLicenseDataView.statusName}" title="#{bundle.CreateStatusTitle_name}" 
+                                             required="true" requiredMessage="#{bundle.CreateStatusRequiredMessage_name}"/>
+                            </p:panelGrid>
+                            <p:commandButton actionListener="#{lazyLicenseDataView.createStatus()}"  
+                                             value="#{bundle.Save}"
+                                             oncomplete="if (args &amp;&amp; !args.validationFailed) 
+                                                            PF('StatusCreateDialog').hide();"
+                                             process="StatusCreateForm"
+                                             update=":messages :editLicenseForm :form1"/>
+                            <p:commandButton value="#{bundle.Cancel}" oncomplete="PF('StatusCreateDialog').hide()" immediate="true"/>
+                        </h:panelGroup>
+                    </h:form>
+                </p:dialog>
+                
+                <p:dialog id="StatusEditDlg" widgetVar="StatusEditDialog" modal="true" resizable="false" appendTo="@(body)" header="#{bundle.EditStatusTitle}">
+                    <h:form id="StatusEditForm">
+                        <h:panelGroup>
+                            <p:panelGrid columns="2" >
+                                <p:outputLabel value="#{bundle.EditStatusLabel_name}" for="name" />
+                                <p:inputText id="name" value="#{lazyLicenseDataView.statusName}" title="#{bundle.EditStatusTitle_name}" 
+                                             required="true" requiredMessage="#{bundle.CreateStatusRequiredMessage_name}"/>
+                            </p:panelGrid>
+                            <p:commandButton actionListener="#{lazyLicenseDataView.renameStatus()}"  
+                                             value="#{bundle.Save}"
+                                             oncomplete="if (args &amp;&amp; !args.validationFailed) 
+                                                            PF('StatusEditDialog').hide();"
+                                             process="StatusEditForm"
+                                             update=":messages :editLicenseForm :form1"/>
+                            <p:commandButton value="#{bundle.Cancel}" oncomplete="PF('StatusEditDialog').hide()" immediate="true"/>
+                        </h:panelGroup>
+                    </h:form>
+                </p:dialog>
+                
+                
+                
+                
+                <p:dialog id="AddNewCustomerDlg" widgetVar="AddNewCustomerDialog" modal="true" resizable="false" appendTo="@(body)" header="#{bundle.AddCompTitle}">
+                    <h:form id="AddNewCustomerForm">
+                        
+                        <nt:newCompanyComponent 
+                            companyName="#{lazyLicenseDataView.newCustomer.name}"
+                            companyStreet="#{lazyLicenseDataView.newCustomer.street}"
+                            companyNumber="#{lazyLicenseDataView.newCustomer.number}"
+                            companyCity="#{lazyLicenseDataView.newCustomer.city}"
+                            companyCountry="#{lazyLicenseDataView.newCustomer.country}"
+                            personFName="#{lazyLicenseDataView.person.firstName}"
+                            personLName="#{lazyLicenseDataView.person.lastName}"
+                            personPhone="#{lazyLicenseDataView.person.phone}"
+                            personEmail="#{lazyLicenseDataView.person.email}"/>
+                        <center>
+                            <p:commandButton actionListener="#{lazyLicenseDataView.addNewCustomer()}" 
+                                             value="#{bundle.AddNewCompany}" style="margin-right: 30px"
+                                             process="@form"
+                                             update=":messages :editLicenseForm"
+                                             oncomplete="if (args &amp;&amp; !args.validationFailed)
+                                                         PF('AddNewCustomerDialog').hide();">
+                            </p:commandButton>
+
+                            <p:commandButton value="#{bundle.Cancel}" oncomplete="PF('AddNewCustomerDialog').hide()" immediate="true"/>
+                        </center>
+                    </h:form>
+                </p:dialog>
+                
+                
+                
+                <p:dialog id="EditResellerDlg" widgetVar="EditResellerDialog" modal="true" resizable="false" appendTo="@(body)" header="#{bundle.EditResellerData}">
+                    <h:form id="EditResellerForm">
+                        <nt:editCompanyComponent 
+                            companyName="#{lazyLicenseDataView.reseller.name}"
+                            companyStreet="#{lazyLicenseDataView.reseller.street}"
+                            companyNumber="#{lazyLicenseDataView.reseller.number}"
+                            companyCity="#{lazyLicenseDataView.reseller.city}"
+                            companyCountry="#{lazyLicenseDataView.reseller.country}"/>
+                        <center>
+                            <p:commandButton actionListener="#{lazyLicenseDataView.editReseller()}" 
+                                             value="#{bundle.Save}" style="margin-right: 30px"
+                                             process="@form"
+                                             update=":messages :form1:panRes :editLicenseForm"
+                                             oncomplete="if (args &amp;&amp; !args.validationFailed)
+                                                         PF('EditResellerDialog').hide();">
+                            </p:commandButton>
+                            <p:commandButton value="#{bundle.Cancel}" oncomplete="PF('EditResellerDialog').hide()" immediate="true"/>
+                        </center>
+                    </h:form>
+                </p:dialog>
+                
+                
+                
+                
+                <p:dialog id="EditEndUserDlg" widgetVar="EditEndUserDialog" modal="true" resizable="false" appendTo="@(body)" header="#{bundle.EditEndUserData}">
+                    <h:form id="EditEndUserForm">
+                        <nt:editCompanyComponent 
+                            companyName="#{lazyLicenseDataView.endUser.name}"
+                            companyStreet="#{lazyLicenseDataView.endUser.street}"
+                            companyNumber="#{lazyLicenseDataView.endUser.number}"
+                            companyCity="#{lazyLicenseDataView.endUser.city}"
+                            companyCountry="#{lazyLicenseDataView.endUser.country}"/>
+                        <center>
+                            <p:commandButton actionListener="#{lazyLicenseDataView.editEndUser()}" 
+                                             value="#{bundle.Save}" style="margin-right: 30px"
+                                             process="@form"
+                                             update=":messages :form1:panEnd"
+                                             oncomplete="if (args &amp;&amp; !args.validationFailed)
+                                                         PF('EditEndUserDialog').hide();">
+                            </p:commandButton>
+                            <p:commandButton value="#{bundle.Cancel}" oncomplete="PF('EditEndUserDialog').hide()" immediate="true"/>
+                        </center>
+                    </h:form>
+                </p:dialog>
+                
+                
+                
+                
+                
+                <p:dialog id="AddResellerContactDlg" widgetVar="AddResellerContactDialog" modal="true" 
+                          resizable="false" appendTo="@(body)" header="#{bundle.AddResellerContactTitle}">
+                    <h:form id="AddResellerContactForm">
+
+                        <nt:contactComp
+                            firstName="#{lazyLicenseDataView.person.firstName}"
+                            lastName="#{lazyLicenseDataView.person.lastName}"
+                            phone="#{lazyLicenseDataView.person.phone}"
+                            email="#{lazyLicenseDataView.person.email}"/>
+                        <center>
+                            <p:commandButton actionListener="#{lazyLicenseDataView.addResellerContact()}" ajax="true"
+                                             value="#{bundle.AddNewContact}" style="margin-right: 30px"
+                                             process="AddResellerContactForm"
+                                             update=":messages :form1:panRes"
+                                             oncomplete="if (args &amp;&amp; !args.validationFailed) 
+                                                            PF('AddResellerContactDialog').hide();">
+                                
+                            </p:commandButton>
+                            
+                            <p:commandButton value="#{bundle.Cancel}" oncomplete="PF('AddResellerContactDialog').hide()" 
+                                             immediate="true"/>
+                        </center>
+                    </h:form>
+                </p:dialog>
+                
+                <p:dialog id="EditResellerContactDlg" widgetVar="EditResellerContactDialog" modal="true" 
+                          resizable="false" appendTo="@(body)" header="#{bundle.EditResellerContactTitle}">
+                    <h:form id="EditResellerContactForm">
+
+                        <nt:contactComp
+                            firstName="#{lazyLicenseDataView.person.firstName}"
+                            lastName="#{lazyLicenseDataView.person.lastName}"
+                            phone="#{lazyLicenseDataView.person.phone}"
+                            email="#{lazyLicenseDataView.person.email}"/>
+
+                        <center>
+                            <p:commandButton actionListener="#{lazyLicenseDataView.editResellerContact()}" 
+                                             value="#{bundle.Save}" style="margin-right: 30px"
+                                             process="@form"
+                                             update=":messages :form1:panRes"
+                                             oncomplete="if (args &amp;&amp; !args.validationFailed)
+                                                         PF('EditResellerContactDialog').hide();">
+                            </p:commandButton>
+
+                            <p:commandButton value="#{bundle.Cancel}" oncomplete="PF('EditResellerContactDialog').hide()" 
+                                             immediate="true"/>
+                        </center>
+                    </h:form>
+                </p:dialog>
+                
+                
+                <p:dialog id="DeleteResellerContactDlg" widgetVar="DeleteResellerContactDialog" modal="true" 
+                          resizable="false" appendTo="@(body)" header="#{bundle.DeleteResellerContactTitle}">
+                    <h:form id="DeleteResellerContactForm">
+
+                        <nt:contactComp
+                            firstName="#{lazyLicenseDataView.person.firstName}"
+                            lastName="#{lazyLicenseDataView.person.lastName}"
+                            phone="#{lazyLicenseDataView.person.phone}"
+                            email="#{lazyLicenseDataView.person.email}"
+                            readOnly="#{true}"/>
+
+                        <center>
+                            <p:commandButton actionListener="#{lazyLicenseDataView.deleteResellerContact()}" 
+                                             value="#{bundle.Delete}" style="margin-right: 30px"
+                                             process="@form"
+                                             update=":messages :form1:panRes"
+                                             oncomplete="if (args &amp;&amp; !args.validationFailed)
+                                                         PF('DeleteResellerContactDialog').hide();">
+                            </p:commandButton>
+
+                            <p:commandButton value="#{bundle.Cancel}" oncomplete="PF('DeleteResellerContactDialog').hide()" 
+                                             immediate="true"/>
+                        </center>
+                    </h:form>
+                </p:dialog>
+                
+                
+                <p:dialog id="AddEndUserContactDlg" widgetVar="AddEndUserContactDialog" modal="true" 
+                          resizable="false" appendTo="@(body)" header="#{bundle.AddEndUserContactTitle}">
+                    <h:form id="AddEndUserContactForm">
+
+                        <nt:contactComp
+                            firstName="#{lazyLicenseDataView.person.firstName}"
+                            lastName="#{lazyLicenseDataView.person.lastName}"
+                            phone="#{lazyLicenseDataView.person.phone}"
+                            email="#{lazyLicenseDataView.person.email}"/>
+                        <center>
+                            <p:commandButton actionListener="#{lazyLicenseDataView.addEndUserContact()}" ajax="true"
+                                             value="#{bundle.AddNewContact}" style="margin-right: 30px"
+                                             process="AddEndUserContactForm"
+                                             update=":messages :form1:panEnd"
+                                             oncomplete="if (args &amp;&amp; !args.validationFailed) 
+                                                            PF('AddEndUserContactDialog').hide();">
+                                
+                            </p:commandButton>
+                            
+                            <p:commandButton value="#{bundle.Cancel}" oncomplete="PF('AddEndUserContactDialog').hide()" 
+                                             immediate="true"/>
+                        </center>
+                    </h:form>
+                </p:dialog>
+                
+                <p:dialog id="EditEndUserContactDlg" widgetVar="EditEndUserContactDialog" modal="true" 
+                          resizable="false" appendTo="@(body)" header="#{bundle.EditEndUserContactTitle}">
+                    <h:form id="EditEndUserContactForm">
+
+                        <nt:contactComp
+                            firstName="#{lazyLicenseDataView.person.firstName}"
+                            lastName="#{lazyLicenseDataView.person.lastName}"
+                            phone="#{lazyLicenseDataView.person.phone}"
+                            email="#{lazyLicenseDataView.person.email}"/>
+
+                        <center>
+                            <p:commandButton actionListener="#{lazyLicenseDataView.editEndUserContact()}" 
+                                             value="#{bundle.Save}" style="margin-right: 30px"
+                                             process="@form"
+                                             update=":messages :form1:panEnd"
+                                             oncomplete="if (args &amp;&amp; !args.validationFailed)
+                                                         PF('EditEndUserContactDialog').hide();">
+                            </p:commandButton>
+
+                            <p:commandButton value="#{bundle.Cancel}" oncomplete="PF('EditEndUserContactDialog').hide()" 
+                                             immediate="true"/>
+                        </center>
+                    </h:form>
+                </p:dialog>
+                
+                <p:dialog id="DeleteEndUserContactDlg" widgetVar="DeleteEndUserContactDialog" modal="true" 
+                          resizable="false" appendTo="@(body)" header="#{bundle.DeleteEndUserContactTitle}">
+                    <h:form id="DeleteEndUserContactForm">
+
+                        <nt:contactComp
+                            firstName="#{lazyLicenseDataView.person.firstName}"
+                            lastName="#{lazyLicenseDataView.person.lastName}"
+                            phone="#{lazyLicenseDataView.person.phone}"
+                            email="#{lazyLicenseDataView.person.email}"
+                            readOnly="#{true}"/>
+
+                        <center>
+                            <p:commandButton actionListener="#{lazyLicenseDataView.deleteEndUserContact()}" 
+                                             value="#{bundle.Delete}" style="margin-right: 30px"
+                                             process="@form"
+                                             update=":messages :form1:panEnd"
+                                             oncomplete="if (args &amp;&amp; !args.validationFailed)
+                                                         PF('DeleteEndUserContactDialog').hide();">
+                            </p:commandButton>
+
+                            <p:commandButton value="#{bundle.Cancel}" oncomplete="PF('DeleteEndUserContactDialog').hide()" 
+                                             immediate="true"/>
+                        </center>
+                    </h:form>
+                </p:dialog>
+                
+                
+                
+                
+                
                 
                 
             </ui:define>

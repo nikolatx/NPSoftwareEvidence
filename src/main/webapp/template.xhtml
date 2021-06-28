@@ -43,13 +43,13 @@
                     <p:layoutUnit position="west" size="180" header="Software Evidence" collapsible="true" style="padding: 5px;">
                         <p:menu style="width: 155px;">
                             <p:submenu label="#{bundle['MenuSellLicenseHeader']}">
-                                <p:menuitem icon="ui-icon-search" value="#{bundle['MenuSellLicense']}" update="content" outcome="SellLicense.xhtml" style="width: 150px"/>
-                            </p:submenu>
-                            <p:submenu label="#{bundle['MenuViewLicenseHeader']}">
-                                <p:menuitem icon="ui-icon-search" value="#{bundle['MenuViewLicense']}" update="content" outcome="ViewLicenses.xhtml" style="width: 150px"/>
+                                <p:menuitem icon="ui-icon-search" value="#{bundle['MenuSellLicense']}" update="content" outcome="/SellLicense.xhtml" style="width: 150px"/>
                             </p:submenu>
                             <p:submenu label="#{bundle['MenuUpdateLicenseHeader']}">
-                                <p:menuitem icon="ui-icon-search" value="#{bundle['MenuUpdateLicense']}" update="content" outcome="UpdateLicense.xhtml" style="width: 150px"/>
+                                <p:menuitem icon="ui-icon-search" value="#{bundle['MenuUpdateLicense']}" update="content" outcome="/ViewLicenses.xhtml" style="width: 150px"/>
+                            </p:submenu>
+                            <p:submenu label="#{bundle['MenuDeleteLicenseHeader']}">
+                                <p:menuitem icon="ui-icon-search" value="#{bundle['MenuDeleteLicense']}" update="content" outcome="/UpdateLicense.xhtml" style="width: 150px"/>
                             </p:submenu>
                         </p:menu>
                     </p:layoutUnit>

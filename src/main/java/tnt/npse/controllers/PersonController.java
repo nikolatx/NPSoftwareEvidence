@@ -14,11 +14,14 @@ import javax.ejb.EJB;
 import javax.ejb.EJBException;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Named;
-import javax.enterprise.context.SessionScoped;
 import javax.faces.component.UIComponent;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 import javax.faces.convert.FacesConverter;
+import javax.inject.Inject;
+import tnt.npse.entities.Customer;
+import tnt.npse.model.LicenseData;
 
 @Named("personController")
 @RequestScoped
@@ -29,6 +32,11 @@ public class PersonController implements Serializable {
     private List<Person> items = null;
     private Person selected;
 
+    @Inject 
+    private CustomerController customerController;
+    @Inject
+    private LicenseController licenseController;
+    
     public PersonController() {
     }
 
@@ -56,11 +64,40 @@ public class PersonController implements Serializable {
         return selected;
     }
     
-    public void create(Person person) {
-        selected=person;
-        persist(PersistAction.CREATE, ResourceBundle.getBundle("/Bundle").getString("PersonCreated"));
-        if (!JsfUtil.isValidationFailed()) {
-            items = null;    // Invalidate list of items to trigger re-query.
+    public void create(Person person, Customer company) {
+        FacesContext context=FacesContext.getCurrentInstance();
+        ExternalContext ec = context.getExternalContext();
+        items=getItems();
+        Person person1=person;
+        Person perCheck=items.stream().filter(e-> (
+                e.getFirstName().equalsIgnoreCase(person1.getFirstName()) &&
+                e.getLastName().equalsIgnoreCase(person1.getLastName()) &&
+                e.getCustomerId().getCustomerId().equals(company.getCustomerId())
+                )).findFirst().orElse(null);
+        
+        if (perCheck==null) {
+            person.setCustomerId(company);
+            
+            selected=person;
+            persist(PersistAction.CREATE, ResourceBundle.getBundle("/Bundle").getString("PersonCreated"));
+            
+            if (!JsfUtil.isValidationFailed()) {
+                items = null;    // Invalidate list of items to trigger re-query.
+            }
+            getItems();
+            
+            person=items.stream().filter(e->(
+                    e.getFirstName().equalsIgnoreCase(person1.getFirstName()) &&
+                    e.getLastName().equalsIgnoreCase(person1.getLastName()) &&
+                    e.getEmail().equalsIgnoreCase(person1.getEmail()) &&
+                            e.getPhone().equalsIgnoreCase(person1.getPhone())
+                    )).findFirst().orElse(null);
+            
+            company.getPersonSet().add(person);
+            customerController.update(company);
+        } else {
+            context.validationFailed();
+            JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("ContactExists"));
         }
     }
 
@@ -71,10 +108,42 @@ public class PersonController implements Serializable {
         }
     }
 
+    public void update(Person person, Customer company, Person originalPerson) {
+        FacesContext context=FacesContext.getCurrentInstance();
+        ExternalContext ec = context.getExternalContext();
+        items=getItems();
+        Person perCheck=items.stream().filter(e-> (
+                e.getFirstName().equalsIgnoreCase(person.getFirstName()) &&
+                e.getLastName().equalsIgnoreCase(person.getLastName()) &&
+                e.getCustomerId().getCustomerId().equals(company.getCustomerId()) &&
+                !e.getPersonId().equals(person.getPersonId())
+                )).findFirst().orElse(null);
+        
+        if (perCheck==null) {
+            selected=person;
+            update();
+            if (!JsfUtil.isValidationFailed()) {
+                items = null;    // Invalidate list of items to trigger re-query.
+            }
+        } else {
+            context.validationFailed();
+            person.setFirstName(originalPerson.getFirstName());
+            person.setLastName(originalPerson.getLastName());
+            person.setPhone(originalPerson.getPhone());
+            person.setEmail(originalPerson.getEmail());
+            JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("ContactExists"));
+        }
+    }
+    
     public void update() {
         persist(PersistAction.UPDATE, ResourceBundle.getBundle("/Bundle").getString("PersonUpdated"));
     }
 
+    public void delete(Person person, LicenseData ld) {
+        selected=person;
+        destroy();
+    }
+    
     public void destroy() {
         persist(PersistAction.DELETE, ResourceBundle.getBundle("/Bundle").getString("PersonDeleted"));
         if (!JsfUtil.isValidationFailed()) {
@@ -96,8 +165,11 @@ public class PersonController implements Serializable {
             try {
                 if (persistAction != PersistAction.DELETE) {
                     getFacade().edit(selected);
+                    getFacade().refresh();
                 } else {
                     getFacade().remove(selected);
+                    getFacade().refresh();
+                    items=null;
                 }
                 JsfUtil.addSuccessMessage(successMessage);
             } catch (EJBException ex) {
