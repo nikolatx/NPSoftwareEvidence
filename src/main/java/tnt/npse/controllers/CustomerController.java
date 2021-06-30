@@ -15,7 +15,6 @@ import javax.ejb.EJBException;
 import javax.inject.Named;
 import javax.enterprise.context.SessionScoped;
 import javax.faces.component.UIComponent;
-import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.convert.Converter;
 import javax.faces.convert.FacesConverter;
@@ -58,8 +57,10 @@ public class CustomerController implements Serializable {
         return selected;
     }
 
+    
     //creates a new customer with one contact (person)
     public void create(Customer customer, Person contact) {
+        FacesContext context=FacesContext.getCurrentInstance();
         items=getItems();
         Customer cust=items.stream().filter(cu->
                 cu.getName().equalsIgnoreCase(customer.getName()) &&
@@ -75,6 +76,7 @@ public class CustomerController implements Serializable {
                 items = null;    // Invalidate list of items to trigger re-query.
             }
         } else {
+            context.validationFailed();
             JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("NewCompanyExists"));
         }
     }
@@ -85,7 +87,12 @@ public class CustomerController implements Serializable {
             items = null;    // Invalidate list of items to trigger re-query.
         }
     }
-
+    
+    public void refresh() {
+        items=null;
+        getItems();
+    }
+    
     public void update(Customer cust) {
         selected=cust;
         update();
@@ -95,6 +102,17 @@ public class CustomerController implements Serializable {
         persist(PersistAction.UPDATE, ResourceBundle.getBundle("/Bundle").getString("CustomerUpdated"));
     }
 
+    public void destroy(Customer customer) {
+        FacesContext context=FacesContext.getCurrentInstance();
+        if (customer.getLicenseCustomerSet().isEmpty()) {
+            selected=customer;
+            destroy();
+        } else {
+            context.validationFailed();
+            JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("DeleteCompanyNotOrphan"));
+        }
+    }
+    
     public void destroy() {
         persist(PersistAction.DELETE, ResourceBundle.getBundle("/Bundle").getString("CustomerDeleted"));
         if (!JsfUtil.isValidationFailed()) {

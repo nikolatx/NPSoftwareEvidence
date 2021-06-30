@@ -61,6 +61,11 @@ public class LicenseCustomerController implements Serializable {
             items = null;    // Invalidate list of items to trigger re-query.
         }
     }
+    
+    public void update(LicenseCustomer lc) {
+        selected=lc;
+        persist(PersistAction.UPDATE, ResourceBundle.getBundle("/Bundle").getString("LicenseCustomerUpdated"));
+    }
 
     public void update() {
         persist(PersistAction.UPDATE, ResourceBundle.getBundle("/Bundle").getString("LicenseCustomerUpdated"));

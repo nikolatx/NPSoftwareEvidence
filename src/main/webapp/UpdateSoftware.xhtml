@@ -1,0 +1,139 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:head>
+        <title>Update Software</title>
+        <h:outputStylesheet name="css/jsfcrud.css"/>
+        <h:outputStylesheet name="css/myClasses.css"/>
+        <h:outputStylesheet name="primeicons/primeicons.css" library="primefaces" />
+    </h:head>
+    <h:body>
+        <ui:composition template="./template.xhtml">
+
+            <ui:define name="title">Update Software</ui:define> 
+           
+            <ui:define name="content">
+                
+                <h:form id="form1">
+
+                    <p:dataTable var="software" value="#{lazySoftwareDataView.lazyModel}" paginator="true" rows="10"
+                             paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                             rowsPerPageTemplate="5,10,15" selection="#{lazySoftwareDataView.selectedSoft}" selectionMode="single"
+                             
+                             id="softTable" lazy="true">
+
+                        <p:ajax event="rowSelect" listener="#{lazySoftwareDataView.onRowSelect}" update=":form1"/>
+                        
+                        <f:facet name="header">
+                            <h:outputText value="#{bundle.SoftwareTableTitle}"/>
+                        </f:facet>
+
+                        <p:column headerText="#{bundle.SoftwareTableName}" sortBy="#{software.name}" filterBy="#{software.name}">
+                            <h:outputText value="#{software.name}"/>
+                        </p:column>
+
+                        
+                        <p:column headerText="Add" style="width: 7%; text-align: center">
+                            <p:commandLink style="text-align: center" type="button" actionListener="#{lazySoftwareDataView.prepareSoftware()}"
+                                           onclick="PF('AddSoftwareDialog').show()" ajax="true"
+                                           update=":messages :AddSoftwareForm"> 
+                                <h:graphicImage name="images/add96blck.png" style="width: 16px;height: 16px" />
+                            </p:commandLink>
+                        </p:column>
+
+                        <p:column headerText="Edit" style="width: 7%; text-align: center">
+                            <p:commandLink style="text-align: center" type="button" onclick="PF('EditSoftwareDialog').show()" ajax="true"
+                                           update=":messages :EditSoftwareForm"> 
+                                <h:graphicImage name="images/pencilE.png" style="width: 16px;height: 16px" />
+                                <f:setPropertyActionListener value="#{software}" target="#{lazySoftwareDataView.selectedSoft}" />
+                            </p:commandLink>
+                        </p:column>
+
+                        <p:column headerText="Del" style="width: 7%; text-align: center">
+                            <p:commandLink style="text-align: center" type="button" onclick="PF('DeleteSoftwareDialog').show()" ajax="true"
+                                           update=":messages :DeleteSoftwareForm"
+                                           disabled="#{not empty software.licenseSet}"> 
+                                <h:graphicImage name="images/del96blck.png" style="width: 16px;height: 16px" />
+                                <f:setPropertyActionListener value="#{software}" target="#{lazySoftwareDataView.selectedSoft}" />
+                            </p:commandLink>
+                        </p:column>
+                    </p:dataTable>
+            
+                
+                </h:form>
+                
+                
+                
+                <p:dialog id="AddSoftwareDlg" widgetVar="AddSoftwareDialog" modal="true" resizable="false" appendTo="@(body)" header="#{bundle.CreateSoftwareTitle}">
+                    <h:form id="AddSoftwareForm">
+                        <h:panelGroup id="displaySoft">
+                            <p:panelGrid columns="2" >
+                                <p:outputLabel value="#{bundle.CreateSoftwareLabel_name}" for="name" />
+                                <p:inputText id="name" value="#{lazySoftwareDataView.newSoft.name}" title="#{bundle.CreateSoftwareTitle_name}" 
+                                             required="true" requiredMessage="#{bundle.CreateSoftwareRequiredMessage_name}"/>
+                            </p:panelGrid>
+                            <p:commandButton actionListener="#{lazySoftwareDataView.addSoftware()}"  
+                                             value="#{bundle.Save}"
+                                             oncomplete="if (args &amp;&amp; !args.validationFailed) 
+                                                            PF('AddSoftwareDialog').hide();"
+                                             process="AddSoftwareForm"
+                                             update=":messages :form1:softTable"/>
+                            <p:commandButton value="#{bundle.Cancel}" oncomplete="PF('AddSoftwareDialog').hide()" immediate="true"/>
+                        </h:panelGroup>
+                    </h:form>
+                </p:dialog>
+                
+                
+                <p:dialog id="EditSoftwareDlg" widgetVar="EditSoftwareDialog" modal="true" resizable="false" appendTo="@(body)" header="#{bundle.EditSoftwareTitle}">
+                    <h:form id="EditSoftwareForm">
+                        <h:panelGroup>
+                            <p:panelGrid columns="2" >
+                                <p:outputLabel value="#{bundle.EditSoftwareLabel_name}" for="nameEd" />
+                                <p:inputText id="nameEd" value="#{lazySoftwareDataView.selectedSoft.name}" title="#{bundle.EditSoftwareTitle_name}" 
+                                             required="true" requiredMessage="#{bundle.CreateSoftwareRequiredMessage_name}"/>
+                            </p:panelGrid>
+                            <p:commandButton actionListener="#{lazySoftwareDataView.editSoftware()}"  
+                                             value="#{bundle.Save}"
+                                             oncomplete="if (args &amp;&amp; !args.validationFailed) 
+                                                            PF('EditSoftwareDialog').hide();"
+                                             process="EditSoftwareForm"
+                                             update=":messages :form1:softTable"/>
+                            <p:commandButton value="#{bundle.Cancel}" oncomplete="PF('EditSoftwareDialog').hide()" immediate="true"/>
+                        </h:panelGroup>
+                    </h:form>
+                </p:dialog>
+                
+                
+                <p:dialog id="DeleteSoftwareDlg" widgetVar="DeleteSoftwareDialog" modal="true" resizable="false" appendTo="@(body)" header="#{bundle.DeleteSoftwareTitle}">
+                    <h:form id="DeleteSoftwareForm">
+                        <h:panelGroup>
+                            <p:panelGrid columns="2" >
+                                <p:outputLabel value="#{bundle.DeleteSoftwareLabel_name}" for="nameDel" />
+                                <p:inputText id="nameDel" value="#{lazySoftwareDataView.selectedSoft.name}" title="#{bundle.EditSoftwareTitle_name}" 
+                                             readonly="true"/>
+                            </p:panelGrid>
+                            <p:commandButton actionListener="#{lazySoftwareDataView.deleteSoftware()}"  
+                                             value="#{bundle.Delete}"
+                                             oncomplete="if (args &amp;&amp; !args.validationFailed) 
+                                                            PF('DeleteSoftwareDialog').hide();"
+                                             process="DeleteSoftwareForm"
+                                             update=":messages :form1:softTable"/>
+                            <p:commandButton value="#{bundle.Cancel}" oncomplete="PF('DeleteSoftwareDialog').hide()" immediate="true"/>
+                        </h:panelGroup>
+                    </h:form>
+                </p:dialog>
+                
+                
+                
+                
+            </ui:define>
+            
+        </ui:composition>
+        
+    </h:body>
+</html>
+

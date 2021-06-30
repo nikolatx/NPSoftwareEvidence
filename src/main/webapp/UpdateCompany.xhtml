@@ -1,0 +1,312 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:nt = "http://xmlns.jcp.org/jsf/composite/composites">
+
+    <h:head>
+        <title>Update Company</title>
+        <h:outputStylesheet name="css/jsfcrud.css"/>
+        <h:outputStylesheet name="css/myClasses.css"/>
+        <h:outputStylesheet name="primeicons/primeicons.css" library="primefaces" />
+    </h:head>
+    <h:body>
+        <ui:composition template="./template.xhtml">
+
+            <ui:define name="title">Update Company</ui:define> 
+           
+            <ui:define name="content">
+                
+                <h:form id="form1">
+
+                    <p:dataTable var="company" value="#{lazyCompanyDataView.lazyModel}" paginator="true" rows="10"
+                             paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                             rowsPerPageTemplate="5,10,15" selection="#{lazyCompanyDataView.selectedComp}" selectionMode="single"
+                             
+                             id="compTable" lazy="true">
+
+                        <p:ajax event="rowSelect" listener="#{lazyCompanyDataView.onRowSelect}" update=":form1"/>
+                        
+                        <f:facet name="header">
+                            <h:outputText value="Company Data"/>
+                        </f:facet>
+
+                        <p:column headerText="#{bundle.NewCompanyName}" sortBy="#{company.name}" filterBy="#{company.name}">
+                            <h:outputText value="#{company.name}"/>
+                        </p:column>
+
+                        <p:column headerText="#{bundle.NewCompanyStreet}" sortBy="#{company.street}" filterBy="#{company.street}">
+                            <h:outputText value="#{company.street}"/>
+                        </p:column>
+
+                        <p:column headerText="#{bundle.NewCompanyNumber}" sortBy="#{company.number}" filterBy="#{company.number}">
+                            <h:outputText value="#{company.number}"/>
+                        </p:column>
+
+                        <p:column headerText="#{bundle.NewCompanyCity}" sortBy="#{company.city}" filterBy="#{company.city}">
+                            <h:outputText value="#{company.city}"/>
+                        </p:column>
+
+                        <p:column headerText="#{bundle.NewCompanyCountry}" sortBy="#{company.country}" filterBy="#{company.country}">
+                            <h:outputText value="#{company.country}"/>
+                        </p:column>
+                        
+                        
+                        <p:column headerText="Add" style="width: 7%; text-align: center">
+                            <p:commandLink style="text-align: center" type="button" actionListener="#{lazyCompanyDataView.prepareCompany()}"
+                                           onclick="PF('AddCompanyDialog').show()" ajax="true"
+                                           update=":messages AddCompanyForm"> 
+                                <h:graphicImage name="images/add96blck.png" style="width: 16px;height: 16px" />
+                            </p:commandLink>
+                        </p:column>
+
+                        <p:column headerText="Edit" style="width: 7%; text-align: center">
+                            <p:commandLink style="text-align: center" type="button" onclick="PF('EditCompanyDialog').show()" ajax="true"
+                                           update=":messages EditCompanyForm"> 
+                                <h:graphicImage name="images/pencilE.png" style="width: 16px;height: 16px" />
+                                <f:setPropertyActionListener value="#{company}" target="#{lazyCompanyDataView.selectedComp}" />
+                            </p:commandLink>
+                        </p:column>
+
+                        <p:column headerText="Del" style="width: 7%; text-align: center">
+                            <p:commandLink style="text-align: center" type="button" onclick="PF('DeleteCompanyDialog').show()" ajax="true"
+                                           update=":messages DeleteCompanyForm"
+                                           disabled="#{not empty company.licenseCustomerSet}"> 
+                                <h:graphicImage name="images/del96blck.png" style="width: 16px;height: 16px" />
+                                <f:setPropertyActionListener value="#{company}" target="#{lazyCompanyDataView.selectedComp}" />
+                            </p:commandLink>
+                        </p:column>
+                    </p:dataTable>
+
+                    <br/>
+                    <br/>
+                    
+                    
+                    
+                    
+                    
+                    <p:dataTable var="person" value="#{lazyCompanyDataView.selectedComp.personSet}" id="persTable" 
+                                 resizableColumns="true" reflow="true"
+                                 rendered="#{not empty lazyCompanyDataView.selectedComp.personSet}">
+                        <f:facet name="header">
+                            <h:outputText value="Contacts"/>
+                        </f:facet>
+                        <p:column headerText="#{bundle.EditContactFirstName}" style="width: 20%;" class="20percent">
+                            <h:outputText value="#{person.firstName}" />
+                        </p:column>
+                        <p:column headerText="#{bundle.EditContactLastName}" style="width: 20%;" class="20percent">
+                            <h:outputText value="#{person.lastName}"/>
+                        </p:column>
+                        <p:column headerText="#{bundle.EditContactPhone}" style="width: 20%;" class="20percent">
+                            <h:outputText value="#{person.phone}"/>
+                        </p:column>
+                        <p:column headerText="#{bundle.EditContactEmail}" style="width: 33%;" class="40percent">
+                            <h:outputText value="#{person.email}"/>
+                        </p:column>
+
+                        <p:column headerText="Add" style="width: 7%; text-align: center">
+                            <p:commandLink style="text-align: center" type="button" actionListener="#{lazyCompanyDataView.prepareContact()}"
+                                           onclick="PF('AddContactDialog').show()" ajax="true"
+                                           update=":messages AddContactForm"> 
+                                <h:graphicImage name="images/add96blck.png" style="width: 16px;height: 16px" />
+                            </p:commandLink>
+                        </p:column>
+
+                        <p:column headerText="Edit" style="width: 7%; text-align: center">
+                            <p:commandLink style="text-align: center" type="button" onclick="PF('EditContactDialog').show()" ajax="true"
+                                           update=":messages EditContactForm"> 
+                                <h:graphicImage name="images/pencilE.png" style="width: 16px;height: 16px" />
+                                <f:setPropertyActionListener value="#{person}" target="#{lazyCompanyDataView.selectedPers}" />
+                            </p:commandLink>
+                        </p:column>
+
+                        <p:column headerText="Del" style="width: 7%; text-align: center">
+                            <p:commandLink style="text-align: center" type="button" onclick="PF('DeleteContactDialog').show()" ajax="true"
+                                           update=":messages DeleteContactForm"
+                                           disabled="#{lazyCompanyDataView.selectedComp.personSet.size() le 1}"> 
+                                <h:graphicImage name="images/del96blck.png" style="width: 16px;height: 16px" />
+                                <f:setPropertyActionListener value="#{person}" target="#{lazyCompanyDataView.selectedPers}" />
+                            </p:commandLink>
+                        </p:column>
+                        
+                        <f:facet name="footer">
+                            <h:outputText value=""/>
+                        </f:facet>
+                        
+                    </p:dataTable>
+                    
+                    
+                </h:form>
+                       
+                
+                
+                
+                    
+
+                <p:dialog id="AddCompanyDlg" widgetVar="AddCompanyDialog" modal="true" resizable="false" appendTo="@(body)" header="#{bundle.AddCompTitle}">
+                    <h:form id="AddCompanyForm">
+                        
+                        <nt:newCompanyComponent 
+                            companyName="#{lazyCompanyDataView.newCompany.name}"
+                            companyStreet="#{lazyCompanyDataView.newCompany.street}"
+                            companyNumber="#{lazyCompanyDataView.newCompany.number}"
+                            companyCity="#{lazyCompanyDataView.newCompany.city}"
+                            companyCountry="#{lazyCompanyDataView.newCompany.country}"
+                            personFName="#{lazyCompanyDataView.newPers.firstName}"
+                            personLName="#{lazyCompanyDataView.newPers.lastName}"
+                            personPhone="#{lazyCompanyDataView.newPers.phone}"
+                            personEmail="#{lazyCompanyDataView.newPers.email}"/>
+                        <center>
+                            <p:commandButton actionListener="#{lazyCompanyDataView.addNewCompany()}" 
+                                             value="#{bundle.AddNewCompany}" style="margin-right: 30px"
+                                             process="AddCompanyForm"
+                                             update=":messages :form1:compTable"
+                                             oncomplete="if (args &amp;&amp; !args.validationFailed)
+                                                         PF('AddCompanyDialog').hide();">
+                            </p:commandButton>
+
+                            <p:commandButton value="#{bundle.Cancel}" oncomplete="PF('AddCompanyDialog').hide()" immediate="true"/>
+                        </center>
+                    </h:form>
+                </p:dialog>
+            
+                    
+                <p:dialog id="EditCompanyDlg" widgetVar="EditCompanyDialog" modal="true" resizable="false" appendTo="@(body)" header="#{bundle.EditCustomerTitle}">
+                    <h:form id="EditCompanyForm">
+                        <nt:editCompanyComponent 
+                            companyName="#{lazyCompanyDataView.selectedComp.name}"
+                            companyStreet="#{lazyCompanyDataView.selectedComp.street}"
+                            companyNumber="#{lazyCompanyDataView.selectedComp.number}"
+                            companyCity="#{lazyCompanyDataView.selectedComp.city}"
+                            companyCountry="#{lazyCompanyDataView.selectedComp.country}"/>
+                        <center>
+                            <p:commandButton actionListener="#{lazyCompanyDataView.editCompany()}" 
+                                             value="#{bundle.Save}" style="margin-right: 30px"
+                                             process="@form"
+                                             update=":messages :form1:compTable"
+                                             oncomplete="if (args &amp;&amp; !args.validationFailed)
+                                                         PF('EditCompanyDialog').hide();">
+                            </p:commandButton>
+                            <p:commandButton value="#{bundle.Cancel}" oncomplete="PF('EditCompanyDialog').hide()" immediate="true"/>
+                        </center>
+                    </h:form>
+                </p:dialog>
+                
+                <p:dialog id="DeleteCompanyDlg" widgetVar="DeleteCompanyDialog" modal="true" 
+                          resizable="false" appendTo="@(body)" header="#{bundle.DeleteCompanyTitle}">
+                    <h:form id="DeleteCompanyForm">
+
+                        <nt:editCompanyComponent 
+                            companyName="#{lazyCompanyDataView.selectedComp.name}"
+                            companyStreet="#{lazyCompanyDataView.selectedComp.street}"
+                            companyNumber="#{lazyCompanyDataView.selectedComp.number}"
+                            companyCity="#{lazyCompanyDataView.selectedComp.city}"
+                            companyCountry="#{lazyCompanyDataView.selectedComp.country}"
+                            readOnly="#{true}"/>
+
+                        <center>
+                            <p:commandButton actionListener="#{lazyCompanyDataView.deleteCompany()}" 
+                                             value="#{bundle.Delete}" style="margin-right: 30px"
+                                             process="@form"
+                                             update=":messages :form1:compTable"
+                                             oncomplete="if (args &amp;&amp; !args.validationFailed)
+                                                         PF('DeleteCompanyDialog').hide();">
+                            </p:commandButton>
+
+                            <p:commandButton value="#{bundle.Cancel}" oncomplete="PF('DeleteCompanyDialog').hide()" immediate="true"/>
+                        </center>
+                    </h:form>
+                </p:dialog>
+                
+                
+                
+                
+                
+                <p:dialog id="AddContactDlg" widgetVar="AddContactDialog" modal="true" 
+                          resizable="false" appendTo="@(body)" header="#{bundle.AddContactTitle}">
+                    <h:form id="AddContactForm">
+
+                        <nt:contactComp
+                            firstName="#{lazyCompanyDataView.selectedPers.firstName}"
+                            lastName="#{lazyCompanyDataView.selectedPers.lastName}"
+                            phone="#{lazyCompanyDataView.selectedPers.phone}"
+                            email="#{lazyCompanyDataView.selectedPers.email}"/>
+                        <center>
+                            <p:commandButton actionListener="#{lazyCompanyDataView.addContact()}" ajax="true"
+                                             value="#{bundle.AddNewContact}" style="margin-right: 30px"
+                                             process="AddContactForm"
+                                             update=":messages :form1:persTable"
+                                             oncomplete="if (args &amp;&amp; !args.validationFailed) 
+                                                            PF('AddContactDialog').hide();">
+                                
+                            </p:commandButton>
+                            
+                            <p:commandButton value="#{bundle.Cancel}" oncomplete="PF('AddContactDialog').hide()" 
+                                             immediate="true"/>
+                        </center>
+                    </h:form>
+                </p:dialog>
+                
+                <p:dialog id="EditContactDlg" widgetVar="EditContactDialog" modal="true" 
+                          resizable="false" appendTo="@(body)" header="#{bundle.EditContactTitle}">
+                    <h:form id="EditContactForm">
+
+                        <nt:contactComp
+                            firstName="#{lazyCompanyDataView.selectedPers.firstName}"
+                            lastName="#{lazyCompanyDataView.selectedPers.lastName}"
+                            phone="#{lazyCompanyDataView.selectedPers.phone}"
+                            email="#{lazyCompanyDataView.selectedPers.email}"/>
+                        <center>
+                            <p:commandButton actionListener="#{lazyCompanyDataView.editContact()}" ajax="true"
+                                             value="#{bundle.Save}" style="margin-right: 30px"
+                                             process="EditContactForm"
+                                             update=":messages :form1:persTable"
+                                             oncomplete="if (args &amp;&amp; !args.validationFailed) 
+                                                            PF('EditContactDialog').hide();">
+                                
+                            </p:commandButton>
+                            
+                            <p:commandButton value="#{bundle.Cancel}" oncomplete="PF('EditContactDialog').hide()" 
+                                             immediate="true"/>
+                        </center>
+                    </h:form>
+                </p:dialog>
+                
+                
+                <p:dialog id="DeleteContactDlg" widgetVar="DeleteContactDialog" modal="true" 
+                          resizable="false" appendTo="@(body)" header="#{bundle.DeleteContactTitle}">
+                    <h:form id="DeleteContactForm">
+
+                        <nt:contactComp
+                            firstName="#{lazyCompanyDataView.selectedPers.firstName}"
+                            lastName="#{lazyCompanyDataView.selectedPers.lastName}"
+                            phone="#{lazyCompanyDataView.selectedPers.phone}"
+                            email="#{lazyCompanyDataView.selectedPers.email}"/>
+                        <center>
+                            <p:commandButton actionListener="#{lazyCompanyDataView.deleteContact()}" ajax="true"
+                                             value="#{bundle.Delete}" style="margin-right: 30px"
+                                             process="DeleteContactForm"
+                                             update=":messages :form1:persTable"
+                                             oncomplete="if (args &amp;&amp; !args.validationFailed) 
+                                                            PF('DeleteContactDialog').hide();">
+                                
+                            </p:commandButton>
+                            
+                            <p:commandButton value="#{bundle.Cancel}" oncomplete="PF('DeleteContactDialog').hide()" 
+                                             immediate="true"/>
+                        </center>
+                    </h:form>
+                </p:dialog>
+                
+                
+                
+            </ui:define>
+            
+        </ui:composition>
+        
+    </h:body>
+</html>
+

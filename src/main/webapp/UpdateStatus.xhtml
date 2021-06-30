@@ -1,0 +1,136 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:head>
+        <title>Update Status</title>
+        <h:outputStylesheet name="css/jsfcrud.css"/>
+        <h:outputStylesheet name="css/myClasses.css"/>
+        <h:outputStylesheet name="primeicons/primeicons.css" library="primefaces" />
+    </h:head>
+    <h:body>
+        <ui:composition template="./template.xhtml">
+
+            <ui:define name="title">Update Status</ui:define> 
+           
+            <ui:define name="content">
+                                
+                <h:form id="form1">
+
+                    <p:dataTable var="status" value="#{lazyStatusDataView.lazyModel}" paginator="true" rows="10"
+                             paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                             rowsPerPageTemplate="5,10,15" selection="#{lazyStatusDataView.selectedStat}" selectionMode="single"
+                             
+                             id="statTable" lazy="true">
+
+                        <p:ajax event="rowSelect" listener="#{lazyStatusDataView.onRowSelect}" update=":form1"/>
+                        
+                        <f:facet name="header">
+                            <h:outputText value="#{bundle.StatusTableTitle}"/>
+                        </f:facet>
+
+                        <p:column headerText="#{bundle.StatusTableName}" sortBy="#{status.name}" filterBy="#{status.name}">
+                            <h:outputText value="#{status.name}"/>
+                        </p:column>
+
+                        
+                        <p:column headerText="Add" style="width: 7%; text-align: center">
+                            <p:commandLink style="text-align: center" type="button" actionListener="#{lazyStatusDataView.prepareStatus()}"
+                                           onclick="PF('AddStatusDialog').show()" ajax="true"
+                                           update=":messages :AddStatusForm"> 
+                                <h:graphicImage name="images/add96blck.png" style="width: 16px;height: 16px" />
+                            </p:commandLink>
+                        </p:column>
+
+                        <p:column headerText="Edit" style="width: 7%; text-align: center">
+                            <p:commandLink style="text-align: center" type="button" onclick="PF('EditStatusDialog').show()" ajax="true"
+                                           update=":messages :EditStatusForm"> 
+                                <h:graphicImage name="images/pencilE.png" style="width: 16px;height: 16px" />
+                                <f:setPropertyActionListener value="#{status}" target="#{lazyStatusDataView.selectedStat}" />
+                            </p:commandLink>
+                        </p:column>
+
+                        <p:column headerText="Del" style="width: 7%; text-align: center">
+                            <p:commandLink style="text-align: center" type="button" onclick="PF('DeleteStatusDialog').show()" ajax="true"
+                                           update=":messages :DeleteStatusForm"
+                                           disabled="#{not empty status.licenseSet}"> 
+                                <h:graphicImage name="images/del96blck.png" style="width: 16px;height: 16px" />
+                                <f:setPropertyActionListener value="#{status}" target="#{lazyStatusDataView.selectedStat}" />
+                            </p:commandLink>
+                        </p:column>
+                    </p:dataTable>
+            
+                
+                </h:form>
+                
+                
+                <p:dialog id="AddStatusDlg" widgetVar="AddStatusDialog" modal="true" resizable="false" appendTo="@(body)" header="#{bundle.CreateStatusTitle}">
+                    <h:form id="AddStatusForm">
+                        <h:panelGroup id="displayStat">
+                            <p:panelGrid columns="2" >
+                                <p:outputLabel value="#{bundle.CreateStatusLabel_name}" for="name" />
+                                <p:inputText id="name" value="#{lazyStatusDataView.newStat.name}" title="#{bundle.CreateStatusTitle_name}" 
+                                             required="true" requiredMessage="#{bundle.CreateStatusRequiredMessage_name}"/>
+                            </p:panelGrid>
+                            <p:commandButton actionListener="#{lazyStatusDataView.addStatus()}"  
+                                             value="#{bundle.Save}"
+                                             oncomplete="if (args &amp;&amp; !args.validationFailed) 
+                                                            PF('AddStatusDialog').hide();"
+                                             process="AddStatusForm"
+                                             update=":messages :form1:statTable"/>
+                            <p:commandButton value="#{bundle.Cancel}" oncomplete="PF('AddStatusDialog').hide()" immediate="true"/>
+                        </h:panelGroup>
+                    </h:form>
+                </p:dialog>
+                
+                
+                <p:dialog id="EditStatusDlg" widgetVar="EditStatusDialog" modal="true" resizable="false" appendTo="@(body)" header="#{bundle.EditStatusTitle}">
+                    <h:form id="EditStatusForm">
+                        <h:panelGroup>
+                            <p:panelGrid columns="2" >
+                                <p:outputLabel value="#{bundle.EditStatusLabel_name}" for="nameEd" />
+                                <p:inputText id="nameEd" value="#{lazyStatusDataView.selectedStat.name}" title="#{bundle.EditStatusTitle_name}" 
+                                             required="true" requiredMessage="#{bundle.CreateStatusRequiredMessage_name}"/>
+                            </p:panelGrid>
+                            <p:commandButton actionListener="#{lazyStatusDataView.editStatus()}"  
+                                             value="#{bundle.Save}"
+                                             oncomplete="if (args &amp;&amp; !args.validationFailed) 
+                                                            PF('EditStatusDialog').hide();"
+                                             process="EditStatusForm"
+                                             update=":messages :form1:statTable"/>
+                            <p:commandButton value="#{bundle.Cancel}" oncomplete="PF('EditStatusDialog').hide()" immediate="true"/>
+                        </h:panelGroup>
+                    </h:form>
+                </p:dialog>
+                
+                <p:dialog id="DeleteStatusDlg" widgetVar="DeleteStatusDialog" modal="true" resizable="false" appendTo="@(body)" header="#{bundle.DeleteStatusTitle}">
+                    <h:form id="DeleteStatusForm">
+                        <h:panelGroup>
+                            <p:panelGrid columns="2" >
+                                <p:outputLabel value="#{bundle.DeleteStatusLabel_name}" for="nameDel" />
+                                <p:inputText id="nameDel" value="#{lazyStatusDataView.selectedStat.name}" title="#{bundle.EditStatusTitle_name}" 
+                                             readonly="true"/>
+                            </p:panelGrid>
+                            <p:commandButton actionListener="#{lazyStatusDataView.deleteStatus()}"  
+                                             value="#{bundle.Delete}"
+                                             oncomplete="if (args &amp;&amp; !args.validationFailed) 
+                                                            PF('DeleteStatusDialog').hide();"
+                                             process="DeleteStatusForm"
+                                             update=":messages :form1:statTable"/>
+                            <p:commandButton value="#{bundle.Cancel}" oncomplete="PF('DeleteStatusDialog').hide()" immediate="true"/>
+                        </h:panelGroup>
+                    </h:form>
+                </p:dialog>
+                
+                
+                
+            </ui:define>
+            
+        </ui:composition>
+        
+    </h:body>
+</html>
+

@@ -12,8 +12,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.EJBException;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Named;
-import javax.enterprise.context.SessionScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
@@ -22,7 +22,7 @@ import javax.faces.convert.FacesConverter;
 import tnt.npse.model.LicenseData;
 
 @Named("statusController")
-@SessionScoped
+@RequestScoped
 public class StatusController implements Serializable {
 
     @EJB
@@ -60,7 +60,7 @@ public class StatusController implements Serializable {
     public void create(String name) {
         FacesContext context=FacesContext.getCurrentInstance();
         ExternalContext ec = context.getExternalContext();
-        ec.getFlash().setKeepMessages(true);
+//        ec.getFlash().setKeepMessages(true);
         items=getItems();
         long count=items.stream().filter(st->st.getName().equalsIgnoreCase(name)).count();
         if (count==0) {
@@ -84,10 +84,42 @@ public class StatusController implements Serializable {
         }
     }
 
+    public void update(Status selectedStat) {
+        FacesContext context=FacesContext.getCurrentInstance();
+        items=null;
+        items=getItems();
+        if (selectedStat!=null) {
+            long count=items.stream().filter(s->s.getName().equalsIgnoreCase(selectedStat.getName())).count();
+            if (count==0) {
+                selected=selectedStat;
+                persist(PersistAction.UPDATE, ResourceBundle.getBundle("/Bundle").getString("StatusUpdated"));
+            } else {
+                context.validationFailed();
+                JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("StatusExists"));
+            }
+        }
+        if (!JsfUtil.isValidationFailed()) {
+            selected = null; // Remove selection
+            items = null;    // Invalidate list of items to trigger re-query.
+        }
+    }
+    
+    
+    //updates fields of status which name is not changed (licenseSet)
+    public void updateStatusData(Status selectedStat) {
+        selected=selectedStat;
+        persist(PersistAction.UPDATE, ResourceBundle.getBundle("/Bundle").getString("StatusUpdated"));
+        if (!JsfUtil.isValidationFailed()) {
+            selected = null; // Remove selection
+            items = null;    // Invalidate list of items to trigger re-query.
+        }
+    }
+
+    
     public void update(LicenseData selectedLic, String newName) {
         FacesContext context=FacesContext.getCurrentInstance();
         ExternalContext ec = context.getExternalContext();
-        ec.getFlash().setKeepMessages(true);
+//        ec.getFlash().setKeepMessages(true);
         items=getItems();
         String oldName=selectedLic.getStatusName();
         selected=items.stream().filter(s->s.getName().equalsIgnoreCase(oldName)).findFirst().orElse(null);
@@ -109,6 +141,11 @@ public class StatusController implements Serializable {
         persist(PersistAction.UPDATE, ResourceBundle.getBundle("/Bundle").getString("StatusUpdated"));
     }
 
+    public void destroy(Status status) {
+        selected=status;
+        destroy();
+    }
+    
     public void destroy() {
         persist(PersistAction.DELETE, ResourceBundle.getBundle("/Bundle").getString("StatusDeleted"));
         if (!JsfUtil.isValidationFailed()) {

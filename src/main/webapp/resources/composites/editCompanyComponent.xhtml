@@ -11,6 +11,7 @@
       <composite:attribute name = "companyNumber" />
       <composite:attribute name = "companyCity" />
       <composite:attribute name = "companyCountry" />
+      <composite:attribute name = "readOnly" type="java.lang.Boolean" required="false" />
     </composite:interface>
     
     <composite:implementation>
@@ -24,7 +25,7 @@
                             <h:outputText value="#{bundle.NewCompanyName}"/>
                         </p:column>
                         <p:column>
-                            <p:inputText value="#{cc.attrs.companyName}" required="true" 
+                            <p:inputText value="#{cc.attrs.companyName}" required="true" readonly="#{cc.attrs.readOnly}"
                                          requiredMessage="#{bundle.NewCompanyRequiredMessage_name}"/>
                         </p:column>
                     </p:row>
@@ -33,7 +34,7 @@
                             <h:outputText value="#{bundle.NewCompanyStreet}"/>
                         </p:column>
                         <p:column>
-                            <p:inputText value="#{cc.attrs.companyStreet}" required="true" 
+                            <p:inputText value="#{cc.attrs.companyStreet}" required="true" readonly="#{cc.attrs.readOnly}"
                                          requiredMessage="#{bundle.NewCompanyRequiredMessage_street}"/>
                         </p:column>
                     </p:row>
@@ -42,7 +43,7 @@
                             <h:outputText value="#{bundle.NewCompanyNumber}"/>
                         </p:column>
                         <p:column>
-                            <p:inputText value="#{cc.attrs.companyNumber}" required="true" 
+                            <p:inputText value="#{cc.attrs.companyNumber}" required="true" readonly="#{cc.attrs.readOnly}"
                                          requiredMessage="#{bundle.NewCompanyRequiredMessage_number}"/>
                         </p:column>
                     </p:row>
@@ -51,7 +52,7 @@
                             <h:outputText value="#{bundle.NewCompanyCity}"/>
                         </p:column>
                         <p:column>
-                            <p:inputText value="#{cc.attrs.companyCity}" required="true" 
+                            <p:inputText value="#{cc.attrs.companyCity}" required="true" readonly="#{cc.attrs.readOnly}"
                                          requiredMessage="#{bundle.NewCompanyRequiredMessage_city}"/>
                         </p:column>
                     </p:row>
@@ -60,7 +61,7 @@
                             <h:outputText value="#{bundle.NewCompanyCountry}"/>
                         </p:column>
                         <p:column>
-                            <p:inputText value="#{cc.attrs.companyCountry}" required="true" 
+                            <p:inputText value="#{cc.attrs.companyCountry}" required="true" readonly="#{cc.attrs.readOnly}"
                                          requiredMessage="#{bundle.NewCompanyRequiredMessage_country}"/>
                         </p:column>
                     </p:row>

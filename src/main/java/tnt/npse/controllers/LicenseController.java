@@ -123,17 +123,40 @@ public class LicenseController implements Serializable {
         License license = new License();
         items=getItems();
         license=items.stream().filter(lc->lc.getLicenseId().equals(ld.getLicenseId())).findFirst().orElse(null);
+        license.setLicenseCode(ld.getLicenseCode());//
+        license.setSmaCode(ld.getSmaCode());//
+        license.setExpDate(ld.getExpDate());//
         
+        //remove license from licenseSet of old license status
+        Status oldStat=license.getStatusId();
+        oldStat.getLicenseSet().remove(license);
         
-        license.setLicenseCode(ld.getLicenseCode());
-        license.setSmaCode(ld.getSmaCode());
-        license.setExpDate(ld.getExpDate());
+        //find new status
+        Status newStat=statusController.getItems().stream().filter(st->st.getName().equalsIgnoreCase(ld.getStatusName())).findFirst().orElse(null);
         
-        Status stat=statusController.getItems().stream().filter(st->st.getName().equalsIgnoreCase(ld.getStatusName())).findFirst().orElse(null);
-        Software soft=softwareController.getItems().stream().filter(so->so.getName().equalsIgnoreCase(ld.getSoftwareName())).findFirst().orElse(null);
+        //assign new status to the license
+        license.setStatusId(newStat);
+        //add license to the new status licenseSet
+        newStat.getLicenseSet().add(license);
         
-        license.setSoftware(soft);
-        license.setStatusId(stat);
+        //update old status licenseSet
+        statusController.updateStatusData(oldStat);
+        //update new status licenseSet
+        statusController.updateStatusData(newStat);
+        
+        //remove license from old software's licenseSet
+        Software oldSoft=license.getSoftware();
+        oldSoft.getLicenseSet().remove(license);
+        //find new software
+        Software newSoft=softwareController.getItems().stream().filter(so->so.getName().equalsIgnoreCase(ld.getSoftwareName())).findFirst().orElse(null);
+        //assign new software to license
+        license.setSoftware(newSoft);
+        //add license to new software's licenseSet
+        newSoft.getLicenseSet().add(license);
+        
+        //update old and new software
+        softwareController.updateSoftwareData(oldSoft);
+        softwareController.updateSoftwareData(newSoft);
         
         Set<LicenseCustomer> lcSet=new HashSet<>();
         
@@ -154,11 +177,20 @@ public class LicenseController implements Serializable {
         
         selected=license;
         update();
+        
     }
     
+    public void update(License license) {
+        selected=license;
+        update();
+    }
     
     public void update() {
         persist(PersistAction.UPDATE, ResourceBundle.getBundle("/Bundle").getString("LicenseUpdated"));
+        if (!JsfUtil.isValidationFailed()) {
+            selected = null; // Remove selection
+            items = null;    // Invalidate list of items to trigger re-query.
+        }
     }
 
     public void destroy() {

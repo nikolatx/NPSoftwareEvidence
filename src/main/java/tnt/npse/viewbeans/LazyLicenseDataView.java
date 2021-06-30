@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.ResourceBundle;
-import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -24,6 +23,7 @@ import org.primefaces.event.SelectEvent;
 import org.primefaces.model.LazyDataModel;
 import tnt.npse.controllers.CustomerController;
 import tnt.npse.controllers.LicenseController;
+import tnt.npse.controllers.LicenseCustomerController;
 import tnt.npse.controllers.PersonController;
 import tnt.npse.controllers.SoftwareController;
 import tnt.npse.controllers.StatusController;
@@ -31,7 +31,9 @@ import tnt.npse.controllers.util.JsfUtil;
 import tnt.npse.entities.Customer;
 import tnt.npse.model.LazyLicenseDataModel;
 import tnt.npse.entities.License;
+import tnt.npse.entities.LicenseCustomer;
 import tnt.npse.entities.Person;
+import tnt.npse.entities.Software;
 import tnt.npse.entities.Status;
 import tnt.npse.model.LicenseData;
 
@@ -70,6 +72,8 @@ public class LazyLicenseDataView implements Serializable {
     private CustomerController customerController;
     @Inject 
     private PersonController personController;
+    @Inject 
+    private LicenseCustomerController lcController;
     
     @PostConstruct
     public void init() {
@@ -99,21 +103,114 @@ public class LazyLicenseDataView implements Serializable {
         FacesContext context=FacesContext.getCurrentInstance();
         //ExternalContext ec = context.getExternalContext();
 
-        LicenseData ld=lazyModel.getWrappedData().stream().filter(el->el.getLicenseCode().equalsIgnoreCase(selectedLic.getLicenseCode())).findFirst().orElse(null);
+        LicenseData ld=lazyModel.getWrappedData().stream().filter(el->(
+                el.getLicenseCode().equalsIgnoreCase(selectedLic.getLicenseCode()) &&
+                el.getSoftwareName().equalsIgnoreCase(selectedLic.getSoftwareName())
+            )).findFirst().orElse(null);
         
         if (ld!=null && !Objects.equals(ld.getLicenseId(), selectedLic.getLicenseId())) {
             LicenseData lic=lazyModel.getWrappedData().stream().filter(e->e.getLicenseId().equals(id)).findFirst().orElse(null);
             selectedLic=originalLicense; //.setLicenseCode(lic.getLicenseCode());
+            context.validationFailed();
             JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("LicenseExists"));
             return;
         }
         if (selectedLic.getSmaCode()!=null && selectedLic.getExpDate()==null) {
+            context.validationFailed();
             JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("EditLicenseTitle_dateRequired"));
             return;
         }
+        //fetch oriinal license
+        License license=licenseController.getLicense(selectedLic.getLicenseId());
+        
+        //find licenseCustomer record for given license and reseller
+        LicenseCustomer resellerLC=lcController.getItems().stream().filter(e->(
+                e.getLicense().equals(license) && e.getCustomer().equals(selectedLic.getReseller())
+                )).findFirst().orElse(null);
+        //find licenseCustomer record for given license and end user
+        LicenseCustomer endUserLC=lcController.getItems().stream().filter(e->(
+                e.getLicense().equals(license) && e.getCustomer().equals(selectedLic.getEndUser())
+                )).findFirst().orElse(null);
+        //if reseller is not selected set appropriate fields
+        if (resellerLC==null) {
+            resellerLC=new LicenseCustomer();
+            resellerLC.setEndUser(false);
+            resellerLC.setLicense(license);
+        }
+        //update licensecustomer record with new reseller and endUser
+        resellerLC.setCustomer(reseller);
+        endUserLC.setCustomer(endUser);
+        
+        
+        //remove old reseller and endUser from orm
+        selectedLic.getReseller().getLicenseCustomerSet().removeAll(selectedLic.getReseller().getLicenseCustomerSet());
+        selectedLic.getEndUser().getLicenseCustomerSet().removeAll(selectedLic.getEndUser().getLicenseCustomerSet());
+        customerController.update(selectedLic.getReseller());
+        customerController.update(selectedLic.getEndUser());
+        
+        //delete all licensecustomer recoreds for reseller, fot this license
+        reseller.getLicenseCustomerSet().removeIf(e->e.getLicense().equals(license));
+        //add new record to reseller's lc set
+        reseller.getLicenseCustomerSet().add(resellerLC);
+        //do the same for end user
+        endUser.getLicenseCustomerSet().removeIf(e->e.getLicense().equals(license));
+        endUser.getLicenseCustomerSet().add(endUserLC);
+        
+        //clean lc set of license, and add reseller and end user lc set
+        license.getLicenseCustomerSet().removeAll(license.getLicenseCustomerSet());
+        license.getLicenseCustomerSet().add(resellerLC);
+        license.getLicenseCustomerSet().add(endUserLC);
+        
+        
+        
+        
         selectedLic.setReseller(reseller);
         selectedLic.setEndUser(endUser);
-        licenseController.update(selectedLic);
+       
+        
+        customerController.update(reseller);
+        customerController.update(endUser);
+        lcController.update(resellerLC);
+        lcController.update(endUserLC);
+        
+        
+        license.setLicenseCode(selectedLic.getLicenseCode());
+        license.setSmaCode(selectedLic.getSmaCode());
+        license.setExpDate(selectedLic.getExpDate());
+        
+        //remove license from licenseSet of old license status
+        Status oldStat=license.getStatusId();
+        oldStat.getLicenseSet().remove(license);
+        
+        //find new status
+        Status newStat=statusController.getItems().stream().filter(st->st.getName().equalsIgnoreCase(selectedLic.getStatusName())).findFirst().orElse(null);
+        
+        //assign new status to the license
+        license.setStatusId(newStat);
+        //add license to the new status licenseSet
+        newStat.getLicenseSet().add(license);
+        
+        //update old status licenseSet
+        statusController.updateStatusData(oldStat);
+        //update new status licenseSet
+        statusController.updateStatusData(newStat);
+        
+        //remove license from old software's licenseSet
+        Software oldSoft=license.getSoftware();
+        oldSoft.getLicenseSet().remove(license);
+        //find new software
+        Software newSoft=softwareController.getItems().stream().filter(so->so.getName().equalsIgnoreCase(selectedLic.getSoftwareName())).findFirst().orElse(null);
+        //assign new software to license
+        license.setSoftware(newSoft);
+        //add license to new software's licenseSet
+        newSoft.getLicenseSet().add(license);
+        
+        //update old and new software
+        softwareController.updateSoftwareData(oldSoft);
+        softwareController.updateSoftwareData(newSoft);
+        
+        licenseController.update(license);
+        customerController.refresh();
     }
     
     //creates new software - clicking on + icon in edit license dialog
@@ -230,7 +327,7 @@ public class LazyLicenseDataView implements Serializable {
     }
     
     public void deleteResellerContact() {
-        personController.delete(person, selectedLic);
+        personController.delete(person);
         selectedLic.getReseller().setPersonSet(
                 selectedLic.getReseller().getPersonSet().stream().filter(e->!e.getPersonId().equals(person.getPersonId())).collect(Collectors.toSet())
         );
@@ -245,7 +342,7 @@ public class LazyLicenseDataView implements Serializable {
     }
     
     public void deleteEndUserContact() {
-        personController.delete(person, selectedLic);
+        personController.delete(person);
         selectedLic.getEndUser().setPersonSet(
                 selectedLic.getEndUser().getPersonSet().stream().filter(e->!e.getPersonId().equals(person.getPersonId())).collect(Collectors.toSet())
         );

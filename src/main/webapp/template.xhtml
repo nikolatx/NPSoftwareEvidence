@@ -43,13 +43,18 @@
                     <p:layoutUnit position="west" size="180" header="Software Evidence" collapsible="true" style="padding: 5px;">
                         <p:menu style="width: 155px;">
                             <p:submenu label="#{bundle['MenuSellLicenseHeader']}">
-                                <p:menuitem icon="ui-icon-search" value="#{bundle['MenuSellLicense']}" update="content" outcome="/SellLicense.xhtml" style="width: 150px"/>
+                                <p:menuitem icon="ui-icon-cart" value="#{bundle['MenuSellLicense']}" update="content" outcome="/SellLicense.xhtml" style="width: 150px"/>
                             </p:submenu>
                             <p:submenu label="#{bundle['MenuUpdateLicenseHeader']}">
                                 <p:menuitem icon="ui-icon-search" value="#{bundle['MenuUpdateLicense']}" update="content" outcome="/ViewLicenses.xhtml" style="width: 150px"/>
                             </p:submenu>
-                            <p:submenu label="#{bundle['MenuDeleteLicenseHeader']}">
-                                <p:menuitem icon="ui-icon-search" value="#{bundle['MenuDeleteLicense']}" update="content" outcome="/UpdateLicense.xhtml" style="width: 150px"/>
+                            <p:submenu label="#{bundle['MenuMaintenanceHeader']}">
+                                <p:menuitem icon="ui-icon-pencil" value="#{bundle['MenuCompany']}" update="content" outcome="/UpdateCompany.xhtml" style="width: 150px"/>
+                                <p:menuitem icon="ui-icon-pencil" value="#{bundle['MenuSoftware']}" update="content" outcome="/UpdateSoftware.xhtml" style="width: 150px"/>
+                                <p:menuitem icon="ui-icon-pencil" value="#{bundle['MenuStatus']}" update="content" outcome="/UpdateStatus.xhtml" style="width: 150px"/>
+                            </p:submenu>
+                            <p:submenu label="#{bundle['MenuSettingsHeader']}">
+                                <p:menuitem icon="ui-icon-wrench" value="#{bundle['MenuSettings']}" update="content" outcome="/Settings.xhtml" style="width: 150px"/>
                             </p:submenu>
                         </p:menu>
                     </p:layoutUnit>

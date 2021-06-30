@@ -119,6 +119,35 @@ public class SoftwareController implements Serializable {
     }
     */
     
+    public void update(Software selectedSoft) {
+        FacesContext context=FacesContext.getCurrentInstance();
+        items=getItems();
+        if (selectedSoft!=null) {
+            long count=items.stream().filter(s->s.getName().equalsIgnoreCase(selectedSoft.getName())).count();
+            if (count==0) {
+                selected=selectedSoft;
+                persist(PersistAction.UPDATE, ResourceBundle.getBundle("/Bundle").getString("SoftwareUpdated"));
+            } else {
+                context.validationFailed();
+                JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("SoftwareExists"));
+            }
+        }
+        if (!JsfUtil.isValidationFailed()) {
+            selected = null; // Remove selection
+            items = null;    // Invalidate list of items to trigger re-query.
+        }
+    }
+    
+    //updates fields of software which name is not changed (licenseSet)
+    public void updateSoftwareData(Software selectedSoft) {
+        selected=selectedSoft;
+        persist(PersistAction.UPDATE, ResourceBundle.getBundle("/Bundle").getString("SoftwareUpdated"));
+        if (!JsfUtil.isValidationFailed()) {
+            selected = null; // Remove selection
+            items = null;    // Invalidate list of items to trigger re-query.
+        }
+    }
+    
     public void update(LicenseData selectedLic, String newName) {
         FacesContext context=FacesContext.getCurrentInstance();
         ExternalContext ec = context.getExternalContext();
@@ -143,6 +172,11 @@ public class SoftwareController implements Serializable {
         persist(PersistAction.UPDATE, ResourceBundle.getBundle("/Bundle").getString("SoftwareUpdated"));
     }
 
+    public void destroy(Software software) {
+        selected=software;
+        destroy();
+    }
+    
     public void destroy() {
         persist(PersistAction.DELETE, ResourceBundle.getBundle("/Bundle").getString("SoftwareDeleted"));
         if (!JsfUtil.isValidationFailed()) {

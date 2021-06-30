@@ -21,7 +21,6 @@ import javax.faces.convert.Converter;
 import javax.faces.convert.FacesConverter;
 import javax.inject.Inject;
 import tnt.npse.entities.Customer;
-import tnt.npse.model.LicenseData;
 
 @Named("personController")
 @RequestScoped
@@ -66,7 +65,6 @@ public class PersonController implements Serializable {
     
     public void create(Person person, Customer company) {
         FacesContext context=FacesContext.getCurrentInstance();
-        ExternalContext ec = context.getExternalContext();
         items=getItems();
         Person person1=person;
         Person perCheck=items.stream().filter(e-> (
@@ -139,7 +137,7 @@ public class PersonController implements Serializable {
         persist(PersistAction.UPDATE, ResourceBundle.getBundle("/Bundle").getString("PersonUpdated"));
     }
 
-    public void delete(Person person, LicenseData ld) {
+    public void delete(Person person) {
         selected=person;
         destroy();
     }
