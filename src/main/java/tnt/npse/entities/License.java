@@ -50,7 +50,7 @@ public class License implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
     @Column(name = "license_id")
-    private Integer licenseId;
+    private Long licenseId;
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 255)
@@ -80,22 +80,22 @@ public class License implements Serializable {
     public License() {
     }
 
-    public License(Integer licenseId) {
+    public License(Long licenseId) {
         this.licenseId = licenseId;
     }
 
-    public License(Integer licenseId, String licenseCode, String smaCode, Date expDate) {
+    public License(Long licenseId, String licenseCode, String smaCode, Date expDate) {
         this.licenseId = licenseId;
         this.licenseCode = licenseCode;
         this.smaCode = smaCode;
         this.expDate = expDate;
     }
 
-    public Integer getLicenseId() {
+    public Long getLicenseId() {
         return licenseId;
     }
 
-    public void setLicenseId(Integer licenseId) {
+    public void setLicenseId(Long licenseId) {
         this.licenseId = licenseId;
     }
 

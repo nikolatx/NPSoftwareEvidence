@@ -43,7 +43,7 @@ public class Status implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
     @Column(name = "status_id")
-    private Integer statusId;
+    private Long statusId;
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 255)
@@ -55,20 +55,20 @@ public class Status implements Serializable {
     public Status() {
     }
 
-    public Status(Integer statusId) {
+    public Status(Long statusId) {
         this.statusId = statusId;
     }
 
-    public Status(Integer statusId, String name) {
+    public Status(Long statusId, String name) {
         this.statusId = statusId;
         this.name = name;
     }
 
-    public Integer getStatusId() {
+    public Long getStatusId() {
         return statusId;
     }
 
-    public void setStatusId(Integer statusId) {
+    public void setStatusId(Long statusId) {
         this.statusId = statusId;
     }
 

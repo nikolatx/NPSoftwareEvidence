@@ -43,7 +43,7 @@ public class Person implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
     @Column(name = "person_id")
-    private Integer personId;
+    private Long personId;
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 255)
@@ -73,11 +73,11 @@ public class Person implements Serializable {
     public Person() {
     }
 
-    public Person(Integer personId) {
+    public Person(Long personId) {
         this.personId = personId;
     }
 
-    public Person(Integer personId, String firstName, String lastName, String phone, String email) {
+    public Person(Long personId, String firstName, String lastName, String phone, String email) {
         this.personId = personId;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -85,11 +85,11 @@ public class Person implements Serializable {
         this.email = email;
     }
 
-    public Integer getPersonId() {
+    public Long getPersonId() {
         return personId;
     }
 
-    public void setPersonId(Integer personId) {
+    public void setPersonId(Long personId) {
         this.personId = personId;
     }
 

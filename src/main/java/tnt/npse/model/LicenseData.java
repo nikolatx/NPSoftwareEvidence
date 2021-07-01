@@ -16,7 +16,7 @@ import tnt.npse.entities.Customer;
  */
 public class LicenseData implements Serializable {
     
-    private Integer licenseId;
+    private Long licenseId;
     private String licenseCode;
     private String smaCode;
     private Date expDate;
@@ -28,11 +28,11 @@ public class LicenseData implements Serializable {
     public LicenseData() {
     }
 
-    public Integer getLicenseId() {
+    public Long getLicenseId() {
         return licenseId;
     }
 
-    public void setLicenseId(Integer licenseId) {
+    public void setLicenseId(Long licenseId) {
         this.licenseId = licenseId;
     }
     

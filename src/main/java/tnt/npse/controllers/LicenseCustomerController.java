@@ -62,9 +62,12 @@ public class LicenseCustomerController implements Serializable {
         }
     }
     
-    public void update(LicenseCustomer lc) {
+    public void update(LicenseCustomer lc, boolean messages) {
         selected=lc;
-        persist(PersistAction.UPDATE, ResourceBundle.getBundle("/Bundle").getString("LicenseCustomerUpdated"));
+        if (messages)
+            persist(PersistAction.UPDATE, ResourceBundle.getBundle("/Bundle").getString("LicenseCustomerUpdated"));
+        else
+            persist(PersistAction.UPDATE, "");
     }
 
     public void update() {
@@ -95,7 +98,8 @@ public class LicenseCustomerController implements Serializable {
                 } else {
                     getFacade().remove(selected);
                 }
-                JsfUtil.addSuccessMessage(successMessage);
+                if (!successMessage.isEmpty())
+                    JsfUtil.addSuccessMessage(successMessage);
             } catch (EJBException ex) {
                 String msg = "";
                 Throwable cause = ex.getCause();
@@ -114,7 +118,7 @@ public class LicenseCustomerController implements Serializable {
         }
     }
 
-    public LicenseCustomer getLicenseCustomer(java.lang.Integer id) {
+    public LicenseCustomer getLicenseCustomer(java.lang.Long id) {
         return getFacade().find(id);
     }
 
@@ -139,9 +143,9 @@ public class LicenseCustomerController implements Serializable {
             return controller.getLicenseCustomer(getKey(value));
         }
 
-        java.lang.Integer getKey(String value) {
-            java.lang.Integer key;
-            key = Integer.valueOf(value);
+        java.lang.Long getKey(String value) {
+            java.lang.Long key;
+            key = Long.valueOf(value);
             return key;
         }
 

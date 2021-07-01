@@ -93,13 +93,16 @@ public class CustomerController implements Serializable {
         getItems();
     }
     
-    public void update(Customer cust) {
+    public void update(Customer cust, boolean messages) {
         selected=cust;
-        update();
+        update(messages);
     }
     
-    public void update() {
-        persist(PersistAction.UPDATE, ResourceBundle.getBundle("/Bundle").getString("CustomerUpdated"));
+    public void update(boolean messages) {
+        if (messages)
+            persist(PersistAction.UPDATE, ResourceBundle.getBundle("/Bundle").getString("CustomerUpdated"));
+        else
+            persist(PersistAction.UPDATE, "");
     }
 
     public void destroy(Customer customer) {
@@ -137,7 +140,8 @@ public class CustomerController implements Serializable {
                 } else {
                     getFacade().remove(selected);
                 }
-                JsfUtil.addSuccessMessage(successMessage);
+                if (!successMessage.isEmpty())
+                    JsfUtil.addSuccessMessage(successMessage);
             } catch (EJBException ex) {
                 String msg = "";
                 Throwable cause = ex.getCause();
@@ -156,7 +160,7 @@ public class CustomerController implements Serializable {
         }
     }
 
-    public Customer getCustomer(java.lang.Integer id) {
+    public Customer getCustomer(java.lang.Long id) {
         return getFacade().find(id);
     }
 
@@ -181,13 +185,13 @@ public class CustomerController implements Serializable {
             return controller.getCustomer(getKey(value));
         }
 
-        java.lang.Integer getKey(String value) {
-            java.lang.Integer key;
-            key = Integer.valueOf(value);
+        java.lang.Long getKey(String value) {
+            java.lang.Long key;
+            key = Long.valueOf(value);
             return key;
         }
 
-        String getStringKey(java.lang.Integer value) {
+        String getStringKey(java.lang.Long value) {
             StringBuilder sb = new StringBuilder();
             sb.append(value);
             return sb.toString();

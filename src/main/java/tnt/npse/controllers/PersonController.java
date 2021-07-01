@@ -92,7 +92,7 @@ public class PersonController implements Serializable {
                     )).findFirst().orElse(null);
             
             company.getPersonSet().add(person);
-            customerController.update(company);
+            customerController.update(company, false);
         } else {
             context.validationFailed();
             JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("ContactExists"));
@@ -188,7 +188,7 @@ public class PersonController implements Serializable {
         }
     }
 
-    public Person getPerson(java.lang.Integer id) {
+    public Person getPerson(java.lang.Long id) {
         return getFacade().find(id);
     }
 
@@ -213,13 +213,13 @@ public class PersonController implements Serializable {
             return controller.getPerson(getKey(value));
         }
 
-        java.lang.Integer getKey(String value) {
-            java.lang.Integer key;
-            key = Integer.valueOf(value);
+        java.lang.Long getKey(String value) {
+            java.lang.Long key;
+            key = Long.valueOf(value);
             return key;
         }
 
-        String getStringKey(java.lang.Integer value) {
+        String getStringKey(java.lang.Long value) {
             StringBuilder sb = new StringBuilder();
             sb.append(value);
             return sb.toString();

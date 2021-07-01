@@ -47,7 +47,7 @@ public class Customer implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
     @Column(name = "customer_id")
-    private Integer customerId;
+    private Long customerId;
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 255)
@@ -84,11 +84,11 @@ public class Customer implements Serializable {
     
     
     
-    public Customer(Integer customerId) {
+    public Customer(Long customerId) {
         this.customerId = customerId;
     }
 
-    public Customer(Integer customerId, String name, String street, String number, String city, String country, boolean endCustomer) {
+    public Customer(Long customerId, String name, String street, String number, String city, String country, boolean endCustomer) {
         this.customerId = customerId;
         this.name = name;
         this.street = street;
@@ -97,11 +97,11 @@ public class Customer implements Serializable {
         this.country = country;
     }
 
-    public Integer getCustomerId() {
+    public Long getCustomerId() {
         return customerId;
     }
 
-    public void setCustomerId(Integer customerId) {
+    public void setCustomerId(Long customerId) {
         this.customerId = customerId;
     }
 

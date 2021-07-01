@@ -18,6 +18,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.transaction.Transactional;
 import org.apache.commons.lang3.SerializationUtils;
 import org.primefaces.event.SelectEvent;
 import org.primefaces.model.LazyDataModel;
@@ -80,12 +81,14 @@ public class LazyLicenseDataView implements Serializable {
         List<License> lics=licenseController.getItems();
         lazyModel = new LazyLicenseDataModel(lics);
         allStatuses=new ArrayList<>();
-        statusController.getItems().stream().forEach(s->allStatuses.add(s.getName()));
+        if (statusController.getItems()!=null) 
+            statusController.getItems().stream().forEach(s->allStatuses.add(s.getName()));
         allSoftware=new ArrayList<>();
-        softwareController.getItems().stream().forEach(s->allSoftware.add(s.getName()));
+        if (softwareController.getItems()!=null) 
+            softwareController.getItems().stream().forEach(s->allSoftware.add(s.getName()));
         customers=customerController.getItems();
         person=new Person();
-        lazyModel.setRowIndex(0);
+        //lazyModel.setRowIndex(0);
     }
     
     public void onRowSelect(SelectEvent<LicenseData> event) {
@@ -97,12 +100,27 @@ public class LazyLicenseDataView implements Serializable {
         person=new Person();
     }
     
-    
+    @Transactional
     public void changeLicenseData() {
-        int id=originalLicense.getLicenseId();
-        FacesContext context=FacesContext.getCurrentInstance();
-        //ExternalContext ec = context.getExternalContext();
+        
+    /*  1. napravi dva nova LC objekta i podesi im vrednosti
+        2. ubaci ova dva objekta u novi LC Set
+        3. uradi update oba lc objekta u bazi
+        4. obrisi sve iz lcSeta objekta license
+        5. dodaj novi lcSet objektu license
+        6. iz objekta selectedLic.getReseller uzmemo objekat oldReseller
+        7. objektu oldReseller obrisemo iz lc seta svaki zapis za licencu sa license.id
+        8. uradimo update(oldReseller)
+        9. isto uradimo i za oldEndUser
+        10. objektu reseller dodamo odgovarajuci zapis iz novog lc seta
+        11. objektu endUser dodamo odgovarajuci zapis iz novog lc seta
+        12. uradimo update resellera i endusera u bazi podataka         */
 
+        long id=originalLicense.getLicenseId();
+        FacesContext context=FacesContext.getCurrentInstance();
+
+        //VALIDATION
+        //check if license code for choosen software already exists in database
         LicenseData ld=lazyModel.getWrappedData().stream().filter(el->(
                 el.getLicenseCode().equalsIgnoreCase(selectedLic.getLicenseCode()) &&
                 el.getSoftwareName().equalsIgnoreCase(selectedLic.getSoftwareName())
@@ -110,80 +128,92 @@ public class LazyLicenseDataView implements Serializable {
         
         if (ld!=null && !Objects.equals(ld.getLicenseId(), selectedLic.getLicenseId())) {
             LicenseData lic=lazyModel.getWrappedData().stream().filter(e->e.getLicenseId().equals(id)).findFirst().orElse(null);
-            selectedLic=originalLicense; //.setLicenseCode(lic.getLicenseCode());
+            selectedLic=originalLicense;
             context.validationFailed();
             JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("LicenseExists"));
             return;
         }
+        //if smaCode is given, but expDate is not set
         if (selectedLic.getSmaCode()!=null && selectedLic.getExpDate()==null) {
             context.validationFailed();
             JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("EditLicenseTitle_dateRequired"));
             return;
         }
-        //fetch oriinal license
+        
+        //fetch license by licenseId from database
         License license=licenseController.getLicense(selectedLic.getLicenseId());
         
         //find licenseCustomer record for given license and reseller
-        LicenseCustomer resellerLC=lcController.getItems().stream().filter(e->(
-                e.getLicense().equals(license) && e.getCustomer().equals(selectedLic.getReseller())
+        LicenseCustomer resellerLC=null;
+        if (selectedLic.getReseller()!=null)
+            resellerLC=lcController.getItems().stream().filter(e->(
+                    e.getLicense().equals(license) && 
+                    e.getCustomer()!=null && 
+                    e.getCustomer().equals(selectedLic.getReseller())
                 )).findFirst().orElse(null);
+        else
+            resellerLC=lcController.getItems().stream().filter(e->(
+                    e.getLicense().equals(license) && 
+                    e.getCustomer()==null)
+                ).findFirst().orElse(null);
         //find licenseCustomer record for given license and end user
         LicenseCustomer endUserLC=lcController.getItems().stream().filter(e->(
-                e.getLicense().equals(license) && e.getCustomer().equals(selectedLic.getEndUser())
-                )).findFirst().orElse(null);
-        //if reseller is not selected set appropriate fields
-        if (resellerLC==null) {
-            resellerLC=new LicenseCustomer();
-            resellerLC.setEndUser(false);
-            resellerLC.setLicense(license);
-        }
-        //update licensecustomer record with new reseller and endUser
+                e.getLicense().equals(license) && 
+                e.getCustomer().equals(selectedLic.getEndUser())
+            )).findFirst().orElse(null);
+       
+        
         resellerLC.setCustomer(reseller);
         endUserLC.setCustomer(endUser);
         
+        //delete records with license from oldReseller and oldEndUser objects
+        Customer oldReseller=selectedLic.getReseller();
+        if (oldReseller!=null)
+            oldReseller.getLicenseCustomerSet().removeIf(e->e.getLicense().equals(license));
+        Customer oldEndUser=selectedLic.getEndUser();
+        oldEndUser.getLicenseCustomerSet().removeIf(e->e.getLicense().equals(license));
         
-        //remove old reseller and endUser from orm
-        selectedLic.getReseller().getLicenseCustomerSet().removeAll(selectedLic.getReseller().getLicenseCustomerSet());
-        selectedLic.getEndUser().getLicenseCustomerSet().removeAll(selectedLic.getEndUser().getLicenseCustomerSet());
-        customerController.update(selectedLic.getReseller());
-        customerController.update(selectedLic.getEndUser());
-        
-        //delete all licensecustomer recoreds for reseller, fot this license
-        reseller.getLicenseCustomerSet().removeIf(e->e.getLicense().equals(license));
-        //add new record to reseller's lc set
-        reseller.getLicenseCustomerSet().add(resellerLC);
-        //do the same for end user
-        endUser.getLicenseCustomerSet().removeIf(e->e.getLicense().equals(license));
+        //add new licenseCustomer records to new reseller and endUser objects
+        if (reseller!=null)
+            reseller.getLicenseCustomerSet().add(resellerLC);
         endUser.getLicenseCustomerSet().add(endUserLC);
-        
-        //clean lc set of license, and add reseller and end user lc set
+
+        //clean lc set of license, and add new reseller and end user lc set
         license.getLicenseCustomerSet().removeAll(license.getLicenseCustomerSet());
         license.getLicenseCustomerSet().add(resellerLC);
         license.getLicenseCustomerSet().add(endUserLC);
         
-        
-        
-        
+        //update selectedLicense object with new reseller and endUser
         selectedLic.setReseller(reseller);
         selectedLic.setEndUser(endUser);
-       
         
-        customerController.update(reseller);
-        customerController.update(endUser);
-        lcController.update(resellerLC);
-        lcController.update(endUserLC);
+        //update database
+        
+        customerController.update(oldReseller, false);
+        customerController.update(oldEndUser, false);
+        customerController.update(reseller, false);
+        customerController.update(endUser, false);
+
+        lcController.update(resellerLC, false);  //ako se izbaci, dodaje novi zapis bez updatea postojeceg zapisa
+        lcController.update(endUserLC, false); //4->null radi dobro kada je na kraju, a null->4 na pocetku
         
         
+        //set other license data
         license.setLicenseCode(selectedLic.getLicenseCode());
         license.setSmaCode(selectedLic.getSmaCode());
         license.setExpDate(selectedLic.getExpDate());
+        
+        licenseController.update(license, false);
+        
+        //UPDATE OF SOFTWARE AND STATUS
         
         //remove license from licenseSet of old license status
         Status oldStat=license.getStatusId();
         oldStat.getLicenseSet().remove(license);
         
         //find new status
-        Status newStat=statusController.getItems().stream().filter(st->st.getName().equalsIgnoreCase(selectedLic.getStatusName())).findFirst().orElse(null);
+        Status newStat=statusController.getItems().stream().filter(st->
+                st.getName().equalsIgnoreCase(selectedLic.getStatusName())).findFirst().orElse(null);
         
         //assign new status to the license
         license.setStatusId(newStat);
@@ -191,25 +221,26 @@ public class LazyLicenseDataView implements Serializable {
         newStat.getLicenseSet().add(license);
         
         //update old status licenseSet
-        statusController.updateStatusData(oldStat);
+        statusController.updateStatusData(oldStat, false);
         //update new status licenseSet
-        statusController.updateStatusData(newStat);
+        statusController.updateStatusData(newStat, false);
         
         //remove license from old software's licenseSet
         Software oldSoft=license.getSoftware();
         oldSoft.getLicenseSet().remove(license);
         //find new software
-        Software newSoft=softwareController.getItems().stream().filter(so->so.getName().equalsIgnoreCase(selectedLic.getSoftwareName())).findFirst().orElse(null);
+        Software newSoft=softwareController.getItems().stream().filter(so->
+                so.getName().equalsIgnoreCase(selectedLic.getSoftwareName())).findFirst().orElse(null);
         //assign new software to license
         license.setSoftware(newSoft);
         //add license to new software's licenseSet
         newSoft.getLicenseSet().add(license);
         
         //update old and new software
-        softwareController.updateSoftwareData(oldSoft);
-        softwareController.updateSoftwareData(newSoft);
+        softwareController.updateSoftwareData(oldSoft, false);
+        softwareController.updateSoftwareData(newSoft, false);
         
-        licenseController.update(license);
+        licenseController.update(license, true);
         customerController.refresh();
     }
     
@@ -249,32 +280,34 @@ public class LazyLicenseDataView implements Serializable {
     
     //called from pencil icon below Company data panelgrid
     public void editReseller() {
-        int id=reseller.getCustomerId();
-        FacesContext context=FacesContext.getCurrentInstance();
-        ExternalContext ec = context.getExternalContext();
-        
-        Customer custCheck=customers.stream().filter(e->(
-                e.getName().equalsIgnoreCase(reseller.getName()) && 
-                e.getStreet().equalsIgnoreCase(reseller.getStreet()) &&
-                e.getCity().equalsIgnoreCase(reseller.getCity()) && 
-                !e.getCustomerId().equals(reseller.getCustomerId())
-                )).findFirst().orElse(null);
-        if (custCheck==null)
-            customerController.update(reseller);
-        else {
-            Customer original=customers.stream().filter(e->e.getCustomerId().equals(id)).findFirst().orElse(null);
-            reseller.setName(original.getName());
-            reseller.setStreet(original.getStreet());
-            reseller.setNumber(original.getNumber());
-            reseller.setCity(original.getCity());
-            reseller.setCountry(original.getCountry());
-            JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("CustomerExists"));
+        if (reseller!=null) {
+            long id=reseller.getCustomerId();
+            FacesContext context=FacesContext.getCurrentInstance();
+
+            Customer custCheck=customers.stream().filter(e->(
+                    e.getName().equalsIgnoreCase(reseller.getName()) && 
+                    e.getStreet().equalsIgnoreCase(reseller.getStreet()) &&
+                    e.getCity().equalsIgnoreCase(reseller.getCity()) && 
+                    !e.getCustomerId().equals(reseller.getCustomerId())
+                    )).findFirst().orElse(null);
+            if (custCheck==null)
+                customerController.update(reseller, true);
+            else {
+                Customer original=customers.stream().filter(e->e.getCustomerId().equals(id)).findFirst().orElse(null);
+                reseller.setName(original.getName());
+                reseller.setStreet(original.getStreet());
+                reseller.setNumber(original.getNumber());
+                reseller.setCity(original.getCity());
+                reseller.setCountry(original.getCountry());
+                context.validationFailed();
+                JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("CustomerExists"));
+            }
         }
     }
     
     //called from pencil icon below Company data panelgrid
     public void editEndUser() {
-        int id=reseller.getCustomerId();
+        long id=reseller.getCustomerId();
         FacesContext context=FacesContext.getCurrentInstance();
         ExternalContext ec = context.getExternalContext();
         
@@ -285,7 +318,7 @@ public class LazyLicenseDataView implements Serializable {
                 !e.getCustomerId().equals(reseller.getCustomerId())
                 )).findFirst().orElse(null);
         if (custCheck==null)
-            customerController.update(reseller);
+            customerController.update(reseller, true);
         else {
             Customer original=customers.stream().filter(e->e.getCustomerId().equals(id)).findFirst().orElse(null);
             reseller.setName(original.getName());

@@ -119,6 +119,11 @@ public class SoftwareController implements Serializable {
     }
     */
     
+    public void reload() {
+        items=null;
+        getItems();
+    }
+    
     public void update(Software selectedSoft) {
         FacesContext context=FacesContext.getCurrentInstance();
         items=getItems();
@@ -139,9 +144,12 @@ public class SoftwareController implements Serializable {
     }
     
     //updates fields of software which name is not changed (licenseSet)
-    public void updateSoftwareData(Software selectedSoft) {
+    public void updateSoftwareData(Software selectedSoft, boolean messages) {
         selected=selectedSoft;
-        persist(PersistAction.UPDATE, ResourceBundle.getBundle("/Bundle").getString("SoftwareUpdated"));
+        if (messages)
+            persist(PersistAction.UPDATE, ResourceBundle.getBundle("/Bundle").getString("SoftwareUpdated"));
+        else
+            persist(PersistAction.UPDATE, "");
         if (!JsfUtil.isValidationFailed()) {
             selected = null; // Remove selection
             items = null;    // Invalidate list of items to trigger re-query.
@@ -212,29 +220,18 @@ public class SoftwareController implements Serializable {
     
     
     private void persist(PersistAction persistAction, String successMessage) {
+        FacesContext context=FacesContext.getCurrentInstance();
         if (selected != null) {
-            
-            
-            /*
-            if (license.getLicenseCustomerSet()==null) {
-                JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("SellLicenseRequiredMessage_endUser"));
-                return;
-            }
-            
-            if (!(license.getLicenseCustomerSet().stream().anyMatch(lc->lc.getEndUser()==true)==true)) {
-                JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("SellLicenseRequiredMessage_endUser"));
-                return;
-            } 
-            */
-
             try {
                 if (persistAction != PersistAction.DELETE) {
                     getFacade().edit(selected);
                 } else {
                     getFacade().remove(selected);
                 }
-                JsfUtil.addSuccessMessage(successMessage);
+                if (!successMessage.isEmpty())
+                    JsfUtil.addSuccessMessage(successMessage);
             } catch (EJBException ex) {
+                context.validationFailed();
                 String msg = "";
                 Throwable cause = ex.getCause();
                 if (cause != null) {
@@ -246,13 +243,14 @@ public class SoftwareController implements Serializable {
                     JsfUtil.addErrorMessage(ex, ResourceBundle.getBundle("/Bundle").getString("PersistenceErrorOccured"));
                 }
             } catch (Exception ex) {
+                context.validationFailed();
                 Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
                 JsfUtil.addErrorMessage(ex, ResourceBundle.getBundle("/Bundle").getString("PersistenceErrorOccured"));
             }
         }
     }
 
-    public Software getSoftware(java.lang.Integer id) {
+    public Software getSoftware(java.lang.Long id) {
         return getFacade().find(id);
     }
 
@@ -287,13 +285,13 @@ public class SoftwareController implements Serializable {
             return controller.getSoftware(getKey(value));
         }
 
-        java.lang.Integer getKey(String value) {
-            java.lang.Integer key;
-            key = Integer.valueOf(value);
+        java.lang.Long getKey(String value) {
+            java.lang.Long key;
+            key = Long.valueOf(value);
             return key;
         }
 
-        String getStringKey(java.lang.Integer value) {
+        String getStringKey(java.lang.Long value) {
             StringBuilder sb = new StringBuilder();
             sb.append(value);
             return sb.toString();

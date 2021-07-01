@@ -134,7 +134,7 @@
                                 <p:column colspan="2">
                                     <center>
                                     <p:commandLink style="text-align: center" type="button" onclick="PF('EditResellerDialog').show()" ajax="true"
-                                                   update="EditResellerForm"> 
+                                                   update="EditResellerForm" disabled="#{lazyLicenseDataView.selectedLic.reseller eq null}"> 
                                         <h:graphicImage name="images/pencilE.png" style="width: 16px;height: 16px" />
                                     </p:commandLink>
                                     </center>

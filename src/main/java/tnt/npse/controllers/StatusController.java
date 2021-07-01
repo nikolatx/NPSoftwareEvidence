@@ -106,9 +106,12 @@ public class StatusController implements Serializable {
     
     
     //updates fields of status which name is not changed (licenseSet)
-    public void updateStatusData(Status selectedStat) {
+    public void updateStatusData(Status selectedStat, boolean messages) {
         selected=selectedStat;
-        persist(PersistAction.UPDATE, ResourceBundle.getBundle("/Bundle").getString("StatusUpdated"));
+        if (messages)
+            persist(PersistAction.UPDATE, ResourceBundle.getBundle("/Bundle").getString("StatusUpdated"));
+        else
+            persist(PersistAction.UPDATE, "");
         if (!JsfUtil.isValidationFailed()) {
             selected = null; // Remove selection
             items = null;    // Invalidate list of items to trigger re-query.
@@ -170,7 +173,8 @@ public class StatusController implements Serializable {
                 } else {
                     getFacade().remove(selected);
                 }
-                JsfUtil.addSuccessMessage(successMessage);
+                if (!successMessage.isEmpty())
+                    JsfUtil.addSuccessMessage(successMessage);
             } catch (EJBException ex) {
                 String msg = "";
                 Throwable cause = ex.getCause();
@@ -189,7 +193,7 @@ public class StatusController implements Serializable {
         }
     }
 
-    public Status getStatus(java.lang.Integer id) {
+    public Status getStatus(java.lang.Long id) {
         return getFacade().find(id);
     }
 
@@ -214,13 +218,13 @@ public class StatusController implements Serializable {
             return controller.getStatus(getKey(value));
         }
 
-        java.lang.Integer getKey(String value) {
-            java.lang.Integer key;
-            key = Integer.valueOf(value);
+        java.lang.Long getKey(String value) {
+            java.lang.Long key;
+            key = Long.valueOf(value);
             return key;
         }
 
-        String getStringKey(java.lang.Integer value) {
+        String getStringKey(java.lang.Long value) {
             StringBuilder sb = new StringBuilder();
             sb.append(value);
             return sb.toString();

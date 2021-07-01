@@ -39,12 +39,15 @@ public class LazyLicenseDataModel extends LazyDataModel<LicenseData> {
             ld.setStatusName(lic.getStatusId().getName());
             
             LicenseCustomer lc=new LicenseCustomer();
-            lc=lic.getLicenseCustomerSet().stream().filter(f->f.getEndUser()==false).findFirst().orElse(null);
+            lc=null;
+            if (lic.getLicenseCustomerSet()!=null)
+                lc=lic.getLicenseCustomerSet().stream().filter(f->f.getEndUser()==false).findFirst().orElse(null);
             if (lc!=null && lc.getCustomer()!=null)
                 ld.setReseller(lc.getCustomer());
             else
                 ld.setReseller(null);
-            lc=lic.getLicenseCustomerSet().stream().filter(f->f.getEndUser()==true).findFirst().orElse(null);
+            if (lic.getLicenseCustomerSet()!=null)
+                lc=lic.getLicenseCustomerSet().stream().filter(f->f.getEndUser()==true).findFirst().orElse(null);
             if (lc!=null && lc.getCustomer()!=null)
                 ld.setEndUser(lc.getCustomer());
             else

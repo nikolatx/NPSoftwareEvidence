@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.Set;
 import javax.annotation.PostConstruct;
 import javax.faces.view.ViewScoped;
@@ -22,6 +23,7 @@ import tnt.npse.controllers.LicenseController;
 import tnt.npse.controllers.PersonController;
 import tnt.npse.controllers.SoftwareController;
 import tnt.npse.controllers.StatusController;
+import tnt.npse.controllers.util.JsfUtil;
 import tnt.npse.entities.Customer;
 import tnt.npse.entities.License;
 import tnt.npse.entities.LicenseCustomer;
@@ -212,7 +214,15 @@ public class SellMenuView implements Serializable {
         selLicense.setExpDate(expDate);
         
         Status active=statusController.getItems().stream().filter(e->e.getName().equalsIgnoreCase("active")).findFirst().orElse(null);
+        if (active==null) {
+            statusController.create("active");
+            active=statusController.getItems().stream().filter(e->e.getName().equalsIgnoreCase("active")).findFirst().orElse(null);
+        }
         Status notActivated=statusController.getItems().stream().filter(e->e.getName().equalsIgnoreCase("not activated")).findFirst().orElse(null);
+        if (notActivated==null) {
+            statusController.create("not activated");
+            notActivated=statusController.getItems().stream().filter(e->e.getName().equalsIgnoreCase("not activated")).findFirst().orElse(null);
+        }
         if (selLicense.getSmaCode()!=null && !selLicense.getSmaCode().isEmpty()) {
             selLicense.setStatusId(active);
         } else {
@@ -245,8 +255,8 @@ public class SellMenuView implements Serializable {
         selLicense.setSoftware(selSoftware);
         
         selSoftware.getLicenseSet().add(selLicense);
+        
         licenseController.sellLicense(selSoftware, selLicense, selReseller, selEndUser);
-       
     }
     
     

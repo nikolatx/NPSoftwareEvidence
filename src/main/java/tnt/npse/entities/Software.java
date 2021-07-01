@@ -42,7 +42,7 @@ public class Software implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
     @Column(name = "software_id")
-    private Integer softwareId;
+    private Long softwareId;
     
     @Basic(optional = false)
     @NotNull
@@ -60,20 +60,20 @@ public class Software implements Serializable {
         this.name = name;
     }
 
-    public Software(Integer softwareId) {
+    public Software(Long softwareId) {
         this.softwareId = softwareId;
     }
 
-    public Software(Integer softwareId, String name) {
+    public Software(Long softwareId, String name) {
         this.softwareId = softwareId;
         this.name = name;
     }
 
-    public Integer getSoftwareId() {
+    public Long getSoftwareId() {
         return softwareId;
     }
 
-    public void setSoftwareId(Integer softwareId) {
+    public void setSoftwareId(Long softwareId) {
         this.softwareId = softwareId;
     }
 

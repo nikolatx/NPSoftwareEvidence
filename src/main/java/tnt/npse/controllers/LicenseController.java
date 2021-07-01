@@ -67,11 +67,14 @@ public class LicenseController implements Serializable {
                     JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("SellLicenseRequiredMessage_expDate"));
                 } else {
                     selected=license;
-                    persist(PersistAction.CREATE, ResourceBundle.getBundle("/Bundle").getString("LicenseCreated"));
+                    //persist(PersistAction.CREATE, ResourceBundle.getBundle("/Bundle").getString("LicenseCreated"));
+                    softwareController.updateSoftwareData(software, false);
                     items=null;
                     items=getItems();
                     if (!JsfUtil.isValidationFailed()) {
+                        JsfUtil.addSuccessMessage(ResourceBundle.getBundle("/Bundle").getString("LicenseUpdated"));
                         items = null;    // Invalidate list of items to trigger re-query.
+                        softwareController.reload();
                     }
                 }
             } else {
@@ -140,9 +143,9 @@ public class LicenseController implements Serializable {
         newStat.getLicenseSet().add(license);
         
         //update old status licenseSet
-        statusController.updateStatusData(oldStat);
+        statusController.updateStatusData(oldStat, false);
         //update new status licenseSet
-        statusController.updateStatusData(newStat);
+        statusController.updateStatusData(newStat, false);
         
         //remove license from old software's licenseSet
         Software oldSoft=license.getSoftware();
@@ -155,8 +158,8 @@ public class LicenseController implements Serializable {
         newSoft.getLicenseSet().add(license);
         
         //update old and new software
-        softwareController.updateSoftwareData(oldSoft);
-        softwareController.updateSoftwareData(newSoft);
+        softwareController.updateSoftwareData(oldSoft, false);
+        softwareController.updateSoftwareData(newSoft, false);
         
         Set<LicenseCustomer> lcSet=new HashSet<>();
         
@@ -176,17 +179,20 @@ public class LicenseController implements Serializable {
         lcSet.add(lc2);
         
         selected=license;
-        update();
+        update(true);
         
     }
     
-    public void update(License license) {
+    public void update(License license, boolean messages) {
         selected=license;
-        update();
+        update(messages);
     }
     
-    public void update() {
-        persist(PersistAction.UPDATE, ResourceBundle.getBundle("/Bundle").getString("LicenseUpdated"));
+    public void update(boolean messages) {
+        if (messages)
+            persist(PersistAction.UPDATE, ResourceBundle.getBundle("/Bundle").getString("LicenseUpdated"));
+        else
+            persist(PersistAction.UPDATE, "");
         if (!JsfUtil.isValidationFailed()) {
             selected = null; // Remove selection
             items = null;    // Invalidate list of items to trigger re-query.
@@ -216,7 +222,8 @@ public class LicenseController implements Serializable {
                 } else {
                     getFacade().remove(selected);
                 }
-                JsfUtil.addSuccessMessage(successMessage);
+                if (!successMessage.isEmpty())
+                    JsfUtil.addSuccessMessage(successMessage);
             } catch (EJBException ex) {
                 String msg = "";
                 Throwable cause = ex.getCause();
@@ -235,7 +242,7 @@ public class LicenseController implements Serializable {
         }
     }
 
-    public License getLicense(java.lang.Integer id) {
+    public License getLicense(java.lang.Long id) {
         return getFacade().find(id);
     }
 
@@ -260,13 +267,13 @@ public class LicenseController implements Serializable {
             return controller.getLicense(getKey(value));
         }
 
-        java.lang.Integer getKey(String value) {
-            java.lang.Integer key;
-            key = Integer.valueOf(value);
+        java.lang.Long getKey(String value) {
+            java.lang.Long key;
+            key = Long.valueOf(value);
             return key;
         }
 
-        String getStringKey(java.lang.Integer value) {
+        String getStringKey(java.lang.Long value) {
             StringBuilder sb = new StringBuilder();
             sb.append(value);
             return sb.toString();
