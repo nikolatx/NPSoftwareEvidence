@@ -29,6 +29,7 @@ import tnt.npse.entities.LicenseCustomer;
 import tnt.npse.entities.Software;
 import tnt.npse.entities.Status;
 import tnt.npse.model.LicenseData;
+import tnt.npse.viewbeans.SettingsView;
 
 @Named("licenseController")
 @RequestScoped
@@ -43,7 +44,8 @@ public class LicenseController implements Serializable {
     private StatusController statusController;
     @Inject
     private SoftwareController softwareController;
-    
+    @Inject
+    private SettingsView settings;
     
     public LicenseController() {
     }
@@ -211,6 +213,13 @@ public class LicenseController implements Serializable {
         if (items == null) {
             items = getFacade().findAll();
         }
+        return items;
+    }
+    
+    public List<License> getCurrentItems(boolean includeDeleted) {
+        items = getFacade().findAll();
+        if (!includeDeleted)
+            items.removeIf(e->e.getStatusId().equals(settings.getStatDeleted()));
         return items;
     }
 

@@ -75,10 +75,12 @@ public class LazyLicenseDataView implements Serializable {
     private PersonController personController;
     @Inject 
     private LicenseCustomerController lcController;
+    @Inject
+    private SettingsView settings;
     
     @PostConstruct
     public void init() {
-        List<License> lics=licenseController.getItems();
+        List<License> lics=licenseController.getCurrentItems(settings.isShowDeleted());
         lazyModel = new LazyLicenseDataModel(lics);
         allStatuses=new ArrayList<>();
         if (statusController.getItems()!=null) 
@@ -142,7 +144,8 @@ public class LazyLicenseDataView implements Serializable {
                 e.getLicense().getLicenseId().equals(license.getLicenseId())  
                     && e.getEndUser()==true)).findFirst().orElse(null);
        
-        resellerLC.setCustomer(reseller);
+        if (resellerLC!=null)
+            resellerLC.setCustomer(reseller);
         endUserLC.setCustomer(endUser);
         
         //delete records with license from oldReseller and oldEndUser objects

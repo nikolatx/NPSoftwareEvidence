@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
 import javax.annotation.PostConstruct;
+import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -21,6 +22,7 @@ import org.apache.commons.lang3.SerializationUtils;
 import tnt.npse.controllers.CustomerController;
 import tnt.npse.controllers.LicenseController;
 import tnt.npse.controllers.PersonController;
+import tnt.npse.controllers.SettingsController;
 import tnt.npse.controllers.SoftwareController;
 import tnt.npse.controllers.StatusController;
 import tnt.npse.controllers.util.JsfUtil;
@@ -28,6 +30,7 @@ import tnt.npse.entities.Customer;
 import tnt.npse.entities.License;
 import tnt.npse.entities.LicenseCustomer;
 import tnt.npse.entities.Person;
+import tnt.npse.entities.Settings;
 import tnt.npse.entities.Software;
 import tnt.npse.entities.Status;
 
@@ -75,7 +78,8 @@ public class SellMenuView implements Serializable {
     private PersonController personController;
     @Inject
     private StatusController statusController;
-    
+    @Inject
+    private SettingsController settingsController;
     
     
     @PostConstruct
@@ -211,18 +215,31 @@ public class SellMenuView implements Serializable {
     
     public void sellLicense() {
         
+        Status active=null;
+        Status notActivated=null;
+        
+        try {
+            final Settings settings = settingsController.getItems().get(0);
+            active=statusController.getItems().stream().filter(e->e.equals(settings.getStatWithSMA())).findFirst().orElse(null);
+            notActivated=statusController.getItems().stream().filter(e->e.equals(settings.getStatWithoutSMA())).findFirst().orElse(null);
+            if (active==null) {
+                statusController.create("active");
+                active=statusController.getItems().stream().filter(e->e.getName().equalsIgnoreCase("active")).findFirst().orElse(null);
+            }
+            if (notActivated==null) {
+                statusController.create("not activated");
+                notActivated=statusController.getItems().stream().filter(e->e.getName().equalsIgnoreCase("not activated")).findFirst().orElse(null);
+            }
+            
+        } catch (Exception ex) {
+            FacesContext context=FacesContext.getCurrentInstance();
+            context.validationFailed();
+            JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("SettingsLoadingError"));
+            return;
+        }
+        
         selLicense.setExpDate(expDate);
         
-        Status active=statusController.getItems().stream().filter(e->e.getName().equalsIgnoreCase("active")).findFirst().orElse(null);
-        if (active==null) {
-            statusController.create("active");
-            active=statusController.getItems().stream().filter(e->e.getName().equalsIgnoreCase("active")).findFirst().orElse(null);
-        }
-        Status notActivated=statusController.getItems().stream().filter(e->e.getName().equalsIgnoreCase("not activated")).findFirst().orElse(null);
-        if (notActivated==null) {
-            statusController.create("not activated");
-            notActivated=statusController.getItems().stream().filter(e->e.getName().equalsIgnoreCase("not activated")).findFirst().orElse(null);
-        }
         if (selLicense.getSmaCode()!=null && !selLicense.getSmaCode().isEmpty()) {
             selLicense.setStatusId(active);
         } else {
@@ -259,41 +276,7 @@ public class SellMenuView implements Serializable {
         licenseController.sellLicense(selSoftware, selLicense, selReseller, selEndUser);
     }
     
-    
-    //update of existing license
-    public void createSMA() {
         
-        /*
-        if (smaCode!=null && !smaCode.isEmpty()) {
-            //smaDisabled=true;
-            Calendar cal=Calendar.getInstance();
-            cal.setTime(new Date());
-            cal.add(Calendar.YEAR, 1);
-            cal.add(Calendar.DAY_OF_MONTH, -1);
-            //expDate=cal.getTime();
-        }
-        */
-    }
-    
-    public void extendSMA() {
-        /*Calendar cal=Calendar.getInstance();
-        if (expDate.before(new Date())) 
-            cal.setTime(new Date());
-        else
-            cal.setTime(expDate);
-        cal.add(Calendar.YEAR, 1);
-        cal.add(Calendar.DAY_OF_MONTH, -1);
-        expDate=cal.getTime();
-*/
-    }
-    
-    public void deleteDate() {
-        
-        expDate=null;
-    }
-    
-    
-    
     public List<Software> getAllsoftware() {
         return allsoftware;
     }

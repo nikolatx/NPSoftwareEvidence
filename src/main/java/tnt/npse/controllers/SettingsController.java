@@ -54,21 +54,6 @@ public class SettingsController implements Serializable {
         FacesContext context=FacesContext.getCurrentInstance();
         ExternalContext ec = context.getExternalContext();
         items=getItems();
-
-
-/*
-        long count=items.stream().filter(st->st.getName().equalsIgnoreCase(name)).count();
-        if (count==0) {
-            Settings stat=new Settings();
-            stat.setName(name);
-            selected=stat;
-            create();
-            selected=items.stream().filter(e->e.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
-        } else {
-            context.validationFailed();
-            JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("EditSettingsExists"));
-        }
-*/
     }
     
     public void create(Settings settings) {

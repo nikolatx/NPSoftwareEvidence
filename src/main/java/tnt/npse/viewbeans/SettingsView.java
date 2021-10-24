@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -22,7 +23,7 @@ import tnt.npse.entities.Status;
  * @author NN
  */
 @Named("settingsView")
-@ViewScoped
+@ApplicationScoped
 public class SettingsView implements Serializable {
    
     List<Status> statuses=new ArrayList<>();
@@ -34,12 +35,11 @@ public class SettingsView implements Serializable {
     private Status selectedStat;
     
     
-    
-    
     @Inject
     private StatusController statusController;
     @Inject
     private SettingsController settingsController;
+    
     
     @PostConstruct
     public void init() {
@@ -57,8 +57,9 @@ public class SettingsView implements Serializable {
             setting.setShowDeleted(true);
             settingsController.create(setting);
             settings=settingsController.getItems();
+        } else {
+            setting=settings.get(0);
         }
-        setting=settings.get(0);
         statWithSMA=setting.getStatWithSMA();
         statWithoutSMA=setting.getStatWithoutSMA();
         statDeleted=setting.getStatDeleted();

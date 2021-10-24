@@ -47,7 +47,8 @@
                         <p:column headerText="Del" style="width: 7%; text-align: center">
                             <p:commandLink style="text-align: center" type="button" onclick="PF('DeleteStatusDialog').show()" ajax="true"
                                            update=":messages :DeleteStatusForm"
-                                           disabled="#{not empty status.licenseSet}"> 
+                                           disabled="#{(not empty status.licenseSet) or (settingsView.statWithSMA eq status)
+                                                       or settingsView.statWithoutSMA eq status or settingsView.statDeleted eq status}"> 
                                 <h:graphicImage name="images/del96blck.png" style="width: 16px;height: 16px" />
                                 <f:setPropertyActionListener value="#{status}" target="#{lazyStatusDataView.selectedStat}" />
                             </p:commandLink>
