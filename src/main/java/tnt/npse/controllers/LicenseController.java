@@ -62,7 +62,7 @@ public class LicenseController implements Serializable {
                 (lic.getLicenseCode().equalsIgnoreCase(license.getLicenseCode())
                 && lic.getSoftware().equals(license.getSoftware())))) {
             if (endUser!=null) {
-                if (license.getSmaCode()!=null && license.getExpDate()==null || license.getExpDate().before(new Date())) {
+                if (license.getSmaCode()!=null && !license.getSmaCode().isEmpty() && (license.getExpDate()==null || license.getExpDate().before(new Date()))) {
                     context.validationFailed();
                     JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("SellLicenseRequiredMessage_expDate"));
                 } else {
@@ -72,7 +72,7 @@ public class LicenseController implements Serializable {
                     items=null;
                     items=getItems();
                     if (!JsfUtil.isValidationFailed()) {
-                        JsfUtil.addSuccessMessage(ResourceBundle.getBundle("/Bundle").getString("LicenseUpdated"));
+                        JsfUtil.addSuccessMessage(ResourceBundle.getBundle("/Bundle").getString("LicenseCreated"));
                         items = null;    // Invalidate list of items to trigger re-query.
                         softwareController.reload();
                     }

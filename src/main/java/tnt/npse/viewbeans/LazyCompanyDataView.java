@@ -40,6 +40,15 @@ public class LazyCompanyDataView implements Serializable {
     private Person selectedPers;
     private Person newPers;
     private Person originalPers;
+    private boolean rowSelected;
+
+    public boolean isRowSelected() {
+        return rowSelected;
+    }
+
+    public void setRowSelected(boolean rowSelected) {
+        this.rowSelected = rowSelected;
+    }
     
     @Inject
     private CustomerController customerController;
@@ -48,8 +57,13 @@ public class LazyCompanyDataView implements Serializable {
     
     @PostConstruct
     public void init() {
+        selectedComp=new Customer();
+        
+        newCompany=new Customer();
+        rowSelected=false;
         lazyModel = new LazyCompanyDataModel(customerController.getItems());
-        lazyModel.setRowIndex(0);
+        //lazyModel.setRowIndex(0);
+        
     }
     
     public void onRowSelect(SelectEvent<Customer> event) {
@@ -57,6 +71,7 @@ public class LazyCompanyDataView implements Serializable {
         FacesContext.getCurrentInstance().addMessage(null, msg);
         originalCompany = (Customer) SerializationUtils.clone(selectedComp);
         selectedPers=new Person();
+        rowSelected=true;
     }
     
     public void prepareCompany() {
@@ -79,7 +94,7 @@ public class LazyCompanyDataView implements Serializable {
                 !e.getCustomerId().equals(selectedComp.getCustomerId())
                 )).findFirst().orElse(null);
         if (custCheck==null)
-            customerController.update(selectedComp);
+            customerController.update(selectedComp, true);
         else {
             selectedComp.setName(originalCompany.getName());
             selectedComp.setStreet(originalCompany.getStreet());

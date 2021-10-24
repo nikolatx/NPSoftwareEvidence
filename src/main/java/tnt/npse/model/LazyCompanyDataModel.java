@@ -32,6 +32,11 @@ public class LazyCompanyDataModel extends LazyDataModel<Customer> {
 
     @Override
     public Customer getRowData(String rowKey) {
+        try {
+            Long.valueOf(rowKey);
+        } catch (Exception ex) {
+            return null;
+        }
         for(Customer customer : customers) {
             if (customer.getCustomerId() == Long.parseLong(rowKey))
                 return customer;

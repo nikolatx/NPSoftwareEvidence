@@ -1,9 +1,9 @@
 package tnt.npse.controllers;
 
-import tnt.npse.entities.Status;
+import tnt.npse.entities.Settings;
 import tnt.npse.controllers.util.JsfUtil;
 import tnt.npse.controllers.util.JsfUtil.PersistAction;
-import tnt.npse.beans.StatusFacade;
+import tnt.npse.beans.SettingsFacade;
 
 import java.io.Serializable;
 import java.util.List;
@@ -21,98 +21,84 @@ import javax.faces.convert.Converter;
 import javax.faces.convert.FacesConverter;
 import tnt.npse.model.LicenseData;
 
-@Named("statusController")
+@Named("settingsController")
 @RequestScoped
-public class StatusController implements Serializable {
+public class SettingsController implements Serializable {
 
     @EJB
-    private tnt.npse.beans.StatusFacade ejbFacade;
-    private List<Status> items = null;
-    private Status selected;
+    private tnt.npse.beans.SettingsFacade ejbFacade;
+    private List<Settings> items = null;
+    private Settings selected;
 
-    public StatusController() {
+    public SettingsController() {
     }
 
-    public Status getSelected() {
+    public Settings getSelected() {
         return selected;
     }
 
-    public void setSelected(Status selected) {
+    public void setSelected(Settings selected) {
         this.selected = selected;
     }
 
-    protected void setEmbeddableKeys() {
-    }
-
-    protected void initializeEmbeddableKey() {
-    }
-
-    private StatusFacade getFacade() {
+    private SettingsFacade getFacade() {
         return ejbFacade;
     }
 
-    public Status prepareCreate() {
-        selected = new Status();
-        initializeEmbeddableKey();
+    public Settings prepareCreate() {
+        selected = new Settings();
         return selected;
-    }
-    
-    public void createDefaultStatuses() {
-        items=getItems();
-        Status active=items.stream().filter(e->e.getName().equalsIgnoreCase("active")).findFirst().orElse(null);
-        if (active==null) {
-            create("active");
-        }
-        Status notActivated=items.stream().filter(e->e.getName().equalsIgnoreCase("not activated")).findFirst().orElse(null);
-        if (notActivated==null) {
-            create("not activated");
-        }
-        Status deleted=items.stream().filter(e->e.getName().equalsIgnoreCase("deleted")).findFirst().orElse(null);
-        if (notActivated==null) {
-            create("deleted");
-        }
     }
     
     public void create(String name) {
         FacesContext context=FacesContext.getCurrentInstance();
         ExternalContext ec = context.getExternalContext();
-//        ec.getFlash().setKeepMessages(true);
         items=getItems();
+
+
+/*
         long count=items.stream().filter(st->st.getName().equalsIgnoreCase(name)).count();
         if (count==0) {
-            Status stat=new Status();
+            Settings stat=new Settings();
             stat.setName(name);
             selected=stat;
             create();
             selected=items.stream().filter(e->e.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
         } else {
             context.validationFailed();
-            JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("EditStatusExists"));
+            JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("EditSettingsExists"));
         }
+*/
     }
     
+    public void create(Settings settings) {
+        selected=settings;
+        create();
+    }
 
     public void create() {
-        persist(PersistAction.CREATE, ResourceBundle.getBundle("/Bundle").getString("StatusCreated"));
+        persist(PersistAction.CREATE, ResourceBundle.getBundle("/Bundle").getString("SettingsCreated"));
         if (!JsfUtil.isValidationFailed()) {
             items = null;    // Invalidate list of items to trigger re-query.
             items=getItems();
         }
     }
 
-    public void update(Status selectedStat) {
+    public void update(Settings selectedSett) {
         FacesContext context=FacesContext.getCurrentInstance();
         items=null;
         items=getItems();
-        if (selectedStat!=null) {
-            long count=items.stream().filter(s->s.getName().equalsIgnoreCase(selectedStat.getName())).count();
+        if (selectedSett!=null) {
+/*            
+            long count=items.stream().filter(s->s.getName().equalsIgnoreCase(selectedSett.getName())).count();
             if (count==0) {
-                selected=selectedStat;
-                persist(PersistAction.UPDATE, ResourceBundle.getBundle("/Bundle").getString("StatusUpdated"));
+                selected=selectedSett;
+                persist(PersistAction.UPDATE, ResourceBundle.getBundle("/Bundle").getString("SettingsUpdated"));
             } else {
                 context.validationFailed();
-                JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("StatusExists"));
+                JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("SettingsExists"));
             }
+*/
         }
         if (!JsfUtil.isValidationFailed()) {
             selected = null; // Remove selection
@@ -121,11 +107,11 @@ public class StatusController implements Serializable {
     }
     
     
-    //updates fields of status which name is not changed (licenseSet)
-    public void updateStatusData(Status selectedStat, boolean messages) {
-        selected=selectedStat;
+    //updates fields of settings which name is not changed (licenseSet)
+    public void updateSettingsData(Settings selectedSett, boolean messages) {
+        selected=selectedSett;
         if (messages)
-            persist(PersistAction.UPDATE, ResourceBundle.getBundle("/Bundle").getString("StatusUpdated"));
+            persist(PersistAction.UPDATE, ResourceBundle.getBundle("/Bundle").getString("SettingsUpdated"));
         else
             persist(PersistAction.UPDATE, "");
         if (!JsfUtil.isValidationFailed()) {
@@ -138,42 +124,43 @@ public class StatusController implements Serializable {
     public void update(LicenseData selectedLic, String newName) {
         FacesContext context=FacesContext.getCurrentInstance();
         ExternalContext ec = context.getExternalContext();
-//        ec.getFlash().setKeepMessages(true);
         items=getItems();
-        String oldName=selectedLic.getStatusName();
+/*
+        String oldName=selectedLic.getSettingsName();
         selected=items.stream().filter(s->s.getName().equalsIgnoreCase(oldName)).findFirst().orElse(null);
         if (selected!=null) {
             long count=items.stream().filter(s->s.getName().equalsIgnoreCase(newName)).count();
             if (count==0) {
                 selected.setName(newName);
-                persist(PersistAction.UPDATE, ResourceBundle.getBundle("/Bundle").getString("StatusUpdated"));
-                selectedLic.setStatusName(newName);
+                persist(PersistAction.UPDATE, ResourceBundle.getBundle("/Bundle").getString("SettingsUpdated"));
+                selectedLic.setSettingsName(newName);
             } else {
                 context.validationFailed();
-                JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("StatusExists"));
+                JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("SettingsExists"));
             }
         }
+*/
     }
     
     
     public void update() {
-        persist(PersistAction.UPDATE, ResourceBundle.getBundle("/Bundle").getString("StatusUpdated"));
+        persist(PersistAction.UPDATE, ResourceBundle.getBundle("/Bundle").getString("SettingsUpdated"));
     }
 
-    public void destroy(Status status) {
-        selected=status;
+    public void destroy(Settings settings) {
+        selected=settings;
         destroy();
     }
     
     public void destroy() {
-        persist(PersistAction.DELETE, ResourceBundle.getBundle("/Bundle").getString("StatusDeleted"));
+        persist(PersistAction.DELETE, ResourceBundle.getBundle("/Bundle").getString("SettingsDeleted"));
         if (!JsfUtil.isValidationFailed()) {
             selected = null; // Remove selection
             items = null;    // Invalidate list of items to trigger re-query.
         }
     }
 
-    public List<Status> getItems() {
+    public List<Settings> getItems() {
         if (items == null) {
             items = getFacade().findAll();
         }
@@ -182,7 +169,6 @@ public class StatusController implements Serializable {
 
     private void persist(PersistAction persistAction, String successMessage) {
         if (selected != null) {
-            setEmbeddableKeys();
             try {
                 if (persistAction != PersistAction.DELETE) {
                     getFacade().edit(selected);
@@ -209,29 +195,29 @@ public class StatusController implements Serializable {
         }
     }
 
-    public Status getStatus(java.lang.Long id) {
+    public Settings getSettings(java.lang.Long id) {
         return getFacade().find(id);
     }
 
-    public List<Status> getItemsAvailableSelectMany() {
+    public List<Settings> getItemsAvailableSelectMany() {
         return getFacade().findAll();
     }
 
-    public List<Status> getItemsAvailableSelectOne() {
+    public List<Settings> getItemsAvailableSelectOne() {
         return getFacade().findAll();
     }
 
-    @FacesConverter(forClass = Status.class)
-    public static class StatusControllerConverter implements Converter {
+    @FacesConverter(forClass = Settings.class)
+    public static class SettingsControllerConverter implements Converter {
 
         @Override
         public Object getAsObject(FacesContext facesContext, UIComponent component, String value) {
             if (value == null || value.length() == 0) {
                 return null;
             }
-            StatusController controller = (StatusController) facesContext.getApplication().getELResolver().
+            SettingsController controller = (SettingsController) facesContext.getApplication().getELResolver().
                     getValue(facesContext.getELContext(), null, "statusController");
-            return controller.getStatus(getKey(value));
+            return controller.getSettings(getKey(value));
         }
 
         java.lang.Long getKey(String value) {
@@ -251,11 +237,11 @@ public class StatusController implements Serializable {
             if (object == null) {
                 return null;
             }
-            if (object instanceof Status) {
-                Status o = (Status) object;
-                return getStringKey(o.getStatusId());
+            if (object instanceof Settings) {
+                Settings o = (Settings) object;
+                return getStringKey(o.getSettingId());
             } else {
-                Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, "object {0} is of type {1}; expected type: {2}", new Object[]{object, object.getClass().getName(), Status.class.getName()});
+                Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, "object {0} is of type {1}; expected type: {2}", new Object[]{object, object.getClass().getName(), Settings.class.getName()});
                 return null;
             }
         }

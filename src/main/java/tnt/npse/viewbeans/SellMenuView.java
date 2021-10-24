@@ -287,6 +287,10 @@ public class SellMenuView implements Serializable {
 */
     }
     
+    public void deleteDate() {
+        
+        expDate=null;
+    }
     
     
     

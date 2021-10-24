@@ -7,9 +7,12 @@ package tnt.npse.viewbeans;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.ResourceBundle;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -103,19 +106,6 @@ public class LazyLicenseDataView implements Serializable {
     @Transactional
     public void changeLicenseData() {
         
-    /*  1. napravi dva nova LC objekta i podesi im vrednosti
-        2. ubaci ova dva objekta u novi LC Set
-        3. uradi update oba lc objekta u bazi
-        4. obrisi sve iz lcSeta objekta license
-        5. dodaj novi lcSet objektu license
-        6. iz objekta selectedLic.getReseller uzmemo objekat oldReseller
-        7. objektu oldReseller obrisemo iz lc seta svaki zapis za licencu sa license.id
-        8. uradimo update(oldReseller)
-        9. isto uradimo i za oldEndUser
-        10. objektu reseller dodamo odgovarajuci zapis iz novog lc seta
-        11. objektu endUser dodamo odgovarajuci zapis iz novog lc seta
-        12. uradimo update resellera i endusera u bazi podataka         */
-
         long id=originalLicense.getLicenseId();
         FacesContext context=FacesContext.getCurrentInstance();
 
@@ -127,14 +117,14 @@ public class LazyLicenseDataView implements Serializable {
             )).findFirst().orElse(null);
         
         if (ld!=null && !Objects.equals(ld.getLicenseId(), selectedLic.getLicenseId())) {
-            LicenseData lic=lazyModel.getWrappedData().stream().filter(e->e.getLicenseId().equals(id)).findFirst().orElse(null);
+            //LicenseData lic=lazyModel.getWrappedData().stream().filter(e->e.getLicenseId().equals(id)).findFirst().orElse(null);
             selectedLic=originalLicense;
             context.validationFailed();
             JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("LicenseExists"));
             return;
         }
         //if smaCode is given, but expDate is not set
-        if (selectedLic.getSmaCode()!=null && selectedLic.getExpDate()==null) {
+        if (selectedLic.getSmaCode()!=null && !selectedLic.getSmaCode().isEmpty() && selectedLic.getExpDate()==null) {
             context.validationFailed();
             JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("EditLicenseTitle_dateRequired"));
             return;
@@ -143,39 +133,33 @@ public class LazyLicenseDataView implements Serializable {
         //fetch license by licenseId from database
         License license=licenseController.getLicense(selectedLic.getLicenseId());
         
+        
         //find licenseCustomer record for given license and reseller
-        LicenseCustomer resellerLC=null;
-        if (selectedLic.getReseller()!=null)
-            resellerLC=lcController.getItems().stream().filter(e->(
-                    e.getLicense().equals(license) && 
-                    e.getCustomer()!=null && 
-                    e.getCustomer().equals(selectedLic.getReseller())
-                )).findFirst().orElse(null);
-        else
-            resellerLC=lcController.getItems().stream().filter(e->(
-                    e.getLicense().equals(license) && 
-                    e.getCustomer()==null)
-                ).findFirst().orElse(null);
+        LicenseCustomer resellerLC=new LicenseCustomer();
+        resellerLC=null;
+        resellerLC = lcController.getItems().stream().filter(lc->(
+                lc.getLicense().getLicenseId().equals(license.getLicenseId()) 
+                    && lc.getEndUser()==false)).findFirst().orElse(null);
+        
         //find licenseCustomer record for given license and end user
         LicenseCustomer endUserLC=lcController.getItems().stream().filter(e->(
-                e.getLicense().equals(license) && 
-                e.getCustomer().equals(selectedLic.getEndUser())
-            )).findFirst().orElse(null);
+                e.getLicense().getLicenseId().equals(license.getLicenseId())  
+                    && e.getEndUser()==true)).findFirst().orElse(null);
        
-        
         resellerLC.setCustomer(reseller);
         endUserLC.setCustomer(endUser);
         
         //delete records with license from oldReseller and oldEndUser objects
         Customer oldReseller=selectedLic.getReseller();
         if (oldReseller!=null)
-            oldReseller.getLicenseCustomerSet().removeIf(e->e.getLicense().equals(license));
+            oldReseller.getLicenseCustomerSet().removeIf(e->e.getLicense().getLicenseId().equals(license.getLicenseId()));
         Customer oldEndUser=selectedLic.getEndUser();
         oldEndUser.getLicenseCustomerSet().removeIf(e->e.getLicense().equals(license));
         
         //add new licenseCustomer records to new reseller and endUser objects
-        if (reseller!=null)
+        if (reseller!=null) 
             reseller.getLicenseCustomerSet().add(resellerLC);
+
         endUser.getLicenseCustomerSet().add(endUserLC);
 
         //clean lc set of license, and add new reseller and end user lc set
@@ -307,25 +291,25 @@ public class LazyLicenseDataView implements Serializable {
     
     //called from pencil icon below Company data panelgrid
     public void editEndUser() {
-        long id=reseller.getCustomerId();
+        long id=endUser.getCustomerId();
         FacesContext context=FacesContext.getCurrentInstance();
         ExternalContext ec = context.getExternalContext();
         
         Customer custCheck=customers.stream().filter(e->(
-                e.getName().equalsIgnoreCase(reseller.getName()) && 
-                e.getStreet().equalsIgnoreCase(reseller.getStreet()) &&
-                e.getCity().equalsIgnoreCase(reseller.getCity()) && 
-                !e.getCustomerId().equals(reseller.getCustomerId())
+                e.getName().equalsIgnoreCase(endUser.getName()) && 
+                e.getStreet().equalsIgnoreCase(endUser.getStreet()) &&
+                e.getCity().equalsIgnoreCase(endUser.getCity()) && 
+                !e.getCustomerId().equals(endUser.getCustomerId())
                 )).findFirst().orElse(null);
         if (custCheck==null)
-            customerController.update(reseller, true);
+            customerController.update(endUser, true);
         else {
             Customer original=customers.stream().filter(e->e.getCustomerId().equals(id)).findFirst().orElse(null);
-            reseller.setName(original.getName());
-            reseller.setStreet(original.getStreet());
-            reseller.setNumber(original.getNumber());
-            reseller.setCity(original.getCity());
-            reseller.setCountry(original.getCountry());
+            endUser.setName(original.getName());
+            endUser.setStreet(original.getStreet());
+            endUser.setNumber(original.getNumber());
+            endUser.setCity(original.getCity());
+            endUser.setCountry(original.getCountry());
             JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("CustomerExists"));
         }
     }

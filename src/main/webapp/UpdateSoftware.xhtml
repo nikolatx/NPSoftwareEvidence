@@ -36,15 +36,6 @@
                             <h:outputText value="#{software.name}"/>
                         </p:column>
 
-                        
-                        <p:column headerText="Add" style="width: 7%; text-align: center">
-                            <p:commandLink style="text-align: center" type="button" actionListener="#{lazySoftwareDataView.prepareSoftware()}"
-                                           onclick="PF('AddSoftwareDialog').show()" ajax="true"
-                                           update=":messages :AddSoftwareForm"> 
-                                <h:graphicImage name="images/add96blck.png" style="width: 16px;height: 16px" />
-                            </p:commandLink>
-                        </p:column>
-
                         <p:column headerText="Edit" style="width: 7%; text-align: center">
                             <p:commandLink style="text-align: center" type="button" onclick="PF('EditSoftwareDialog').show()" ajax="true"
                                            update=":messages :EditSoftwareForm"> 
@@ -62,6 +53,13 @@
                             </p:commandLink>
                         </p:column>
                     </p:dataTable>
+                    
+                    <br/>
+                    
+                    <p:commandLink style="text-align: center" actionListener="#{lazySoftwareDataView.prepareSoftware()}"
+                                    onclick="PF('AddSoftwareDialog').show()" ajax="true"
+                                    update=":messages :AddSoftwareForm" value="#{bundle.AddNewSoftware}"> 
+                    </p:commandLink>
             
                 
                 </h:form>
