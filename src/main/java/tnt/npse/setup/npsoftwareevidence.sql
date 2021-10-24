@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 24, 2021 at 01:40 PM
+-- Generation Time: Oct 25, 2021 at 12:20 AM
 -- Server version: 10.1.40-MariaDB
 -- PHP Version: 7.3.5
 
@@ -30,20 +30,20 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `customer` (
   `customer_id` bigint(20) NOT NULL,
-  `city` varchar(255) DEFAULT NULL,
-  `country` varchar(255) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
+  `street` varchar(255) DEFAULT NULL,
   `number` varchar(255) DEFAULT NULL,
-  `street` varchar(255) DEFAULT NULL
+  `city` varchar(255) DEFAULT NULL,
+  `country` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `customer`
 --
 
-INSERT INTO `customer` (`customer_id`, `city`, `country`, `name`, `number`, `street`) VALUES
-(1, 'City1', 'Country1', 'Company11', '1', 'str11'),
-(2, 'ci2', 'co2', 'Company21', '2', 'str2');
+INSERT INTO `customer` (`customer_id`, `name`, `street`, `number`, `city`, `country`) VALUES
+(4, 'Datatrion AB', 'Roslagsgatan', '24b', 'Stockholm', 'Sweden'),
+(5, 'JanData Consulting', 'Södra Lundavägen', '10 245 32', 'Staffanstorp', 'Sweden');
 
 -- --------------------------------------------------------
 
@@ -53,9 +53,9 @@ INSERT INTO `customer` (`customer_id`, `city`, `country`, `name`, `number`, `str
 
 CREATE TABLE `license` (
   `license_id` bigint(20) NOT NULL,
-  `expDate` date DEFAULT NULL,
   `licenseCode` varchar(255) DEFAULT NULL,
   `smaCode` varchar(255) DEFAULT NULL,
+  `expDate` date DEFAULT NULL,
   `software_id` bigint(20) DEFAULT NULL,
   `status_id` bigint(20) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -64,9 +64,9 @@ CREATE TABLE `license` (
 -- Dumping data for table `license`
 --
 
-INSERT INTO `license` (`license_id`, `expDate`, `licenseCode`, `smaCode`, `software_id`, `status_id`) VALUES
-(1, NULL, '111-111-111', NULL, 1, 5),
-(2, NULL, '222-222-222', '', 2, 5);
+INSERT INTO `license` (`license_id`, `licenseCode`, `smaCode`, `expDate`, `software_id`, `status_id`) VALUES
+(5, 'NSPN92301', 'ECCCF9', '2021-12-18', 8, 4),
+(6, 'NSPN150390', 'E26A75', '2022-05-17', 9, 4);
 
 -- --------------------------------------------------------
 
@@ -76,20 +76,18 @@ INSERT INTO `license` (`license_id`, `expDate`, `licenseCode`, `smaCode`, `softw
 
 CREATE TABLE `license_customer` (
   `lc_id` bigint(20) NOT NULL,
-  `end_user` tinyint(1) DEFAULT '0',
+  `license_id` bigint(20) DEFAULT NULL,
   `customer_id` bigint(20) DEFAULT NULL,
-  `license_id` bigint(20) DEFAULT NULL
+  `end_user` tinyint(1) DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `license_customer`
 --
 
-INSERT INTO `license_customer` (`lc_id`, `end_user`, `customer_id`, `license_id`) VALUES
-(1, 0, 2, 1),
-(12, 1, 1, 1),
-(13, 0, NULL, 2),
-(14, 1, 1, 2);
+INSERT INTO `license_customer` (`lc_id`, `license_id`, `customer_id`, `end_user`) VALUES
+(18, 6, 5, 1),
+(19, 5, 4, 1);
 
 -- --------------------------------------------------------
 
@@ -111,8 +109,8 @@ CREATE TABLE `person` (
 --
 
 INSERT INTO `person` (`person_id`, `customer_id`, `first_name`, `last_name`, `email`, `phone`) VALUES
-(2, 2, 'fn211', 'ln2', 'em2', '2222'),
-(4, 1, 'fn111', 'ln111', 'em11@s2.com', '12313121');
+(6, 4, 'Robert', 'Mikkelsen', 'robmik@datatrionab.com', '0701-650-680'),
+(7, 5, 'Robert', 'Mikkelsen', 'robmik@jandata.com', '+46-463-042-06');
 
 -- --------------------------------------------------------
 
@@ -122,18 +120,18 @@ INSERT INTO `person` (`person_id`, `customer_id`, `first_name`, `last_name`, `em
 
 CREATE TABLE `settings` (
   `setting_id` bigint(20) NOT NULL,
-  `show_deleted` tinyint(1) DEFAULT '0',
-  `stat_deleted` bigint(20) DEFAULT NULL,
   `stat_with_sma` bigint(20) DEFAULT NULL,
-  `stat_without_sma` bigint(20) DEFAULT NULL
+  `stat_without_sma` bigint(20) DEFAULT NULL,
+  `show_deleted` tinyint(1) DEFAULT '0',
+  `stat_deleted` bigint(20) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `settings`
 --
 
-INSERT INTO `settings` (`setting_id`, `show_deleted`, `stat_deleted`, `stat_with_sma`, `stat_without_sma`) VALUES
-(2, 1, 6, 4, 5);
+INSERT INTO `settings` (`setting_id`, `stat_with_sma`, `stat_without_sma`, `show_deleted`, `stat_deleted`) VALUES
+(2, 4, 5, 1, 6);
 
 -- --------------------------------------------------------
 
@@ -151,12 +149,8 @@ CREATE TABLE `software` (
 --
 
 INSERT INTO `software` (`software_id`, `name`) VALUES
-(1, 'Software 1'),
-(2, 'Software 2'),
-(3, 'Software 3'),
-(4, 'Software 4'),
-(5, 'Software 5'),
-(6, 'Software 6');
+(8, 'Teklynx'),
+(9, 'Bartender');
 
 -- --------------------------------------------------------
 
@@ -176,9 +170,7 @@ CREATE TABLE `status` (
 INSERT INTO `status` (`status_id`, `name`) VALUES
 (4, 'active'),
 (5, 'not activated'),
-(6, 'deleted'),
-(7, 'test1'),
-(8, 'novi1');
+(6, 'deleted');
 
 --
 -- Indexes for dumped tables
@@ -242,25 +234,25 @@ ALTER TABLE `status`
 -- AUTO_INCREMENT for table `customer`
 --
 ALTER TABLE `customer`
-  MODIFY `customer_id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `customer_id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `license`
 --
 ALTER TABLE `license`
-  MODIFY `license_id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `license_id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `license_customer`
 --
 ALTER TABLE `license_customer`
-  MODIFY `lc_id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `lc_id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `person`
 --
 ALTER TABLE `person`
-  MODIFY `person_id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `person_id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `settings`
@@ -272,13 +264,13 @@ ALTER TABLE `settings`
 -- AUTO_INCREMENT for table `software`
 --
 ALTER TABLE `software`
-  MODIFY `software_id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `software_id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `status`
 --
 ALTER TABLE `status`
-  MODIFY `status_id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `status_id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- Constraints for dumped tables
