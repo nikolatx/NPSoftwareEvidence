@@ -29,6 +29,7 @@ import tnt.npse.entities.LicenseCustomer;
 import tnt.npse.entities.Software;
 import tnt.npse.entities.Status;
 import tnt.npse.model.LicenseData;
+import tnt.npse.viewbeans.SettingsView;
 
 @Named("licenseController")
 @RequestScoped
@@ -43,7 +44,8 @@ public class LicenseController implements Serializable {
     private StatusController statusController;
     @Inject
     private SoftwareController softwareController;
-    
+    @Inject
+    private SettingsView settings;
     
     public LicenseController() {
     }
@@ -62,7 +64,7 @@ public class LicenseController implements Serializable {
                 (lic.getLicenseCode().equalsIgnoreCase(license.getLicenseCode())
                 && lic.getSoftware().equals(license.getSoftware())))) {
             if (endUser!=null) {
-                if (license.getSmaCode()!=null && license.getExpDate()==null || license.getExpDate().before(new Date())) {
+                if (license.getSmaCode()!=null && !license.getSmaCode().isEmpty() && (license.getExpDate()==null || license.getExpDate().before(new Date()))) {
                     context.validationFailed();
                     JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("SellLicenseRequiredMessage_expDate"));
                 } else {
@@ -72,7 +74,7 @@ public class LicenseController implements Serializable {
                     items=null;
                     items=getItems();
                     if (!JsfUtil.isValidationFailed()) {
-                        JsfUtil.addSuccessMessage(ResourceBundle.getBundle("/Bundle").getString("LicenseUpdated"));
+                        JsfUtil.addSuccessMessage(ResourceBundle.getBundle("/Bundle").getString("LicenseCreated"));
                         items = null;    // Invalidate list of items to trigger re-query.
                         softwareController.reload();
                     }
@@ -211,6 +213,13 @@ public class LicenseController implements Serializable {
         if (items == null) {
             items = getFacade().findAll();
         }
+        return items;
+    }
+    
+    public List<License> getCurrentItems(boolean includeDeleted) {
+        items = getFacade().findAll();
+        if (!includeDeleted)
+            items.removeIf(e->e.getStatusId().equals(settings.getStatDeleted()));
         return items;
     }
 

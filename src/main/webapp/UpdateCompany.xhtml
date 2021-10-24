@@ -25,10 +25,9 @@
                     <p:dataTable var="company" value="#{lazyCompanyDataView.lazyModel}" paginator="true" rows="10"
                              paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
                              rowsPerPageTemplate="5,10,15" selection="#{lazyCompanyDataView.selectedComp}" selectionMode="single"
-                             
-                             id="compTable" lazy="true">
+                             id="compTable" lazy="true" widgetVar="compTable">
 
-                        <p:ajax event="rowSelect" listener="#{lazyCompanyDataView.onRowSelect}" update=":form1"/>
+                        <p:ajax event="rowSelect" listener="#{lazyCompanyDataView.onRowSelect}" update="form1"/>
                         
                         <f:facet name="header">
                             <h:outputText value="Company Data"/>
@@ -36,6 +35,7 @@
 
                         <p:column headerText="#{bundle.NewCompanyName}" sortBy="#{company.name}" filterBy="#{company.name}">
                             <h:outputText value="#{company.name}"/>
+                            
                         </p:column>
 
                         <p:column headerText="#{bundle.NewCompanyStreet}" sortBy="#{company.street}" filterBy="#{company.street}">
@@ -53,19 +53,10 @@
                         <p:column headerText="#{bundle.NewCompanyCountry}" sortBy="#{company.country}" filterBy="#{company.country}">
                             <h:outputText value="#{company.country}"/>
                         </p:column>
-                        
-                        
-                        <p:column headerText="Add" style="width: 7%; text-align: center">
-                            <p:commandLink style="text-align: center" type="button" actionListener="#{lazyCompanyDataView.prepareCompany()}"
-                                           onclick="PF('AddCompanyDialog').show()" ajax="true"
-                                           update=":messages AddCompanyForm"> 
-                                <h:graphicImage name="images/add96blck.png" style="width: 16px;height: 16px" />
-                            </p:commandLink>
-                        </p:column>
 
                         <p:column headerText="Edit" style="width: 7%; text-align: center">
                             <p:commandLink style="text-align: center" type="button" onclick="PF('EditCompanyDialog').show()" ajax="true"
-                                           update=":messages EditCompanyForm"> 
+                                           update=":messages EditCompanyForm" > 
                                 <h:graphicImage name="images/pencilE.png" style="width: 16px;height: 16px" />
                                 <f:setPropertyActionListener value="#{company}" target="#{lazyCompanyDataView.selectedComp}" />
                             </p:commandLink>
@@ -80,7 +71,15 @@
                             </p:commandLink>
                         </p:column>
                     </p:dataTable>
-
+                    
+                    <br/>
+                    
+                    <p:commandLink style="text-align: center" actionListener="#{lazyCompanyDataView.prepareCompany()}"
+                                    onclick="PF('AddCompanyDialog').show()" ajax="true"
+                                    update=":messages AddCompanyForm" value="#{bundle.AddNewCompany}"> 
+                    </p:commandLink>
+                    
+                    
                     <br/>
                     <br/>
                     
@@ -90,7 +89,7 @@
                     
                     <p:dataTable var="person" value="#{lazyCompanyDataView.selectedComp.personSet}" id="persTable" 
                                  resizableColumns="true" reflow="true"
-                                 rendered="#{not empty lazyCompanyDataView.selectedComp.personSet}">
+                                 rendered="#{lazyCompanyDataView.rowSelected}">
                         <f:facet name="header">
                             <h:outputText value="Contacts"/>
                         </f:facet>
@@ -107,17 +106,9 @@
                             <h:outputText value="#{person.email}"/>
                         </p:column>
 
-                        <p:column headerText="Add" style="width: 7%; text-align: center">
-                            <p:commandLink style="text-align: center" type="button" actionListener="#{lazyCompanyDataView.prepareContact()}"
-                                           onclick="PF('AddContactDialog').show()" ajax="true"
-                                           update=":messages AddContactForm"> 
-                                <h:graphicImage name="images/add96blck.png" style="width: 16px;height: 16px" />
-                            </p:commandLink>
-                        </p:column>
-
                         <p:column headerText="Edit" style="width: 7%; text-align: center">
                             <p:commandLink style="text-align: center" type="button" onclick="PF('EditContactDialog').show()" ajax="true"
-                                           update=":messages EditContactForm"> 
+                                           update=":messages EditContactForm" > 
                                 <h:graphicImage name="images/pencilE.png" style="width: 16px;height: 16px" />
                                 <f:setPropertyActionListener value="#{person}" target="#{lazyCompanyDataView.selectedPers}" />
                             </p:commandLink>
@@ -138,7 +129,13 @@
                         
                     </p:dataTable>
                     
+                    <br/>
                     
+                    <p:commandLink style="text-align: center" type="button" actionListener="#{lazyCompanyDataView.prepareContact()}"
+                                   onclick="PF('AddContactDialog').show()" ajax="true"
+                                   update=":messages AddContactForm" value="#{bundle.AddNewContact}"
+                                   rendered="#{lazyCompanyDataView.rowSelected}"> 
+                    </p:commandLink>
                 </h:form>
                        
                 
@@ -146,7 +143,8 @@
                 
                     
 
-                <p:dialog id="AddCompanyDlg" widgetVar="AddCompanyDialog" modal="true" resizable="false" appendTo="@(body)" header="#{bundle.AddCompTitle}">
+                <p:dialog id="AddCompanyDlg" widgetVar="AddCompanyDialog" modal="true" 
+                          resizable="false" appendTo="@(body)" header="#{bundle.AddCompTitle}">
                     <h:form id="AddCompanyForm">
                         
                         <nt:newCompanyComponent 
@@ -173,6 +171,8 @@
                     </h:form>
                 </p:dialog>
             
+                
+                
                     
                 <p:dialog id="EditCompanyDlg" widgetVar="EditCompanyDialog" modal="true" resizable="false" appendTo="@(body)" header="#{bundle.EditCustomerTitle}">
                     <h:form id="EditCompanyForm">
@@ -194,6 +194,10 @@
                         </center>
                     </h:form>
                 </p:dialog>
+                
+                
+                
+                
                 
                 <p:dialog id="DeleteCompanyDlg" widgetVar="DeleteCompanyDialog" modal="true" 
                           resizable="false" appendTo="@(body)" header="#{bundle.DeleteCompanyTitle}">
@@ -225,6 +229,9 @@
                 
                 
                 
+                
+                
+                
                 <p:dialog id="AddContactDlg" widgetVar="AddContactDialog" modal="true" 
                           resizable="false" appendTo="@(body)" header="#{bundle.AddContactTitle}">
                     <h:form id="AddContactForm">
@@ -250,6 +257,10 @@
                     </h:form>
                 </p:dialog>
                 
+                
+                
+                
+                
                 <p:dialog id="EditContactDlg" widgetVar="EditContactDialog" modal="true" 
                           resizable="false" appendTo="@(body)" header="#{bundle.EditContactTitle}">
                     <h:form id="EditContactForm">
@@ -274,6 +285,9 @@
                         </center>
                     </h:form>
                 </p:dialog>
+                
+                
+                
                 
                 
                 <p:dialog id="DeleteContactDlg" widgetVar="DeleteContactDialog" modal="true" 

@@ -19,6 +19,7 @@ import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -52,6 +53,7 @@ public class Status implements Serializable {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "statusId", fetch = FetchType.EAGER)
     private Set<License> licenseSet=new HashSet<>();
 
+    
     public Status() {
     }
 

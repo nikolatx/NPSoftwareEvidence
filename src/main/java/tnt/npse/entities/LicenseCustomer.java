@@ -47,7 +47,7 @@ public class LicenseCustomer implements Serializable {
     @ManyToOne(optional = false)
     private License license;
     @JoinColumn(name = "customer_id", referencedColumnName = "customer_id")
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = true)
     private Customer customer;
 
     public LicenseCustomer() {
