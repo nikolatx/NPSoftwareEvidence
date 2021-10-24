@@ -51,79 +51,74 @@
 
                 
                 <p:dialog id="ChangeSettingsDlg" widgetVar="ChangeSettingsDialog" modal="true" resizable="false" 
-                          appendTo="@(body)" header="#{bundle.ChangeSettingsDialog}" width="550">
+                          appendTo="@(body)" header="#{bundle.ChangeSettingsDialog}" width="450">
                     <h:form id="ChangeSettingsForm">
                         
                         <h:panelGroup style="margin:10px">
                         
-                            <p:panelGrid id="edSettPan" columns="4" styleClass="showcase-text-align-left"
-                                         layout="grid" columnClasses="ui-g-4, ui-g-6, ui-g-1, ui-g-1">
+                            <p:panelGrid id="edSettPan" columns="3" styleClass="showcase-text-align-left"
+                                         layout="grid" columnClasses="ui-g-5, ui-g-6, ui-g-1">
+                                
                                 
                                 <h:outputLabel value="#{bundle.SettingsStatusWithSMA}" for="withSMA"/>
+                                
                                 <p:selectOneMenu id="withSMA" value="#{settingsView.statWithSMA}"
                                                  style="width:90%" filter="true">
                                     <f:selectItems value="#{settingsView.statuses}" var="selStatusSMA" 
                                                    itemValue="#{selStatusSMA}" itemLabel="#{selStatusSMA.name}"/>
                                     <p:ajax event="change" update="withSMA"/>
                                 </p:selectOneMenu>
+                                
                                 <p:commandLink style="text-align: center" type="button" 
                                                onclick="PF('StatusCreateDialog').show()" ajax="true"
-                                               update=":messages StatusCreateForm">
+                                               update=":messages :StatusCreateForm">
                                     <h:graphicImage name="images/add96blck.png" style="width:16px;height:16px"  />
                                 </p:commandLink>
-                                <p:commandLink style="text-align: center" type="button" 
-                                               onclick="PF('StatusEditDialog').show()" ajax="true"
-                                               process="ChangeSettingsForm" update=":messages StatusEditForm">
-                                    <h:graphicImage name="images/pencilE.png" style="width:16px;height:16px" />
-                                </p:commandLink>
+                                
+                                
                                 
 
                                 <h:outputLabel value="#{bundle.SettingsStatusWithoutSMA}" for="withoutSMA"/>
+                                
                                 <p:selectOneMenu id="withoutSMA" value="#{settingsView.statWithoutSMA}"
                                                  style="width:90%" filter="true">
                                     <f:selectItems value="#{settingsView.statuses}" var="selStatus" 
                                                    itemValue="#{selStatus}" itemLabel="#{selStatus.name}"/>
                                     <p:ajax event="change" update="withoutSMA"/>
                                 </p:selectOneMenu>
+                                
                                 <p:commandLink style="text-align: center" type="button" 
                                                onclick="PF('StatusCreateDialog').show()" ajax="true"
                                                update=":messages StatusCreateForm">
                                     <h:graphicImage name="images/add96blck.png" style="width:16px;height:16px"  />
                                 </p:commandLink>
-                                <p:commandLink style="text-align: center" type="button"
-                                               onclick="PF('StatusEditDialog').show()" ajax="true"
-                                               process="ChangeSettingsForm" update=":messages StatusEditForm">
-                                    <h:graphicImage name="images/pencilE.png" style="width:16px;height:16px" />
-                                </p:commandLink>
+                                
+                                
+                                
                                 
                                 <h:outputLabel value="#{bundle.SettingsDeletedLabel}" for="labDeleted"/>
+                                
                                 <p:selectOneMenu id="labDeleted" value="#{settingsView.statDeleted}"
                                                  style="width:90%" filter="true">
                                     <f:selectItems value="#{settingsView.statuses}" var="selStatus" 
                                                    itemValue="#{selStatus}" itemLabel="#{selStatus.name}"/>
                                     <p:ajax event="change" update="withoutSMA"/>
                                 </p:selectOneMenu>
+                                
                                 <p:commandLink style="text-align: center" type="button" 
                                                onclick="PF('StatusCreateDialog').show()" ajax="true"
                                                update=":messages StatusCreateForm">
                                     <h:graphicImage name="images/add96blck.png" style="width:16px;height:16px"  />
                                 </p:commandLink>
-                                <p:commandLink style="text-align: center" type="button"
-                                               onclick="PF('StatusEditDialog').show()" ajax="true"
-                                               process="ChangeSettingsForm" update=":messages StatusEditForm">
-                                    <h:graphicImage name="images/pencilE.png" style="width:16px;height:16px" />
-                                </p:commandLink>
-                                
 
                                 <h:outputLabel value="#{bundle.SettingsShowDeleted}" for="showDeletedCS"/>
                                 <h:selectBooleanCheckbox value="#{settingsView.showDeleted}" id="showDeletedCS"/>
-                                <h:panelGroup/>
-                                <h:panelGroup/>
+                                
                                 
                             </p:panelGrid>
 
                             <center style="margin-top: 5px">
-                                <p:commandButton actionListener="#{lazyLicenseDataView.changeLicenseData()}" value="#{bundle.Save}" 
+                                <p:commandButton actionListener="#{settingsView.saveSettings()}" value="#{bundle.Save}" 
                                                  process="ChangeSettingsForm" style="margin-right: 30px"
                                                  update=":messages, :form1:viewSettings" 
                                                  oncomplete="if (args &amp;&amp; !args.validationFailed) 
@@ -149,10 +144,10 @@
                         <h:panelGroup>
                             <p:panelGrid columns="2" >
                                 <p:outputLabel value="#{bundle.CreateStatusLabel_name}" for="name" />
-                                <p:inputText id="name" value="#{lazyLicenseDataView.statusName}" title="#{bundle.CreateStatusTitle_name}" 
+                                <p:inputText id="name" value="#{settingsView.statusName}" title="#{bundle.CreateStatusTitle_name}" 
                                              required="true" requiredMessage="#{bundle.CreateStatusRequiredMessage_name}"/>
                             </p:panelGrid>
-                            <p:commandButton actionListener="#{lazyLicenseDataView.createStatus()}"  
+                            <p:commandButton actionListener="#{settingsView.createStatus()}"  
                                              value="#{bundle.Save}"
                                              oncomplete="if (args &amp;&amp; !args.validationFailed) 
                                                             PF('StatusCreateDialog').hide();"
@@ -163,24 +158,7 @@
                     </h:form>
                 </p:dialog>
                 
-                <p:dialog id="StatusEditDlg" widgetVar="StatusEditDialog" modal="true" resizable="false" appendTo="@(body)" header="#{bundle.EditStatusTitle}">
-                    <h:form id="StatusEditForm">
-                        <h:panelGroup>
-                            <p:panelGrid columns="2" >
-                                <p:outputLabel value="#{bundle.EditStatusLabel_name}" for="name" />
-                                <p:inputText id="name" value="#{lazyLicenseDataView.statusName}" title="#{bundle.EditStatusTitle_name}" 
-                                             required="true" requiredMessage="#{bundle.CreateStatusRequiredMessage_name}"/>
-                            </p:panelGrid>
-                            <p:commandButton actionListener="#{lazyLicenseDataView.renameStatus()}"  
-                                             value="#{bundle.Save}"
-                                             oncomplete="if (args &amp;&amp; !args.validationFailed) 
-                                                            PF('StatusEditDialog').hide();"
-                                             process="StatusEditForm"
-                                             update=":messages :ChangeSettingsForm :form1"/>
-                            <p:commandButton value="#{bundle.Cancel}" oncomplete="PF('StatusEditDialog').hide()" immediate="true"/>
-                        </h:panelGroup>
-                    </h:form>
-                </p:dialog>
+                
                 
                 
                 

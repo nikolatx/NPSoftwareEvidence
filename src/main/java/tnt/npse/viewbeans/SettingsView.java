@@ -30,6 +30,10 @@ public class SettingsView implements Serializable {
     private Status statWithoutSMA;
     private Status statDeleted;
     private boolean showDeleted;
+    private String statusName;
+    private Status selectedStat;
+    
+    
     
     
     @Inject
@@ -59,8 +63,25 @@ public class SettingsView implements Serializable {
         statWithoutSMA=setting.getStatWithoutSMA();
         statDeleted=setting.getStatDeleted();
         showDeleted=setting.isShowDeleted();
-
-        int a=1;
+    }
+    
+    public void selectStat(Status stat) {
+        selectedStat=stat;
+    }
+    
+    public void createStatus() {
+        statusController.create(statusName);
+        statuses=statusController.getItems();
+        statWithSMA=statuses.stream().filter(s->s.getName().equalsIgnoreCase(statusName)).findFirst().orElse(null);
+    }
+    
+    public void saveSettings() {
+        Settings settings = new Settings();
+        settings.setStatWithSMA(statWithSMA);
+        settings.setStatWithoutSMA(statWithoutSMA);
+        settings.setStatDeleted(statDeleted);
+        settings.setShowDeleted(showDeleted);
+        settingsController.update(settings);
     }
 
     public List<Status> getStatuses() {
@@ -103,10 +124,19 @@ public class SettingsView implements Serializable {
         this.statDeleted = statDeleted;
     }
     
-    
-    
-    
-    
-    
-    
+    public Status getSelectedStat() {
+        return selectedStat;
+    }
+
+    public void setSelectedStat(Status selectedStat) {
+        this.selectedStat = selectedStat;
+    }
+
+    public String getStatusName() {
+        return statusName;
+    }
+
+    public void setStatusName(String statusName) {
+        this.statusName = statusName;
+    }
 }

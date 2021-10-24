@@ -88,18 +88,23 @@ public class SettingsController implements Serializable {
         FacesContext context=FacesContext.getCurrentInstance();
         items=null;
         items=getItems();
-        if (selectedSett!=null) {
-/*            
-            long count=items.stream().filter(s->s.getName().equalsIgnoreCase(selectedSett.getName())).count();
-            if (count==0) {
-                selected=selectedSett;
+        try {
+            if (selectedSett!=null) {
+                selected=items.get(0);
+                selected.setStatWithSMA(selectedSett.getStatWithSMA());
+                selected.setStatWithoutSMA(selectedSett.getStatWithoutSMA());
+                selected.setStatDeleted(selectedSett.getStatDeleted());
+                selected.setShowDeleted(selectedSett.isShowDeleted());
                 persist(PersistAction.UPDATE, ResourceBundle.getBundle("/Bundle").getString("SettingsUpdated"));
             } else {
                 context.validationFailed();
-                JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("SettingsExists"));
+                JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("SettingsDataError"));
             }
-*/
+        } catch (Exception ex) {
+            context.validationFailed();
+            JsfUtil.addErrorMessage(ResourceBundle.getBundle("/Bundle").getString("SettingsUpdateError"));
         }
+
         if (!JsfUtil.isValidationFailed()) {
             selected = null; // Remove selection
             items = null;    // Invalidate list of items to trigger re-query.

@@ -7,12 +7,9 @@ package tnt.npse.viewbeans;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.ResourceBundle;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -91,7 +88,6 @@ public class LazyLicenseDataView implements Serializable {
             softwareController.getItems().stream().forEach(s->allSoftware.add(s.getName()));
         customers=customerController.getItems();
         person=new Person();
-        //lazyModel.setRowIndex(0);
     }
     
     public void onRowSelect(SelectEvent<LicenseData> event) {
