@@ -1,6 +1,1 @@
 *.rb linguist-language=Java
-*.css linguist-detectable=false
-*.html linguist-detectable=false
-*.xhtml linguist-detectable=false
-*.js linguist-detectable=false
-*.java linguist-detectable=true
